@@ -1,0 +1,36 @@
+package com.springBoot.autoEcole.model;
+
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Table(name ="USER")
+@Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
+public class User implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	@Id
+	@Column(name ="ID")
+	private String Id;
+	
+	@Column(name = "USERNAME")
+	private String userName;
+
+	@Column(name = "PASSWORD")
+	private String password;
+	
+}
