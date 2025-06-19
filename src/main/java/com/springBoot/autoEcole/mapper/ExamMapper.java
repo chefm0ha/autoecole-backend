@@ -1,19 +1,36 @@
 package com.springBoot.autoEcole.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.Exam;
 import com.springBoot.autoEcole.model.Candidate;
 
-@Mapper(componentModel = "spring")
-public interface ExamMapper {
+@Component
+public class ExamMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidate", source = "candidate")
-    Exam toEntity(Exam source, Candidate candidate);
+    public Exam toEntity(Exam source, Candidate candidate) {
+        if (source == null || candidate == null) {
+            return null;
+        }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidate", ignore = true)
-    void updateEntity(@MappingTarget Exam target, Exam source);
+        Exam target = new Exam();
+        target.setAttemptNumber(source.getAttemptNumber());
+        target.setDate(source.getDate());
+        target.setExamType(source.getExamType());
+        target.setStatus(source.getStatus());
+        target.setCandidate(candidate);
+
+        return target;
+    }
+
+    public void updateEntity(Exam target, Exam source) {
+        if (source == null || target == null) {
+            return;
+        }
+
+        target.setAttemptNumber(source.getAttemptNumber());
+        target.setDate(source.getDate());
+        target.setExamType(source.getExamType());
+        target.setStatus(source.getStatus());
+        // Note: candidate is ignored in update
+    }
 }

@@ -10,7 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import com.springBoot.autoEcole.dto.LoginRequest;
@@ -27,14 +26,12 @@ public class AuthFacade {
     private UserService userService;
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
-
-    @Autowired
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
+            // Authenticate the user
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.getEmail(),
@@ -42,38 +39,34 @@ public class AuthFacade {
                     )
             );
 
+            // If authentication successful, set it in security context
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            User user = userService.loadUserByUsername(loginRequest.getEmail());
+
+            // Get user details
+            User user = userService.findUserByEmail(loginRequest.getEmail());
+
             return ResponseEntity.ok(new LoginResponse("Login successful", user.getEmail(), user.getRole()));
 
         } catch (AuthenticationException e) {
-            return ResponseEntity.badRequest().body(new LoginResponse("Invalid credentials", null, null));
-        }
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        if (userService.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(new LoginResponse("User registered successfully", savedUser.getEmail(), savedUser.getRole()));
-    }
-
-    @GetMapping("/validate/{email}/{password}")
-    public boolean validateUser(@PathVariable String email, @PathVariable String password) {
-        try {
-            User user = userService.loadUserByUsername(email);
-            return passwordEncoder.matches(password, user.getPassword());
+            return ResponseEntity.status(401).body(new LoginResponse("Invalid credentials", null, null));
         } catch (Exception e) {
-            return false;
+            return ResponseEntity.status(500).body(new LoginResponse("Login failed: " + e.getMessage(), null, null));
         }
     }
 
     @GetMapping("/user")
-    public Principal getCurrentUser(HttpServletRequest request) {
-        return request.getUserPrincipal();
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        Principal principal = request.getUserPrincipal();
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Unauthorized");
+        }
+
+        try {
+            User user = userService.findUserByEmail(principal.getName());
+            return ResponseEntity.ok(new LoginResponse("User found", user.getEmail(), user.getRole()));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("User not found");
+        }
     }
 
     @PostMapping("/logout")
@@ -85,10 +78,5 @@ public class AuthFacade {
         }
 
         return ResponseEntity.ok(new LoginResponse("Logout successful", null, null));
-    }
-
-    @GetMapping("/logout-success")
-    public ResponseEntity<?> logoutSuccess() {
-        return ResponseEntity.ok(new LoginResponse("Successfully logged out", null, null));
     }
 }

@@ -1,19 +1,36 @@
 package com.springBoot.autoEcole.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.TechnicalVisit;
 import com.springBoot.autoEcole.model.Vehicle;
 
-@Mapper(componentModel = "spring")
-public interface TechnicalVisitMapper {
+@Component
+public class TechnicalVisitMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "vehicle", source = "vehicle")
-    TechnicalVisit toEntity(TechnicalVisit source, Vehicle vehicle);
+    public TechnicalVisit toEntity(TechnicalVisit source, Vehicle vehicle) {
+        if (source == null || vehicle == null) {
+            return null;
+        }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "vehicle", ignore = true)
-    void updateEntity(@MappingTarget TechnicalVisit target, TechnicalVisit source);
+        TechnicalVisit target = new TechnicalVisit();
+        target.setAmount(source.getAmount());
+        target.setCompany(source.getCompany());
+        target.setNextOperationDate(source.getNextOperationDate());
+        target.setOperationDate(source.getOperationDate());
+        target.setVehicle(vehicle);
+
+        return target;
+    }
+
+    public void updateEntity(TechnicalVisit target, TechnicalVisit source) {
+        if (source == null || target == null) {
+            return;
+        }
+
+        target.setAmount(source.getAmount());
+        target.setCompany(source.getCompany());
+        target.setNextOperationDate(source.getNextOperationDate());
+        target.setOperationDate(source.getOperationDate());
+        // Note: vehicle is ignored in update
+    }
 }

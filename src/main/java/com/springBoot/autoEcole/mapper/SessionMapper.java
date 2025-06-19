@@ -1,19 +1,36 @@
 package com.springBoot.autoEcole.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.Session;
 import com.springBoot.autoEcole.model.Candidate;
 
-@Mapper(componentModel = "spring")
-public interface SessionMapper {
+@Component
+public class SessionMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidate", source = "candidate")
-    Session toEntity(Session source, Candidate candidate);
+    public Session toEntity(Session source, Candidate candidate) {
+        if (source == null || candidate == null) {
+            return null;
+        }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidate", ignore = true)
-    void updateEntity(@MappingTarget Session target, Session source);
+        Session target = new Session();
+        target.setDateSession(source.getDateSession());
+        target.setDuration(source.getDuration());
+        target.setStatus(source.getStatus());
+        target.setSessionType(source.getSessionType());
+        target.setCandidate(candidate);
+
+        return target;
+    }
+
+    public void updateEntity(Session target, Session source) {
+        if (source == null || target == null) {
+            return;
+        }
+
+        target.setDateSession(source.getDateSession());
+        target.setDuration(source.getDuration());
+        target.setStatus(source.getStatus());
+        target.setSessionType(source.getSessionType());
+        // Note: candidate is ignored in update
+    }
 }

@@ -1,21 +1,35 @@
 package com.springBoot.autoEcole.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.Payment;
 import com.springBoot.autoEcole.model.Candidate;
 
-@Mapper(componentModel = "spring")
-public interface PaymentMapper {
+@Component
+public class PaymentMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidate", source = "candidate")
-    @Mapping(target = "paymentTranches", ignore = true)
-    Payment toEntity(Payment source, Candidate candidate);
+    public Payment toEntity(Payment source, Candidate candidate) {
+        if (source == null || candidate == null) {
+            return null;
+        }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "candidate", ignore = true)
-    @Mapping(target = "paymentTranches", ignore = true)
-    void updateEntity(@MappingTarget Payment target, Payment source);
+        Payment target = new Payment();
+        target.setPaidAmount(source.getPaidAmount());
+        target.setStatus(source.getStatus());
+        target.setTotalAmount(source.getTotalAmount());
+        target.setCandidate(candidate);
+        // Note: paymentTranches is ignored during creation
+
+        return target;
+    }
+
+    public void updateEntity(Payment target, Payment source) {
+        if (source == null || target == null) {
+            return;
+        }
+
+        target.setPaidAmount(source.getPaidAmount());
+        target.setStatus(source.getStatus());
+        target.setTotalAmount(source.getTotalAmount());
+        // Note: candidate and paymentTranches are ignored in update
+    }
 }

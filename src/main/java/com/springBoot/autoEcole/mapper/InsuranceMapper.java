@@ -1,19 +1,36 @@
 package com.springBoot.autoEcole.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.Insurance;
 import com.springBoot.autoEcole.model.Vehicle;
 
-@Mapper(componentModel = "spring")
-public interface InsuranceMapper {
+@Component
+public class InsuranceMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "vehicle", source = "vehicle")
-    Insurance toEntity(Insurance source, Vehicle vehicle);
+    public Insurance toEntity(Insurance source, Vehicle vehicle) {
+        if (source == null || vehicle == null) {
+            return null;
+        }
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "vehicle", ignore = true)
-    void updateEntity(@MappingTarget Insurance target, Insurance source);
+        Insurance target = new Insurance();
+        target.setAmount(source.getAmount());
+        target.setCompany(source.getCompany());
+        target.setNextOperationDate(source.getNextOperationDate());
+        target.setOperationDate(source.getOperationDate());
+        target.setVehicle(vehicle);
+
+        return target;
+    }
+
+    public void updateEntity(Insurance target, Insurance source) {
+        if (source == null || target == null) {
+            return;
+        }
+
+        target.setAmount(source.getAmount());
+        target.setCompany(source.getCompany());
+        target.setNextOperationDate(source.getNextOperationDate());
+        target.setOperationDate(source.getOperationDate());
+        // Note: vehicle is ignored in update
+    }
 }

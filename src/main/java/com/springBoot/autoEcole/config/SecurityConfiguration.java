@@ -47,16 +47,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/auth/login", "/auth/register", "/auth/validate/**").permitAll()
-                .antMatchers("/user/**").hasRole("ADMIN")
+                // Public endpoints (only login should be public)
+                .antMatchers("/auth/login").permitAll()
+                // Protected auth endpoints
+                .antMatchers("/auth/user", "/auth/logout").authenticated()
+                // Manager-only endpoints
+                .antMatchers("/user/createManager", "/user/createStaff", "/user/getAllUsers", "/user/deleteUser/**").hasRole("MANAGER")
+                // Staff and Manager can access these
+                .antMatchers("/candidate/**", "/instructor/**", "/vehicle/**", "/exam/**", "/session/**", "/payment/**").hasAnyRole("MANAGER", "STAFF")
+                // Everything else requires authentication
                 .anyRequest().authenticated()
                 .and()
-                .logout()
-                .logoutUrl("/auth/logout")
-                .logoutSuccessUrl("/auth/logout-success")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .and()
-                .httpBasic();
+                .httpBasic(); // Remove form login, use only HTTP Basic
     }
 }
