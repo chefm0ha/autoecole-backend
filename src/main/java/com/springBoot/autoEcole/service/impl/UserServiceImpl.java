@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.User;
-import com.springBoot.autoEcole.repository.IUserDao;
+import com.springBoot.autoEcole.repository.UserDao;
 import com.springBoot.autoEcole.service.UserService;
 
 @Service
@@ -17,7 +17,7 @@ import com.springBoot.autoEcole.service.UserService;
 public class UserServiceImpl implements UserService {
 
 	@Autowired
-	private IUserDao userDao;
+	private UserDao userDao;
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	

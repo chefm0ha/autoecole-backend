@@ -1,15 +1,12 @@
--- Create Database
--- CREATE DATABASE IF NOT EXISTS autoEcole_Lakraa;
--- USE autoEcole_Lakraa;
-
 -- Create User table
 CREATE TABLE IF NOT EXISTS user (
-    email VARCHAR(100),
+    id BIGINT AUTO_INCREMENT,
+    email VARCHAR(100) UNIQUE NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50),
-    CONSTRAINT pk_user PRIMARY KEY (email)
+    CONSTRAINT pk_user PRIMARY KEY (id)
 );
 
 -- Create Category table
@@ -182,6 +179,7 @@ INSERT INTO vehicle (immatriculation, vehicle_brand, vehicle_type, fuel_type, ca
     ('789-C-12', 'Mercedes', 'Truck', 'Diesel', 'C', 80000, 3000.00);
 
 -- Create indexes for better performance
+CREATE INDEX idx_user_email ON user(email);
 CREATE INDEX idx_candidate_cin ON candidate(cin);
 CREATE INDEX idx_candidate_active ON candidate(is_active);
 CREATE INDEX idx_candidate_instructor ON candidate(instructor_cin);

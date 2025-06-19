@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Candidate;
-import com.springBoot.autoEcole.repository.ISessionDao;
-import com.springBoot.autoEcole.service.CandidatService;
+import com.springBoot.autoEcole.repository.SessionDao;
+import com.springBoot.autoEcole.service.CandidateService;
 import com.springBoot.autoEcole.service.DrivingSessionService;
 
 @Service
@@ -16,13 +16,13 @@ import com.springBoot.autoEcole.service.DrivingSessionService;
 public class DrivingSessionServiceImpl implements DrivingSessionService{
 
 	@Autowired
-	private CandidatService candidatService;
+	private CandidateService candidateService;
 	
 	@Autowired
-	private ISessionDao drivingSessionDao;
+	private SessionDao drivingSessionDao;
 	@Override
 	public DrivingSession saveDrivingSession(String candidatId, DrivingSession drivingSession) {
-		Candidate candidate = candidatService.findById(candidatId);
+		Candidate candidate = candidateService.findByCin(candidatId);
 		DrivingSession drivingSessionC = new DrivingSession();
 		drivingSessionC.setCandidate(candidate);
 		drivingSessionC.setDateDrivingSession(drivingSession.getDateDrivingSession());
@@ -37,7 +37,7 @@ public class DrivingSessionServiceImpl implements DrivingSessionService{
 
 	@Override
 	public Collection<DrivingSession> getDrivinSessionsOrderByDate(String candidatId) {
-		Candidate candidate = candidatService.findById(candidatId);
+		Candidate candidate = candidateService.findByCin(candidatId);
 		return drivingSessionDao.findByCandidatOrderByDateDrivingSessionAsc(candidate);
 	}
 }

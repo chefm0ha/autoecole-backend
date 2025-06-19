@@ -31,22 +31,6 @@ public class UserFacade {
 	@Autowired
 	BCryptPasswordEncoder passwordEncoder;
 
-	@GetMapping("/getUser/{login}/{password}") 
-	public boolean getUser(@PathVariable @NotNull String login,@PathVariable @NotNull String password) {
-		User user =	userService.loadUserByUsername(login);
-		return  passwordEncoder.matches(password, user.getPassword()) && user.getUserName().equals(login);
-			
-	}
-	
-	@RequestMapping("/login")
-	public boolean login(@RequestBody User user) {
-		return user.getUserName().equals("user") && user.getPassword().equals("password");				
-	}
 
-	@RequestMapping("/user")
-	public Principal user(HttpServletRequest request) {
-		String authToken = request.getHeader("Authorization").substring("Basic".length()).trim();
-		return () -> new String(Base64.getDecoder().decode(authToken)).split(":")[0];
-	}
 
 }

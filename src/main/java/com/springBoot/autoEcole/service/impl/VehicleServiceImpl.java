@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Vehicle;
-import com.springBoot.autoEcole.repository.IVehicleDao;
+import com.springBoot.autoEcole.repository.VehicleDao;
 import com.springBoot.autoEcole.service.VehicleService;
 
 @Service
@@ -15,7 +15,7 @@ import com.springBoot.autoEcole.service.VehicleService;
 public class VehicleServiceImpl implements VehicleService{
 
 	@Autowired
-	private IVehicleDao vehicleDao;
+	private VehicleDao vehicleDao;
 	
 	@Override
 	public Collection<Vehicle> findAllVehicle() {

@@ -14,5 +14,4 @@ public interface VehicleService {
 
 	Long deleteVehicle(String immat);
 
-
 }

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Candidate;
-import com.springBoot.autoEcole.service.CandidatService;
+import com.springBoot.autoEcole.service.CandidateService;
 import com.springBoot.autoEcole.service.TrainingExamService;
 
 @Service
@@ -15,14 +15,14 @@ import com.springBoot.autoEcole.service.TrainingExamService;
 public class TrainingExamServiceImpl implements TrainingExamService{
 
 	@Autowired
-	private CandidatService candidatService;
+	private CandidateService candidateService;
 	@Autowired
 	private ITrainingExamDao trainingExamDao;
 	
 	
 	@Override
 	public TrainingExam saveTrainingExam(String candidatId, TrainingExam test) {
-		Candidate candidate = candidatService.findById(candidatId);
+		Candidate candidate = candidateService.findByCin(candidatId);
 		TrainingExam testC = new TrainingExam();
 		testC.setCandidate(candidate);
 		testC.setDateTraining(test.getDateTraining());
@@ -35,7 +35,7 @@ public class TrainingExamServiceImpl implements TrainingExamService{
 
 	@Override
 	public Collection<TrainingExam> getLastTrainingsByCandidat(String candidatId) {
-		Candidate candidate = candidatService.findById(candidatId);
+		Candidate candidate = candidateService.findByCin(candidatId);
 		return trainingExamDao.findTop30BycandidatOrderByIdDesc(candidate);
 	}
 

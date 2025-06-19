@@ -1,9 +1,6 @@
 package com.springBoot.autoEcole.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +14,11 @@ import lombok.Setter;
 public class User {
 
 	@Id
-	@Column(name = "email")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private Long id;
+
+	@Column(name = "email", unique = true, nullable = false)
 	private String email;
 
 	@Column(name = "first_name")

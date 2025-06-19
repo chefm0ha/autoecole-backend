@@ -22,23 +22,24 @@ public class VehicleFacade {
 
 	@Autowired
 	private VehicleService vehicleService;
-	
-	@GetMapping("/getVehicles") 
+
+	@GetMapping("/getVehicles")
 	public Collection<Vehicle> getVehicles() {
-		return  vehicleService.findAllVehicle();	
+		return vehicleService.findAllVehicle();
 	}
-	
-	@PostMapping("/saveVehicle") 
+
+	@PostMapping("/saveVehicle")
 	public Vehicle saveVehicle(@RequestBody Vehicle vehicle) {
-		return  vehicleService.saveVehicle(vehicle);			
+		return vehicleService.saveVehicle(vehicle);
 	}
-	@GetMapping("/getVehicle/{immat}") 
-	public Vehicle getVehicleByImmat(@PathVariable @NotNull String immat) {
-		return  vehicleService.findByImmat(immat);
+
+	@GetMapping("/getVehicle/{immat}")
+	public Vehicle getVehicleByImmat(@PathVariable String immat) {
+		return vehicleService.findByImmat(immat);
 	}
-	
-	@GetMapping("/deleteVehicle/{immat}") 
-	public Long deleteVehicle(@PathVariable @NotNull String immat) {
-		return  vehicleService.deleteVehicle(immat);			
+
+	@GetMapping("/deleteVehicle/{immat}")
+	public Long deleteVehicle(@PathVariable String immat) {
+		return vehicleService.deleteVehicle(immat);
 	}
 }

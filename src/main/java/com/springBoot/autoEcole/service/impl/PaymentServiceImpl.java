@@ -8,8 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.model.Payment;
-import com.springBoot.autoEcole.repository.IPaymentDao;
-import com.springBoot.autoEcole.service.CandidatService;
+import com.springBoot.autoEcole.repository.PaymentDao;
+import com.springBoot.autoEcole.service.CandidateService;
 import com.springBoot.autoEcole.service.PaymentService;
 
 @Service
@@ -17,9 +17,9 @@ import com.springBoot.autoEcole.service.PaymentService;
 public class PaymentServiceImpl implements PaymentService {
 
 	@Autowired
-	private CandidatService candidatService;
+	private CandidateService candidateService;
 	@Autowired
-	private IPaymentDao paymentDao;
+	private PaymentDao paymentDao;
 
 	
 	@Override
@@ -29,7 +29,7 @@ public class PaymentServiceImpl implements PaymentService {
 	
 	@Override
 	public Payment savePayment(String id, Payment payment) {
-		Candidate candidate = candidatService.findById(id);
+		Candidate candidate = candidateService.findByCin(id);
 		Payment paymentC = new Payment();
 		paymentC.setCandidate(candidate);
 		paymentC.setDate(payment.getDate());

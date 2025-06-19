@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.OilChange;
 import com.springBoot.autoEcole.model.Vehicle;
-import com.springBoot.autoEcole.repository.IOilChangeDao;
+import com.springBoot.autoEcole.repository.OilChangeDao;
 import com.springBoot.autoEcole.service.OilChangeService;
 import com.springBoot.autoEcole.service.VehicleService;
 
@@ -16,7 +16,7 @@ public class OilChangeServiceImpl implements OilChangeService{
 	@Autowired
 	private VehicleService vehicleService;
 	@Autowired
-	private IOilChangeDao oilChangeDao;
+	private OilChangeDao oilChangeDao;
 	
 	@Override
 	public OilChange saveOilChange(String immatVehicle, OilChange oilChange) {

@@ -2,7 +2,6 @@ package com.springBoot.autoEcole.service;
 
 import java.util.Collection;
 
-import com.springBoot.autoEcole.bean.ExamReportingBean;
 import com.springBoot.autoEcole.model.Exam;
 
 public interface ExamService {

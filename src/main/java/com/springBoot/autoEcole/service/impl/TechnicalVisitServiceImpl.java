@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.TechnicalVisit;
 import com.springBoot.autoEcole.model.Vehicle;
-import com.springBoot.autoEcole.repository.ITechnicalVisitDao;
+import com.springBoot.autoEcole.repository.TechnicalVisitDao;
 import com.springBoot.autoEcole.service.TechnicalVisitService;
 import com.springBoot.autoEcole.service.VehicleService;
 
@@ -18,7 +18,7 @@ public class TechnicalVisitServiceImpl implements TechnicalVisitService {
 	private VehicleService vehicleService;
 	
 	@Autowired
-	private ITechnicalVisitDao technicalVisitDao;
+	private TechnicalVisitDao technicalVisitDao;
 	
 	@Override
 	public Long deleteTechnicalVisit(Long id) {

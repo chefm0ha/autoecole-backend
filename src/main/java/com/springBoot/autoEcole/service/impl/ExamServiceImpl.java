@@ -11,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.springBoot.autoEcole.bean.ExamReportingBean;
 import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.model.Exam;
-import com.springBoot.autoEcole.repository.IExamDao;
-import com.springBoot.autoEcole.service.CandidatService;
+import com.springBoot.autoEcole.repository.ExamDao;
+import com.springBoot.autoEcole.service.CandidateService;
 import com.springBoot.autoEcole.service.ExamService;
 
 @Service
@@ -23,13 +22,13 @@ import com.springBoot.autoEcole.service.ExamService;
 public class ExamServiceImpl implements ExamService{
 
 	@Autowired
-	private CandidatService candidatService;
+	private CandidateService candidateService;
 	@Autowired
-	private IExamDao examDao;
+	private ExamDao examDao;
 	
 	@Override
 	public Exam saveExam(String id, Exam exam) {
-		Candidate candidate = candidatService.findById(id);
+		Candidate candidate = candidateService.findByCin(id);
 		Exam examC = new Exam();
 		if("Code".equals(exam.getTypeExam()) && examDao.countByCandidatAndTypeExam(candidate, "Code") ==0) {
 		    examC.setFirstExam(true);
