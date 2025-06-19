@@ -31,6 +31,11 @@ public class CandidateServiceImpl implements CandidateService {
 	}
 
 	@Override
+	public Candidate findByCin(String cin) {
+		return candidateDao.findByCin(cin).orElse(null);
+	}
+
+	@Override
 	public Candidate findByCinAndIsActive(String cin, Boolean isActive) {
 		return candidateDao.findByCinAndIsActive(cin, isActive);
 	}

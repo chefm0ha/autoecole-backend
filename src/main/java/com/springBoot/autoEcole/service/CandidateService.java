@@ -5,13 +5,9 @@ import java.util.Collection;
 import com.springBoot.autoEcole.model.Candidate;
 
 public interface CandidateService {
-
 	Candidate saveCandidate(Candidate candidate);
-
 	Long deleteCandidate(String cin);
-
 	Collection<Candidate> findActiveCandidates(Boolean isActive);
-
+	Candidate findByCin(String cin);
 	Candidate findByCinAndIsActive(String cin, Boolean isActive);
-
 }

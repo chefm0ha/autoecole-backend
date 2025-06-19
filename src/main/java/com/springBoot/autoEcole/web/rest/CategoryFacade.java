@@ -28,9 +28,4 @@ public class CategoryFacade {
     public Category getCategoryByCode(@PathVariable String code) {
         return categoryService.findByCode(code);
     }
-
-    @GetMapping("/deleteCategory/{code}")
-    public Long deleteCategory(@PathVariable String code) {
-        return categoryService.deleteCategory(code);
-    }
 }

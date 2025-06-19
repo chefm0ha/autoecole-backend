@@ -1,20 +1,8 @@
 package com.springBoot.autoEcole.service;
 
-import java.util.Collection;
-
 import com.springBoot.autoEcole.model.Exam;
 
 public interface ExamService {
-	public Exam saveExam(String id, Exam exam);
-
-	public Long deleteExam(Long id);
-
-	public Collection<ExamReportingBean> getExamOnPeriod(Integer period);
-
-	public Integer getCountExamOnWeekByType(String typeExam);
-	
-	public Float getSuccessRateExamCode();
-
-	Float getSuccessRateExamConduite();
-
+	Exam saveExam(String candidateCin, Exam exam);
+	Long deleteExam(Long id);
 }

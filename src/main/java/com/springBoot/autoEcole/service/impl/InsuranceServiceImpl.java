@@ -1,25 +1,23 @@
 package com.springBoot.autoEcole.service.impl;
 
-import com.springBoot.autoEcole.mapper.InsuranceMapper;
+import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import com.springBoot.autoEcole.mapper.InsuranceMapper;
 import com.springBoot.autoEcole.model.Insurance;
 import com.springBoot.autoEcole.model.Vehicle;
 import com.springBoot.autoEcole.repository.InsuranceDao;
 import com.springBoot.autoEcole.service.InsuranceService;
 import com.springBoot.autoEcole.service.VehicleService;
 
-import java.util.Collection;
-
 @Service
 @Transactional
-public class InsuranceServiceImpl implements InsuranceService{
+public class InsuranceServiceImpl implements InsuranceService {
 
 	@Autowired
 	private InsuranceDao insuranceDao;
-	
+
 	@Autowired
 	private VehicleService vehicleService;
 
@@ -29,7 +27,7 @@ public class InsuranceServiceImpl implements InsuranceService{
 	@Override
 	public Collection<Insurance> findByVehicle(String immatVehicle) {
 		Vehicle vehicle = vehicleService.findByImmat(immatVehicle);
-		return vehicle.getInsurances();
+		return insuranceDao.findByVehicle(vehicle);
 	}
 
 	@Override
@@ -43,5 +41,4 @@ public class InsuranceServiceImpl implements InsuranceService{
 	public Long deleteInsurance(Long id) {
 		return insuranceDao.removeById(id);
 	}
-
 }
