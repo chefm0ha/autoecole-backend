@@ -7,14 +7,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Instructor;
-import com.springBoot.autoEcole.repository.IMonitorDao;
+import com.springBoot.autoEcole.repository.IIntructorDao;
 import com.springBoot.autoEcole.service.MonitorService;
 @Service
 @Transactional
 public class MonitorServiceImpl implements MonitorService{
 
 	@Autowired
-	private IMonitorDao monitorDao;
+	private IIntructorDao monitorDao;
 	@Override
 	public Collection<Instructor> findAllMonitor() {
 		return (Collection<Instructor>) monitorDao.findAll();

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Candidate;
-import com.springBoot.autoEcole.repository.ITrainingExamDao;
 import com.springBoot.autoEcole.service.CandidatService;
 import com.springBoot.autoEcole.service.TrainingExamService;
 

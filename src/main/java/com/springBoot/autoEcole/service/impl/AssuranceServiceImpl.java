@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Insurance;
 import com.springBoot.autoEcole.model.Vehicle;
-import com.springBoot.autoEcole.repository.IAssuranceDao;
+import com.springBoot.autoEcole.repository.IInsuranceDao;
 import com.springBoot.autoEcole.service.AssuranceService;
 import com.springBoot.autoEcole.service.VehicleService;
 
@@ -15,7 +15,7 @@ import com.springBoot.autoEcole.service.VehicleService;
 public class AssuranceServiceImpl implements AssuranceService{
 
 	@Autowired
-	private IAssuranceDao assuranceDao;
+	private IInsuranceDao assuranceDao;
 	
 	@Autowired
 	private VehicleService vehicleService;

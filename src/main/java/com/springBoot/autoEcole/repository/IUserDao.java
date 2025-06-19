@@ -11,6 +11,6 @@ import com.springBoot.autoEcole.model.User;
 @Repository
 @Transactional
 public interface IUserDao extends CrudRepository<User, Integer> {
-	public Optional<User> findByUserName(String userName);
 
+	Optional<User> findByUserName(String userName);
 }

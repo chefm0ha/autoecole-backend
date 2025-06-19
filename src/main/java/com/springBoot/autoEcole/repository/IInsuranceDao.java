@@ -5,16 +5,16 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import com.springBoot.autoEcole.model.TechnicalVisit;
+import com.springBoot.autoEcole.model.Insurance;
 import com.springBoot.autoEcole.model.Vehicle;
 
 @Repository
 @Transactional
-public interface ITechnicalVisitDao extends CrudRepository<TechnicalVisit, Long> {
+public interface IInsuranceDao extends CrudRepository<Insurance, Long> {
 
 	Long removeById(Long id);
 
-	List<TechnicalVisit> findByVehicle(Vehicle vehicle);
+	List<Insurance> findByVehicle(Vehicle vehicle);
 
-	List<TechnicalVisit> findByNextOperationDateBefore(LocalDate date);
+	List<Insurance> findByNextOperationDateBefore(LocalDate date);
 }

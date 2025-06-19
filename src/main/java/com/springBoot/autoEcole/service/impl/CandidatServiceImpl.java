@@ -9,20 +9,20 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import com.springBoot.autoEcole.repository.ICandidateDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.bean.ReportingPayementBean;
 import com.springBoot.autoEcole.model.Candidate;
-import com.springBoot.autoEcole.repository.ICandidatDao;
 import com.springBoot.autoEcole.service.CandidatService;
 @Service
 @Transactional
 public class CandidatServiceImpl implements CandidatService{
 
 	@Autowired
-	private ICandidatDao candidatDao;
+	private ICandidateDao candidatDao;
 	
 	@Override
 	public Collection<Candidate> findActifCandidat(Boolean actif) {

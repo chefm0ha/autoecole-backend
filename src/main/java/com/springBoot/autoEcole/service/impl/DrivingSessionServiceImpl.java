@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.model.Candidate;
-import com.springBoot.autoEcole.repository.IDrivingSessionDao;
+import com.springBoot.autoEcole.repository.ISessionDao;
 import com.springBoot.autoEcole.service.CandidatService;
 import com.springBoot.autoEcole.service.DrivingSessionService;
 
@@ -19,7 +19,7 @@ public class DrivingSessionServiceImpl implements DrivingSessionService{
 	private CandidatService candidatService;
 	
 	@Autowired
-	private IDrivingSessionDao drivingSessionDao;
+	private ISessionDao drivingSessionDao;
 	@Override
 	public DrivingSession saveDrivingSession(String candidatId, DrivingSession drivingSession) {
 		Candidate candidate = candidatService.findById(candidatId);
