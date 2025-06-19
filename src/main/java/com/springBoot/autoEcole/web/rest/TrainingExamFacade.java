@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springBoot.autoEcole.model.TrainingExam;
 import com.springBoot.autoEcole.service.TrainingExamService;
 import com.sun.istack.NotNull;
 

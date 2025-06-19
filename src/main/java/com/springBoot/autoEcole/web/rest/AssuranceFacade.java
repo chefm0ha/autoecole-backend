@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springBoot.autoEcole.model.Assurance;
+import com.springBoot.autoEcole.model.Insurance;
 import com.springBoot.autoEcole.service.AssuranceService;
 import com.sun.istack.NotNull;
 
@@ -23,8 +23,8 @@ public class AssuranceFacade {
 	
 	
 	@PostMapping("/saveAssurance/{immatVehicle}") 
-	public Assurance saveAssurance(@PathVariable String immatVehicle, @RequestBody Assurance assurance) {
-		return assuranceService.saveAssurance(immatVehicle,assurance);			
+	public Insurance saveAssurance(@PathVariable String immatVehicle, @RequestBody Insurance insurance) {
+		return assuranceService.saveAssurance(immatVehicle, insurance);
 	}
 	@GetMapping("/deleteAssurance/{id}") 
 	public Long deleteAssurance(@PathVariable @NotNull Long id) {

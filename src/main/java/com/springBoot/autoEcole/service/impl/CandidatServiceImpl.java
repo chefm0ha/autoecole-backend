@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.bean.ReportingPayementBean;
-import com.springBoot.autoEcole.model.Candidat;
+import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.repository.ICandidatDao;
 import com.springBoot.autoEcole.service.CandidatService;
 @Service
@@ -25,14 +25,14 @@ public class CandidatServiceImpl implements CandidatService{
 	private ICandidatDao candidatDao;
 	
 	@Override
-	public Collection<Candidat> findActifCandidat(Boolean actif) {
+	public Collection<Candidate> findActifCandidat(Boolean actif) {
 		return candidatDao.findByActif(actif);
 	}
 	
 	@Override
-	public Candidat saveCandidat(Candidat candidat) {
-		candidat.setId(candidat.getCin()+candidat.getCategory());
-		return candidatDao.save(candidat);
+	public Candidate saveCandidat(Candidate candidate) {
+		candidate.setId(candidate.getCin()+ candidate.getCategory());
+		return candidatDao.save(candidate);
 	}
 
 	@Override
@@ -41,30 +41,30 @@ public class CandidatServiceImpl implements CandidatService{
 	}
 
 	@Override
-	public Candidat findByCin(String cin) {
+	public Candidate findByCin(String cin) {
 		return candidatDao.findByCin(cin);
 	}
 
 	@Override
-	public Candidat findById(String id) {
-		Candidat candidat = new Candidat();
+	public Candidate findById(String id) {
+		Candidate candidate = new Candidate();
 		if(candidatDao.findById(id).isPresent()) {
-			candidat= candidatDao.findById(id).get();
+			candidate = candidatDao.findById(id).get();
 		}
-		return candidat;
+		return candidate;
 	}
 	@Override
 	public List<ReportingPayementBean> getReportingPayment() {
 		List<ReportingPayementBean> reportingPayments= new ArrayList<ReportingPayementBean>();
-		for(Candidat candidat : findActifCandidat(true)) {
+		for(Candidate candidate : findActifCandidat(true)) {
 			ReportingPayementBean reportingPayment = new ReportingPayementBean();
-			reportingPayment.setFullName(candidat.getLastName()+" "+candidat.getFirstName());
-			reportingPayment.setInitialPrice(candidat.getInitialPrice());
-			Integer paid = candidat.getPayment().stream()
+			reportingPayment.setFullName(candidate.getLastName()+" "+ candidate.getFirstName());
+			reportingPayment.setInitialPrice(candidate.getInitialPrice());
+			Integer paid = candidate.getPayment().stream()
 					.map(payment->payment.getMontant()).reduce((x, y) -> x+y).orElse(0);
 			reportingPayment.setPaid(paid);
-			if(candidat.getInitialPrice()!=null && paid!=null) {
-				reportingPayment.setRest(candidat.getInitialPrice() - paid);
+			if(candidate.getInitialPrice()!=null && paid!=null) {
+				reportingPayment.setRest(candidate.getInitialPrice() - paid);
 			}
 			reportingPayments.add(reportingPayment);
 			}
@@ -93,7 +93,7 @@ public class CandidatServiceImpl implements CandidatService{
 	}
 
 	@Override
-	public Candidat findByIdAndActif(String id, Boolean actif) {
+	public Candidate findByIdAndActif(String id, Boolean actif) {
 		return candidatDao.findByIdAndActif(id,actif);
 	}
 }

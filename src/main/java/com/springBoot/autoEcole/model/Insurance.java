@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "oil_change")
+@Table(name = "insurance")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
-public class OilChange {
+public class Insurance {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

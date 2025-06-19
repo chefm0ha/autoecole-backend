@@ -1,19 +1,8 @@
 package com.springBoot.autoEcole.model;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
+import java.time.LocalDate;
+import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,34 +10,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name ="EXAM")
+@Table(name = "exam")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class Exam {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
+
 	@Id
-	@Column(name ="ID")
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Long id;
 
-	
-	@Column(name ="TYPE_EXAM")
-	private String typeExam;
-	
-	@Column(name = "DATE_EXAM")
-	private Date dateExam;
-	
-	@Column(name ="RESULT")
-	private String result;
-	
-	@Column(name ="FIRST_EXAM")
-	private boolean firstExam;
-	
+	@Column(name = "attempt_number")
+	private Integer attemptNumber;
+
+	@Column(name = "date")
+	private LocalDate date;
+
+	@Column(name = "exam_type")
+	private String examType;
+
+	@Column(name = "status")
+	private String status;
+
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "CANDIDATID",referencedColumnName="ID", insertable = true, updatable = false)
-	private Candidat candidat; 
+	@JoinColumn(name = "candidate_cin")
+	private Candidate candidate;
 }

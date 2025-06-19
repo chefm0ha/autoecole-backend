@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.springBoot.autoEcole.model.Candidat;
+import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.model.Payment;
 import com.springBoot.autoEcole.repository.IPaymentDao;
 import com.springBoot.autoEcole.service.CandidatService;
@@ -29,9 +29,9 @@ public class PaymentServiceImpl implements PaymentService {
 	
 	@Override
 	public Payment savePayment(String id, Payment payment) {
-		Candidat candidat = candidatService.findById(id);
+		Candidate candidate = candidatService.findById(id);
 		Payment paymentC = new Payment();
-		paymentC.setCandidat(candidat);
+		paymentC.setCandidate(candidate);
 		paymentC.setDate(payment.getDate());
 		paymentC.setMontant(payment.getMontant());
 		paymentDao.save(paymentC);

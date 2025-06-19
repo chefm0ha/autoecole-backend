@@ -1,16 +1,6 @@
 package com.springBoot.autoEcole.model;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -20,30 +10,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
-@Table(name ="PAYMENT")
+@Table(name = "payment")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class Payment {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@Id
-	@Column(name ="ID")
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
 	private Long id;
-	
-	@Column(name ="MONTANT", columnDefinition = "integer default 0")
-	private Integer montant;
-	
-	@Column(name = "DATE")
-	private Date date;
-	
+
+	@Column(name = "paid_amount")
+	private Integer paidAmount;
+
+	@Column(name = "status")
+	private String status;
+
+	@Column(name = "total_amount")
+	private Integer totalAmount;
+
 	@JsonIgnore
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "CANDIDATID",referencedColumnName="ID", insertable = true, updatable = false)
-	private Candidat candidat; 
-	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "candidate_cin")
+	private Candidate candidate;
+
+	@OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<PaymentInstallment> paymentTranches;
 }

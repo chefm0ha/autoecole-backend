@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springBoot.autoEcole.bean.ReportingPayementBean;
-import com.springBoot.autoEcole.model.Candidat;
+import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.service.CandidatService;
 import com.sun.istack.NotNull;
 
@@ -26,17 +26,17 @@ public class CandidatFacade {
 	private CandidatService candidatService;
 	
 	@GetMapping("/getActifCandidat") 
-	public Collection<Candidat> getActifCandidat() {
+	public Collection<Candidate> getActifCandidat() {
 		return  candidatService.findActifCandidat(true);			
 	}
 	
 	@GetMapping("/getActifCandidat/{id}") 
-	public Candidat getActifCandidatById(@PathVariable @NotNull String id) {
+	public Candidate getActifCandidatById(@PathVariable @NotNull String id) {
 		return  candidatService.findByIdAndActif(id,true);
 	}
 	@PostMapping("/saveCandidat") 
-	public Candidat saveCandidat(@RequestBody Candidat candidat) {
-		return  candidatService.saveCandidat(candidat);			
+	public Candidate saveCandidat(@RequestBody Candidate candidate) {
+		return  candidatService.saveCandidat(candidate);
 	}
 	
 	@GetMapping("/deleteCandidat/{id}") 
@@ -45,7 +45,7 @@ public class CandidatFacade {
 	}
 	
 	@GetMapping("/getCandidat/{id}") 
-	public Candidat getCandidatById(@PathVariable @NotNull String id) {
+	public Candidate getCandidatById(@PathVariable @NotNull String id) {
 		return  candidatService.findById(id);
 	}
 	@GetMapping("/getReportingPayment") 

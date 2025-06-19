@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.springBoot.autoEcole.model.Candidat;
+import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.model.Exam;
 
 @Repository
@@ -26,7 +26,7 @@ public interface IExamDao extends CrudRepository<Exam, Long>, JpaSpecificationEx
 			+ " where e.dateExam between :today and :weekDate and e.typeExam = :typeExam")
 	public Integer getCountExamOnWeekByType(@Param("typeExam")String typeExam,@Param("today") Date today, @Param("weekDate") Date weekDate );
 	
-	public long countByCandidatAndTypeExam(Candidat candidat, String typeExam);
+	public long countByCandidatAndTypeExam(Candidate candidate, String typeExam);
 	
 	@Query("select count(e) from Exam e "
 			+ "where e.typeExam = 'Code' and e.firstExam = true and e.result>=30")

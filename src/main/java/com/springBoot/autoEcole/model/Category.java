@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,23 +11,17 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "user")
+@Table(name = "category")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
-public class User {
+public class Category {
 
-	@Id
-	@Column(name = "email")
-	private String email;
+    @Id
+    @Column(name = "code")
+    private String code;
 
-	@Column(name = "first_name")
-	private String firstName;
+    @Column(name = "description")
+    private String description;
 
-	@Column(name = "last_name")
-	private String lastName;
-
-	@Column(name = "password")
-	private String password;
-
-	@Column(name = "role")
-	private String role;
+    @Column(name = "min_age")
+    private Integer minAge;
 }

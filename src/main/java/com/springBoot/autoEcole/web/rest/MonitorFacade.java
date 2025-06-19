@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.springBoot.autoEcole.model.Monitor;
+import com.springBoot.autoEcole.model.Instructor;
 import com.springBoot.autoEcole.service.MonitorService;
 import com.sun.istack.NotNull;
 @RestController
@@ -23,16 +23,16 @@ public class MonitorFacade {
 	private MonitorService monitorService;
 	
 	@GetMapping("/getMonitors") 
-	public Collection<Monitor> getMonitors() {
+	public Collection<Instructor> getMonitors() {
 		return  monitorService.findAllMonitor();	
 	}
 	
 	@PostMapping("/saveMonitor") 
-	public Monitor saveMonitor(@RequestBody Monitor monitor) {
-		return  monitorService.saveMonitor(monitor);			
+	public Instructor saveMonitor(@RequestBody Instructor instructor) {
+		return  monitorService.saveMonitor(instructor);
 	}
 	@GetMapping("/getMonitor/{cin}") 
-	public Monitor getMonitorByImmat(@PathVariable @NotNull String cin) {
+	public Instructor getMonitorByImmat(@PathVariable @NotNull String cin) {
 		return  monitorService.findByCin(cin);
 	}
 	

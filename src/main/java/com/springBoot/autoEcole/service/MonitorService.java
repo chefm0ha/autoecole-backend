@@ -2,15 +2,15 @@ package com.springBoot.autoEcole.service;
 
 import java.util.Collection;
 
-import com.springBoot.autoEcole.model.Monitor;
+import com.springBoot.autoEcole.model.Instructor;
 
 public interface MonitorService {
 
-	Collection<Monitor> findAllMonitor();
+	Collection<Instructor> findAllMonitor();
 
-	Monitor saveMonitor(Monitor monitor);
+	Instructor saveMonitor(Instructor instructor);
 
-	Monitor findByCin(String cin);
+	Instructor findByCin(String cin);
 
 	Long deleteMonitor(String cin);
 

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.springBoot.autoEcole.model.Assurance;
+import com.springBoot.autoEcole.model.Insurance;
 import com.springBoot.autoEcole.model.Vehicle;
 import com.springBoot.autoEcole.repository.IAssuranceDao;
 import com.springBoot.autoEcole.service.AssuranceService;
@@ -26,16 +26,16 @@ public class AssuranceServiceImpl implements AssuranceService{
 	}
 
 	@Override
-	public Assurance saveAssurance(String immatVehicle, Assurance assurance) {
+	public Insurance saveAssurance(String immatVehicle, Insurance insurance) {
 		Vehicle vehicle = vehicleService.findByImmat(immatVehicle);
-		Assurance assuranceC = new Assurance();
-		assuranceC.setVehicle(vehicle);
-		assuranceC.setAmount(assurance.getAmount());
-		assuranceC.setOperationDate(assurance.getOperationDate());
-		assuranceC.setNextOperationDate(assurance.getNextOperationDate());
-		assuranceC.setSociety(assurance.getSociety());
-		assuranceDao.save(assuranceC);
-		return assuranceC;
+		Insurance insuranceC = new Insurance();
+		insuranceC.setVehicle(vehicle);
+		insuranceC.setAmount(insurance.getAmount());
+		insuranceC.setOperationDate(insurance.getOperationDate());
+		insuranceC.setNextOperationDate(insurance.getNextOperationDate());
+		insuranceC.setSociety(insurance.getSociety());
+		assuranceDao.save(insuranceC);
+		return insuranceC;
 	}
 
 }

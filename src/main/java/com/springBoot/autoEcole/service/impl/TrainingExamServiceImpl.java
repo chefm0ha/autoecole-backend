@@ -6,8 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.springBoot.autoEcole.model.Candidat;
-import com.springBoot.autoEcole.model.TrainingExam;
+import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.repository.ITrainingExamDao;
 import com.springBoot.autoEcole.service.CandidatService;
 import com.springBoot.autoEcole.service.TrainingExamService;
@@ -24,9 +23,9 @@ public class TrainingExamServiceImpl implements TrainingExamService{
 	
 	@Override
 	public TrainingExam saveTrainingExam(String candidatId, TrainingExam test) {
-		Candidat candidat = candidatService.findById(candidatId);
+		Candidate candidate = candidatService.findById(candidatId);
 		TrainingExam testC = new TrainingExam();
-		testC.setCandidat(candidat);
+		testC.setCandidate(candidate);
 		testC.setDateTraining(test.getDateTraining());
 		testC.setNumSerie(test.getNumSerie());
 		testC.setScore(test.getScore());
@@ -37,8 +36,8 @@ public class TrainingExamServiceImpl implements TrainingExamService{
 
 	@Override
 	public Collection<TrainingExam> getLastTrainingsByCandidat(String candidatId) {
-		Candidat candidat = candidatService.findById(candidatId);
-		return trainingExamDao.findTop30BycandidatOrderByIdDesc(candidat);
+		Candidate candidate = candidatService.findById(candidatId);
+		return trainingExamDao.findTop30BycandidatOrderByIdDesc(candidate);
 	}
 
 }

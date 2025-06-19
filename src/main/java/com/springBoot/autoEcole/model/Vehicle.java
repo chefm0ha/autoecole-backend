@@ -1,7 +1,7 @@
 package com.springBoot.autoEcole.model;
 
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -20,46 +20,41 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name ="VEHICLE")
+@Table(name = "vehicle")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
 public class Vehicle {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	
 	@Id
-	@Column(name ="IMMATRICULATION")
+	@Column(name = "immatriculation")
 	private String immatriculation;
-	
-	@Column(name ="MARQUE_VEHICLE")
-	private String marqueVehicle;
-	
-	@Column(name ="TYPE_VEHICLE")
-	private String typeVehicle;
-	
-	@Column(name ="TYPE_CARBURANT")
-	private String typeCarburant;
-	
-	@Column(name ="CATEGORY")
+
+	@Column(name = "amount_vignette")
+	private Double amountVignette;
+
+	@Column(name = "category")
 	private String category;
-	
-	@Column(name ="KMINITIAL")
+
+	@Column(name = "date_last_vignette")
+	private LocalDate dateLastVignette;
+
+	@Column(name = "km_initial")
 	private Integer kmInitial;
-	
-	@Column(name ="AMOUNT_VIGNETTE")
-	private Integer AmoutVignette;
-	
-	@Column(name ="DATE_LAST_VIGNETTE")
-	private Date DateLastVignette;
-	
-	@OneToMany( mappedBy = "vehicle" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<OilChange> oilChange;
-	
-	@OneToMany( mappedBy = "vehicle" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<TechnicalVisit> technicalVisit;
-	
-	@OneToMany( mappedBy = "vehicle" ,fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Assurance> assurance;
+
+	@Column(name = "vehicle_brand")
+	private String vehicleBrand;
+
+	@Column(name = "fuel_type")
+	private String fuelType;
+
+	@Column(name = "vehicle_type")
+	private String vehicleType;
+
+	@OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<Insurance> insurances;
+
+	@OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<OilChange> oilChanges;
+
+	@OneToMany(mappedBy = "vehicle", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	private List<TechnicalVisit> technicalVisits;
 }

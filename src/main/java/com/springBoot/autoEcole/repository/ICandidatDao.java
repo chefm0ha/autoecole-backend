@@ -10,23 +10,23 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.springBoot.autoEcole.model.Candidat;
+import com.springBoot.autoEcole.model.Candidate;
 
 
 @Repository
 @Transactional
-public interface ICandidatDao extends CrudRepository<Candidat, String>  {
-	public Collection<Candidat> findByActif(Boolean actif);
+public interface ICandidatDao extends CrudRepository<Candidate, String>  {
+	public Collection<Candidate> findByActif(Boolean actif);
 	
 	public Long removeById(String id);
 	
-	public Candidat findByCin(String cin);
+	public Candidate findByCin(String cin);
 	
-	public Optional<Candidat> findById(String id);
+	public Optional<Candidate> findById(String id);
 	
-	@Query("select count(c) from Candidat c "
+	@Query("select count(c) from Candidate c "
 			+ " where c.startingDate>= :firstDayInYear")
 	public Integer findCandidatsYear(@Param("firstDayInYear")Date firstDayInYear);
 
-	public Candidat findByIdAndActif(String id, Boolean actif);
+	public Candidate findByIdAndActif(String id, Boolean actif);
 }

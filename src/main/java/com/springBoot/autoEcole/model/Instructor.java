@@ -1,5 +1,7 @@
 package com.springBoot.autoEcole.model;
 
+import java.time.LocalDate;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -12,23 +14,35 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "user")
+@Table(name = "instructor")
 @Getter @Setter @Builder @NoArgsConstructor @AllArgsConstructor
-public class User {
+public class Instructor {
 
 	@Id
+	@Column(name = "cin")
+	private String cin;
+
+	@Column(name = "address")
+	private String address;
+
+	@Column(name = "birthday")
+	private LocalDate birthday;
+
+	@Column(name = "city")
+	private String city;
+
 	@Column(name = "email")
 	private String email;
 
 	@Column(name = "first_name")
 	private String firstName;
 
+	@Column(name = "gsm")
+	private String gsm;
+
 	@Column(name = "last_name")
 	private String lastName;
 
-	@Column(name = "password")
-	private String password;
-
-	@Column(name = "role")
-	private String role;
+	@Column(name = "starting_date")
+	private LocalDate startingDate;
 }

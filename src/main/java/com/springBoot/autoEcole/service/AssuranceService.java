@@ -1,11 +1,11 @@
 package com.springBoot.autoEcole.service;
 
-import com.springBoot.autoEcole.model.Assurance;
+import com.springBoot.autoEcole.model.Insurance;
 
 public interface AssuranceService {
 
 	Long deleteAssurance(Long id);
 
-	Assurance saveAssurance(String immatVehicle, Assurance assurance);
+	Insurance saveAssurance(String immatVehicle, Insurance insurance);
 
 }

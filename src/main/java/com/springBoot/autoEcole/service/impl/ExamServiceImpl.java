@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.springBoot.autoEcole.bean.ExamReportingBean;
-import com.springBoot.autoEcole.model.Candidat;
+import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.model.Exam;
 import com.springBoot.autoEcole.repository.IExamDao;
 import com.springBoot.autoEcole.service.CandidatService;
@@ -29,15 +29,15 @@ public class ExamServiceImpl implements ExamService{
 	
 	@Override
 	public Exam saveExam(String id, Exam exam) {
-		Candidat candidat = candidatService.findById(id);
+		Candidate candidate = candidatService.findById(id);
 		Exam examC = new Exam();
-		if("Code".equals(exam.getTypeExam()) && examDao.countByCandidatAndTypeExam(candidat, "Code") ==0) {
+		if("Code".equals(exam.getTypeExam()) && examDao.countByCandidatAndTypeExam(candidate, "Code") ==0) {
 		    examC.setFirstExam(true);
 		}
-		else if("Conduite".equals(exam.getTypeExam()) && examDao.countByCandidatAndTypeExam(candidat, "Conduite") ==0) {
+		else if("Conduite".equals(exam.getTypeExam()) && examDao.countByCandidatAndTypeExam(candidate, "Conduite") ==0) {
 			 examC.setFirstExam(true);
 		}
-		examC.setCandidat(candidat);
+		examC.setCandidate(candidate);
 		examC.setDateExam(exam.getDateExam());
 		examC.setResult(exam.getResult());
 		examC.setTypeExam(exam.getTypeExam());
@@ -58,8 +58,8 @@ public class ExamServiceImpl implements ExamService{
 		Date compareDate =Date.from(now.plus(Duration.ofDays(period)));
 		for(Exam exam:examDao.findExamOnPeriod(today, compareDate)) {
 			ExamReportingBean reportingExam = new ExamReportingBean();
-			reportingExam.setFullName(exam.getCandidat().getLastName() +" "+exam.getCandidat().getFirstName());
-			reportingExam.setCategory(exam.getCandidat().getCategory());
+			reportingExam.setFullName(exam.getCandidate().getLastName() +" "+exam.getCandidate().getFirstName());
+			reportingExam.setCategory(exam.getCandidate().getCategory());
 			reportingExam.setDateExam(exam.getDateExam());
 			reportingExam.setTypeExam(exam.getTypeExam());
 			reportingExams.add(reportingExam);
