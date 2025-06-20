@@ -43,22 +43,8 @@ public class UserFacade {
         return ResponseEntity.ok(savedUser);
     }
 
-    @GetMapping("/getAllUsers")
-    public Collection<User> getAllUsers() {
-        return userService.findAllUsers();
-    }
-
     @GetMapping("/getUser/{email}")
     public User getUserByEmail(@PathVariable String email) {
         return userService.findUserByEmail(email);
-    }
-
-    @GetMapping("/deleteUser/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        Long deletedId = userService.deleteUser(id);
-        if (deletedId > 0) {
-            return ResponseEntity.ok("User deleted successfully");
-        }
-        return ResponseEntity.badRequest().body("User not found");
     }
 }

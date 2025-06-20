@@ -11,6 +11,11 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
@@ -38,6 +43,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Use allowedOriginPatterns instead of allowedOrigins when allowCredentials is true
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000", "http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(authenticationProvider());
@@ -47,17 +66,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
-                // Public endpoints (only login should be public)
-                .antMatchers("/auth/login").permitAll()
-                // Protected auth endpoints
-                .antMatchers("/auth/user", "/auth/logout").authenticated()
-                // Manager-only endpoints
-                .antMatchers("/user/createManager", "/user/createStaff", "/user/getAllUsers", "/user/deleteUser/**").hasRole("MANAGER")
-                // Staff and Manager can access these
-                .antMatchers("/candidate/**", "/instructor/**", "/vehicle/**", "/exam/**", "/session/**", "/payment/**").hasAnyRole("MANAGER", "STAFF")
-                // Everything else requires authentication
+                .antMatchers("/auth/login", "/auth/register", "/auth/validate/**", "/auth/logout-success").permitAll()
+                .antMatchers("/user/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
                 .and()
-                .httpBasic(); // Remove form login, use only HTTP Basic
+                .logout()
+                .logoutUrl("/auth/logout")
+                .logoutSuccessUrl("/auth/logout-success")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .clearAuthentication(true)
+                .permitAll()
+                .and()
+                .httpBasic();
     }
 }
