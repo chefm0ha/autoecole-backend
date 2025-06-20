@@ -1,6 +1,5 @@
 package com.springBoot.autoEcole.web.rest;
 
-import java.security.Principal;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -46,7 +45,6 @@ public class AuthFacade {
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // Get the CustomUserDetails from authentication
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             User user = userDetails.getUser();
 
@@ -55,16 +53,6 @@ public class AuthFacade {
         } catch (AuthenticationException e) {
             return ResponseEntity.badRequest().body(new LoginResponse("Invalid credentials", null, null));
         }
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        if (userService.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(new LoginResponse("User registered successfully", savedUser.getEmail(), savedUser.getRole()));
     }
 
     @GetMapping("/validate/{email}/{password}")
@@ -77,14 +65,20 @@ public class AuthFacade {
         }
     }
 
+    @PostMapping("/validate")
+    public ResponseEntity<Boolean> validateUser(@RequestBody LoginRequest loginRequest) {
+        try {
+            User user = userService.findUserByEmail(loginRequest.getEmail());
+            boolean isValid = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
+            return ResponseEntity.ok(isValid);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false); // Don't reveal if user exists or not
+        }
+    }
+
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // Debug information
-        System.out.println("Authentication: " + authentication);
-        System.out.println("Principal: " + (authentication != null ? authentication.getPrincipal() : "null"));
-        System.out.println("Is Authenticated: " + (authentication != null ? authentication.isAuthenticated() : "false"));
 
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal().equals("anonymousUser") ||
@@ -101,7 +95,6 @@ public class AuthFacade {
                 return ResponseEntity.status(401).body("Invalid authentication type");
             }
         } catch (Exception e) {
-            System.out.println("Exception in getCurrentUser: " + e.getMessage());
             return ResponseEntity.status(401).body("User not found");
         }
     }
@@ -110,38 +103,26 @@ public class AuthFacade {
     public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        System.out.println("Logout called - Authentication before logout: " + authentication);
-
         if (authentication != null) {
-            // Use the logout handler
             new SecurityContextLogoutHandler().logout(request, response, authentication);
         }
 
-        // Explicitly clear the security context
         SecurityContextHolder.clearContext();
 
-        // Invalidate the session manually
         HttpSession session = request.getSession(false);
         if (session != null) {
-            System.out.println("Invalidating session: " + session.getId());
             session.invalidate();
         }
-
-        // Verify the context is cleared
-        Authentication afterLogout = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Authentication after logout: " + afterLogout);
 
         return ResponseEntity.ok(new LoginResponse("Logout successful", null, null));
     }
 
+    /**
+     * Logout success endpoint - called automatically by Spring Security after successful logout
+     * This provides a consistent JSON response for both manual logout calls and Spring Security redirects
+     */
     @GetMapping("/logout-success")
     public ResponseEntity<?> logoutSuccess() {
         return ResponseEntity.ok(new LoginResponse("Successfully logged out", null, null));
-    }
-
-    // Alternative logout that redirects to Spring Security's logout
-    @PostMapping("/logout-spring")
-    public void logoutSpring(HttpServletResponse response) throws Exception {
-        response.sendRedirect("/auth/logout");
     }
 }
