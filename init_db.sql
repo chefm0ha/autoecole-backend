@@ -229,3 +229,21 @@ ALTER TABLE technical_visit ADD CONSTRAINT fk_technical_visit_vehicle
 
 ALTER TABLE application_file ADD CONSTRAINT fk_application_file_candidate
     FOREIGN KEY (candidate_cin) REFERENCES candidate(cin) ON DELETE CASCADE;
+
+-- Insertions de 15 candidats pour tester la pagination
+INSERT INTO candidate (cin, address, birth_day, birth_place, city, email, first_name, gender, gsm, is_active, last_name, starting_date, instructor_cin, vehicle_immat) VALUES
+('AB123456', '123 Rue Mohammed V', '1995-03-15', 'Casablanca', 'Casablanca', 'ahmed.alami@email.com', 'Ahmed', 'M', '+212601234567', true, 'Alami', '2024-01-15', NULL, NULL),
+('CD789012', '456 Avenue Hassan II', '1998-07-22', 'Rabat', 'Rabat', 'fatima.benali@email.com', 'Fatima', 'F', '+212602345678', true, 'Benali', '2024-02-10', NULL, NULL),
+('EF345678', '789 Boulevard Zerktouni', '1996-11-08', 'Casablanca', 'Casablanca', 'youssef.chakir@email.com', 'Youssef', 'M', '+212603456789', false, 'Chakir', '2023-12-05', NULL, NULL),
+('GH901234', '321 Rue Allal Ben Abdellah', '1999-05-14', 'Fès', 'Fès', 'khadija.derouich@email.com', 'Khadija', 'F', '+212604567890', true, 'Derouich', '2024-03-20', NULL, NULL),
+('IJ567890', '654 Avenue Moulay Ismail', '1997-09-30', 'Meknès', 'Meknès', 'omar.elalami@email.com', 'Omar', 'M', '+212605678901', true, 'El Alami', '2024-01-08', NULL, NULL),
+('KL123890', '987 Rue Ibn Battuta', '1994-12-03', 'Tanger', 'Tanger', 'aicha.fassi@email.com', 'Aicha', 'F', '+212606789012', false, 'Fassi', '2023-11-12', NULL, NULL),
+('MN456123', '147 Boulevard Abdelmoumen', '2000-04-18', 'Casablanca', 'Casablanca', 'hamid.ghali@email.com', 'Hamid', 'M', '+212607890123', true, 'Ghali', '2024-02-25', NULL, NULL),
+('OP789456', '258 Avenue Agdal', '1996-08-25', 'Rabat', 'Rabat', 'nadia.hassani@email.com', 'Nadia', 'F', '+212608901234', true, 'Hassani', '2024-01-30', NULL, NULL),
+('QR012789', '369 Rue Gueliz', '1998-01-12', 'Marrakech', 'Marrakech', 'Said.idrissi@email.com', 'Saïd', 'M', '+212609012345', false, 'Idrissi', '2023-10-15', NULL, NULL),
+('ST345012', '741 Boulevard Anfa', '1995-06-07', 'Casablanca', 'Casablanca', 'laila.jabbari@email.com', 'Laila', 'F', '+212610123456', true, 'Jabbari', '2024-03-05', NULL, NULL),
+('UV678345', '852 Avenue Atlas', '1999-10-20', 'Agadir', 'Agadir', 'mohamed.kabbaj@email.com', 'Mohamed', 'M', '+212611234567', true, 'Kabbaj', '2024-02-18', NULL, NULL),
+('WX901678', '963 Rue Liberté', '1997-02-28', 'Salé', 'Salé', 'zineb.lahlou@email.com', 'Zineb', 'F', '+212612345678', false, 'Lahlou', '2023-09-22', NULL, NULL),
+('YZ234901', '159 Boulevard Massira', '1996-12-16', 'Témara', 'Témara', 'rachid.mounir@email.com', 'Rachid', 'M', '+212613456789', true, 'Mounir', '2024-01-12', NULL, NULL),
+('AA567234', '357 Avenue Royale', '1998-03-09', 'Oujda', 'Oujda', 'samira.naciri@email.com', 'Samira', 'F', '+212614567890', true, 'Naciri', '2024-03-15', NULL, NULL),
+('BB890567', '486 Rue Palmier', '1995-09-05', 'Kenitra', 'Kenitra', 'tarik.ouali@email.com', 'Tarik', 'M', '+212615678901', true, 'Ouali', '2024-02-08', NULL, NULL);

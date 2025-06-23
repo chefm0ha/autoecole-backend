@@ -1,15 +1,13 @@
 package com.springBoot.autoEcole.web.rest;
 
-import java.util.Collection;
-
+import com.springBoot.autoEcole.dto.CandidateListDTO;
+import com.springBoot.autoEcole.dto.CandidateSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.web.bind.annotation.*;
 
 import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.service.CandidateService;
@@ -31,19 +29,73 @@ public class CandidateFacade {
 		return candidateService.saveCandidate(candidate);
 	}
 
-	@GetMapping("/deleteCandidate/{cin}")
+	@PutMapping("/updateCandidate/{cin}")
+	public Candidate updateCandidate(@PathVariable @NotNull String cin, @RequestBody Candidate candidateUpdates) {
+		return candidateService.updateCandidate(cin, candidateUpdates);
+	}
+
+	@DeleteMapping("/deleteCandidate/{cin}")
 	public Long deleteCandidate(@PathVariable @NotNull String cin) {
 		return candidateService.deleteCandidate(cin);
 	}
-	
-	@GetMapping("/getActiveCandidates")
-	public Collection<Candidate> getActiveCandidates() {
-		return candidateService.findActiveCandidates(true);
-	}
-	
-	@GetMapping("/getActiveCandidate/{cin}")
-	public Candidate getActiveCandidateByCin(@PathVariable @NotNull String cin) {
-		return candidateService.findByCinAndIsActive(cin,true);
+
+	@GetMapping("/getAllCandidates")
+	public Page<CandidateListDTO> getAllCandidates(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "cin") String sortBy,
+			@RequestParam(defaultValue = "asc") String sortDirection) {
+
+		Sort sort = sortDirection.equalsIgnoreCase("desc")
+				? Sort.by(sortBy).descending()
+				: Sort.by(sortBy).ascending();
+
+		Pageable pageable = PageRequest.of(page, size, sort);
+		return candidateService.findAllCandidatesDTO(pageable);
 	}
 
+	@GetMapping("/getActiveCandidates")
+	public Page<CandidateListDTO> getActiveCandidates(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "cin") String sortBy,
+			@RequestParam(defaultValue = "asc") String sortDirection) {
+
+		Sort sort = sortDirection.equalsIgnoreCase("desc")
+				? Sort.by(sortBy).descending()
+				: Sort.by(sortBy).ascending();
+
+		Pageable pageable = PageRequest.of(page, size, sort);
+		return candidateService.findActiveCandidatesDTO(true, pageable);
+	}
+
+	@GetMapping("/search")
+	public Page<CandidateListDTO> searchCandidatesWithParams(
+			@RequestParam(required = false) String firstName,
+			@RequestParam(required = false) String lastName,
+			@RequestParam(required = false) String cin,
+			@RequestParam(required = false) Boolean isActive,
+			@RequestParam(required = false) String city,
+			@RequestParam(required = false) String email,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "cin") String sortBy,
+			@RequestParam(defaultValue = "asc") String sortDirection) {
+
+		CandidateSearchDTO searchCriteria = CandidateSearchDTO.builder()
+				.firstName(firstName)
+				.lastName(lastName)
+				.cin(cin)
+				.isActive(isActive)
+				.city(city)
+				.email(email)
+				.build();
+
+		Sort sort = sortDirection.equalsIgnoreCase("desc")
+				? Sort.by(sortBy).descending()
+				: Sort.by(sortBy).ascending();
+
+		Pageable pageable = PageRequest.of(page, size, sort);
+		return candidateService.searchCandidatesDTO(searchCriteria, pageable);
+	}
 }

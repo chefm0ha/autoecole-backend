@@ -1,13 +1,18 @@
 package com.springBoot.autoEcole.service;
 
-import java.util.Collection;
-
+import com.springBoot.autoEcole.dto.CandidateListDTO;
+import com.springBoot.autoEcole.dto.CandidateSearchDTO;
 import com.springBoot.autoEcole.model.Candidate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CandidateService {
 	Candidate saveCandidate(Candidate candidate);
 	Long deleteCandidate(String cin);
-	Collection<Candidate> findActiveCandidates(Boolean isActive);
 	Candidate findByCin(String cin);
-	Candidate findByCinAndIsActive(String cin, Boolean isActive);
+	Candidate updateCandidate(String cin, Candidate candidateUpdates);
+	Page<Candidate> searchCandidates(CandidateSearchDTO searchCriteria, Pageable pageable);
+	Page<CandidateListDTO> findAllCandidatesDTO(Pageable pageable);
+	Page<CandidateListDTO> findActiveCandidatesDTO(Boolean isActive, Pageable pageable);
+	Page<CandidateListDTO> searchCandidatesDTO(CandidateSearchDTO searchCriteria, Pageable pageable);
 }

@@ -3,6 +3,9 @@ package com.springBoot.autoEcole.repository;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -14,8 +17,6 @@ import com.springBoot.autoEcole.model.Candidate;
 @Transactional
 public interface CandidateDao extends CrudRepository<Candidate, String> {
 
-	Collection<Candidate> findByIsActive(Boolean isActive);
-
 	Long removeByCin(String cin);
 
 	Optional<Candidate> findByCin(String cin);
@@ -23,5 +24,24 @@ public interface CandidateDao extends CrudRepository<Candidate, String> {
 	@Query("SELECT COUNT(c) FROM Candidate c WHERE c.startingDate >= :firstDayInYear")
 	Integer findCandidatesThisYear(@Param("firstDayInYear") LocalDate firstDayInYear);
 
-	Candidate findByCinAndIsActive(String cin, Boolean isActive);
+	Page<Candidate> findAll(Pageable pageable);
+
+	Page<Candidate> findByIsActive(Boolean isActive, Pageable pageable);
+
+	@Query("SELECT c FROM Candidate c WHERE " +
+			"(:firstName IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
+			"(:lastName IS NULL OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
+			"(:cin IS NULL OR LOWER(c.cin) LIKE LOWER(CONCAT('%', :cin, '%'))) AND " +
+			"(:isActive IS NULL OR c.isActive = :isActive) AND " +
+			"(:city IS NULL OR LOWER(c.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
+			"(:email IS NULL OR LOWER(c.email) LIKE LOWER(CONCAT('%', :email, '%')))")
+	Page<Candidate> searchCandidates(
+			@Param("firstName") String firstName,
+			@Param("lastName") String lastName,
+			@Param("cin") String cin,
+			@Param("isActive") Boolean isActive,
+			@Param("city") String city,
+			@Param("email") String email,
+			Pageable pageable
+	);
 }
