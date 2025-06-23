@@ -39,21 +39,6 @@ public class CandidateFacade {
 		return candidateService.deleteCandidate(cin);
 	}
 
-	@GetMapping("/getAllCandidates")
-	public Page<CandidateListDTO> getAllCandidates(
-			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "10") int size,
-			@RequestParam(defaultValue = "cin") String sortBy,
-			@RequestParam(defaultValue = "asc") String sortDirection) {
-
-		Sort sort = sortDirection.equalsIgnoreCase("desc")
-				? Sort.by(sortBy).descending()
-				: Sort.by(sortBy).ascending();
-
-		Pageable pageable = PageRequest.of(page, size, sort);
-		return candidateService.findAllCandidatesDTO(pageable);
-	}
-
 	@GetMapping("/getActiveCandidates")
 	public Page<CandidateListDTO> getActiveCandidates(
 			@RequestParam(defaultValue = "0") int page,
@@ -75,8 +60,6 @@ public class CandidateFacade {
 			@RequestParam(required = false) String lastName,
 			@RequestParam(required = false) String cin,
 			@RequestParam(required = false) Boolean isActive,
-			@RequestParam(required = false) String city,
-			@RequestParam(required = false) String email,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "10") int size,
 			@RequestParam(defaultValue = "cin") String sortBy,
@@ -87,8 +70,6 @@ public class CandidateFacade {
 				.lastName(lastName)
 				.cin(cin)
 				.isActive(isActive)
-				.city(city)
-				.email(email)
 				.build();
 
 		Sort sort = sortDirection.equalsIgnoreCase("desc")

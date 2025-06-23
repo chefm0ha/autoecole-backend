@@ -13,16 +13,12 @@ public class CandidateSearchDTO {
     private String lastName;
     private String cin;
     private Boolean isActive;
-    private String city;
-    private String email;
 
     // Helper method to check if any search criteria is provided
     public boolean hasSearchCriteria() {
         return (firstName != null && !firstName.trim().isEmpty()) ||
                 (lastName != null && !lastName.trim().isEmpty()) ||
                 (cin != null && !cin.trim().isEmpty()) ||
-                (city != null && !city.trim().isEmpty()) ||
-                (email != null && !email.trim().isEmpty()) ||
                 isActive != null;
     }
 }

@@ -32,16 +32,12 @@ public interface CandidateDao extends CrudRepository<Candidate, String> {
 			"(:firstName IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
 			"(:lastName IS NULL OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
 			"(:cin IS NULL OR LOWER(c.cin) LIKE LOWER(CONCAT('%', :cin, '%'))) AND " +
-			"(:isActive IS NULL OR c.isActive = :isActive) AND " +
-			"(:city IS NULL OR LOWER(c.city) LIKE LOWER(CONCAT('%', :city, '%'))) AND " +
-			"(:email IS NULL OR LOWER(c.email) LIKE LOWER(CONCAT('%', :email, '%')))")
+			"(:isActive IS NULL OR c.isActive = :isActive)")
 	Page<Candidate> searchCandidates(
 			@Param("firstName") String firstName,
 			@Param("lastName") String lastName,
 			@Param("cin") String cin,
 			@Param("isActive") Boolean isActive,
-			@Param("city") String city,
-			@Param("email") String email,
 			Pageable pageable
 	);
 }

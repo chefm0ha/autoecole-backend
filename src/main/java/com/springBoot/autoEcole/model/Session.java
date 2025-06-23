@@ -35,4 +35,12 @@ public class Session {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "candidate_cin")
     private Candidate candidate;
+
+    @ManyToOne
+    @JoinColumn(name = "instructor_cin")
+    private Instructor instructor;
+
+    @ManyToOne
+    @JoinColumn(name = "vehicle_immat")
+    private Vehicle vehicle;
 }

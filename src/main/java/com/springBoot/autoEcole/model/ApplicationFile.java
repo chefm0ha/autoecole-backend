@@ -34,6 +34,15 @@ public class ApplicationFile {
     @Column(name = "status")
     private String status;
 
+    @Column(name = "numero_dossier")
+    private String numeroDossier;
+
+    @Column(name = "tax_stamp")
+    private Boolean taxStamp;
+
+    @Column(name = "medical_visit")
+    private String medicalVisit;
+
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "candidate_cin")

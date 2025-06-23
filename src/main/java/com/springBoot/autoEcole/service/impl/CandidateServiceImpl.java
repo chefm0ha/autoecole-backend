@@ -96,24 +96,14 @@ public class CandidateServiceImpl implements CandidateService {
 		String firstName = isEmptyOrNull(searchCriteria.getFirstName()) ? null : searchCriteria.getFirstName().trim();
 		String lastName = isEmptyOrNull(searchCriteria.getLastName()) ? null : searchCriteria.getLastName().trim();
 		String cin = isEmptyOrNull(searchCriteria.getCin()) ? null : searchCriteria.getCin().trim();
-		String city = isEmptyOrNull(searchCriteria.getCity()) ? null : searchCriteria.getCity().trim();
-		String email = isEmptyOrNull(searchCriteria.getEmail()) ? null : searchCriteria.getEmail().trim();
 
 		return candidateDao.searchCandidates(
 				firstName,
 				lastName,
 				cin,
 				searchCriteria.getIsActive(),
-				city,
-				email,
 				pageable
 		);
-	}
-
-	@Override
-	public Page<CandidateListDTO> findAllCandidatesDTO(Pageable pageable) {
-		Page<Candidate> candidates = candidateDao.findAll(pageable);
-		return candidateMapper.toListDTOPage(candidates);
 	}
 
 	@Override

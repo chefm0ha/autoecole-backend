@@ -12,7 +12,6 @@ public interface CandidateService {
 	Candidate findByCin(String cin);
 	Candidate updateCandidate(String cin, Candidate candidateUpdates);
 	Page<Candidate> searchCandidates(CandidateSearchDTO searchCriteria, Pageable pageable);
-	Page<CandidateListDTO> findAllCandidatesDTO(Pageable pageable);
 	Page<CandidateListDTO> findActiveCandidatesDTO(Boolean isActive, Pageable pageable);
 	Page<CandidateListDTO> searchCandidatesDTO(CandidateSearchDTO searchCriteria, Pageable pageable);
 }

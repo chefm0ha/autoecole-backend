@@ -12,15 +12,10 @@ import java.time.LocalDate;
 public class CandidateListDTO {
 
     private String cin;
-    private String gender;
     private String firstName;
     private String lastName;
     private LocalDate birthDay;
-    private String birthPlace;
     private Boolean isActive;
-    private String city;
-    private String address;
-    private String email;
     private String gsm;
     private LocalDate startingDate;
 
@@ -32,15 +27,10 @@ public class CandidateListDTO {
 
         return CandidateListDTO.builder()
                 .cin(candidate.getCin())
-                .gender(candidate.getGender())
                 .firstName(candidate.getFirstName())
                 .lastName(candidate.getLastName())
                 .birthDay(candidate.getBirthDay())
-                .birthPlace(candidate.getBirthPlace())
                 .isActive(candidate.getIsActive())
-                .city(candidate.getCity())
-                .address(candidate.getAddress())
-                .email(candidate.getEmail())
                 .gsm(candidate.getGsm())
                 .startingDate(candidate.getStartingDate())
                 .build();

@@ -55,14 +55,6 @@ public class Candidate {
 	private LocalDate startingDate;
 
 	// Relationships
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "instructor_cin")
-	private Instructor instructor;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "vehicle_immat")
-	private Vehicle vehicle;
-
 	@OneToOne(mappedBy = "candidate", cascade = CascadeType.ALL)
 	private Payment payment;
 
