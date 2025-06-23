@@ -1,7 +1,6 @@
 package com.springBoot.autoEcole.repository;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;

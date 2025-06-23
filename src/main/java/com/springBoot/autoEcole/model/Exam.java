@@ -33,6 +33,6 @@ public class Exam {
 
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "candidate_cin")
-	private Candidate candidate;
+	@JoinColumn(name = "application_file_id")
+	private ApplicationFile applicationFile;
 }

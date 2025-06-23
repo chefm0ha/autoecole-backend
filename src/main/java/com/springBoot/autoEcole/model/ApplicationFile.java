@@ -1,6 +1,7 @@
 package com.springBoot.autoEcole.model;
 
 import java.time.LocalDate;
+import java.util.List;
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -34,8 +35,8 @@ public class ApplicationFile {
     @Column(name = "status")
     private String status;
 
-    @Column(name = "numero_dossier")
-    private String numeroDossier;
+    @Column(name = "file_number")
+    private String fileNumber;
 
     @Column(name = "tax_stamp")
     private Boolean taxStamp;
@@ -43,8 +44,15 @@ public class ApplicationFile {
     @Column(name = "medical_visit")
     private String medicalVisit;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_code")
+    private Category category;
+
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "candidate_cin")
     private Candidate candidate;
+
+    @OneToMany(mappedBy = "applicationFile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Exam> exams;
 }

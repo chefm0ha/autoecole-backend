@@ -58,11 +58,8 @@ public class Candidate {
 	@OneToOne(mappedBy = "candidate", cascade = CascadeType.ALL)
 	private Payment payment;
 
-	@OneToOne(mappedBy = "candidate", cascade = CascadeType.ALL)
-	private ApplicationFile applicationFile;
-
-	@OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<Exam> exams;
+	@OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
+	private List<ApplicationFile> applicationFiles;
 
 	@OneToMany(mappedBy = "candidate", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<Session> sessions;
