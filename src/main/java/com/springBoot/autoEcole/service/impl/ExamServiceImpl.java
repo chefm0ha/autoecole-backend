@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.springBoot.autoEcole.mapper.ExamMapper;
-import com.springBoot.autoEcole.model.Candidate;
+import com.springBoot.autoEcole.model.ApplicationFile;
 import com.springBoot.autoEcole.model.Exam;
 import com.springBoot.autoEcole.repository.ExamDao;
-import com.springBoot.autoEcole.service.CandidateService;
+import com.springBoot.autoEcole.service.ApplicationFileService;
 import com.springBoot.autoEcole.service.ExamService;
 
 @Service
@@ -15,7 +15,7 @@ import com.springBoot.autoEcole.service.ExamService;
 public class ExamServiceImpl implements ExamService {
 
 	@Autowired
-	private CandidateService candidateService;
+	private ApplicationFileService applicationFileService;
 
 	@Autowired
 	private ExamDao examDao;
@@ -24,14 +24,10 @@ public class ExamServiceImpl implements ExamService {
 	private ExamMapper examMapper;
 
 	@Override
-	public Exam saveExam(String candidateCin, Exam exam) {
-		Candidate candidate = candidateService.findByCin(candidateCin);
+	public Exam saveExam(Long applicationFileId, Exam exam) {
+		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
 
-		// Set attempt number based on previous exams
-		long previousAttempts = examDao.countByCandidateAndExamType(candidate, exam.getExamType());
-		exam.setAttemptNumber((int) (previousAttempts + 1));
-
-		Exam examToSave = examMapper.toEntity(exam, candidate);
+		Exam examToSave = examMapper.toEntity(exam, applicationFile);
 		return examDao.save(examToSave);
 	}
 

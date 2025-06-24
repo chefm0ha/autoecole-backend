@@ -55,4 +55,7 @@ public class ApplicationFile {
 
     @OneToMany(mappedBy = "applicationFile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Exam> exams;
+
+    @OneToOne(mappedBy = "applicationFile", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Payment payment;
 }

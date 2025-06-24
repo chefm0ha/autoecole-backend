@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.springBoot.autoEcole.mapper.PaymentMapper;
-import com.springBoot.autoEcole.model.Candidate;
+import com.springBoot.autoEcole.model.ApplicationFile;
 import com.springBoot.autoEcole.model.Payment;
 import com.springBoot.autoEcole.repository.PaymentDao;
-import com.springBoot.autoEcole.service.CandidateService;
+import com.springBoot.autoEcole.service.ApplicationFileService;
 import com.springBoot.autoEcole.service.PaymentService;
 
 @Service
@@ -16,7 +16,7 @@ import com.springBoot.autoEcole.service.PaymentService;
 public class PaymentServiceImpl implements PaymentService {
 
 	@Autowired
-	private CandidateService candidateService;
+	private ApplicationFileService applicationFileService;
 
 	@Autowired
 	private PaymentDao paymentDao;
@@ -30,9 +30,13 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Payment savePayment(String candidateCin, Payment payment) {
-		Candidate candidate = candidateService.findByCin(candidateCin);
-		Payment paymentToSave = paymentMapper.toEntity(payment, candidate);
+	public Payment savePayment(Long applicationFileId, Payment payment) {
+		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
+		if (applicationFile == null) {
+			throw new RuntimeException("ApplicationFile not found with ID: " + applicationFileId);
+		}
+
+		Payment paymentToSave = paymentMapper.toEntity(payment, applicationFile);
 		return paymentDao.save(paymentToSave);
 	}
 

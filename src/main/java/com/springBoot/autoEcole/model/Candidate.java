@@ -54,10 +54,6 @@ public class Candidate {
 	@Column(name = "starting_date")
 	private LocalDate startingDate;
 
-	// Relationships
-	@OneToOne(mappedBy = "candidate", cascade = CascadeType.ALL)
-	private Payment payment;
-
 	@OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL)
 	private List<ApplicationFile> applicationFiles;
 

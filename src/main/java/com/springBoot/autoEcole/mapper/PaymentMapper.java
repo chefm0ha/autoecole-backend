@@ -2,13 +2,13 @@ package com.springBoot.autoEcole.mapper;
 
 import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.Payment;
-import com.springBoot.autoEcole.model.Candidate;
+import com.springBoot.autoEcole.model.ApplicationFile;
 
 @Component
 public class PaymentMapper {
 
-    public Payment toEntity(Payment source, Candidate candidate) {
-        if (source == null || candidate == null) {
+    public Payment toEntity(Payment source, ApplicationFile applicationFile) {
+        if (source == null || applicationFile == null) {
             return null;
         }
 
@@ -16,8 +16,8 @@ public class PaymentMapper {
         target.setPaidAmount(source.getPaidAmount());
         target.setStatus(source.getStatus());
         target.setTotalAmount(source.getTotalAmount());
-        target.setCandidate(candidate);
-        // Note: paymentTranches is ignored during creation
+        target.setApplicationFile(applicationFile);
+        // Note: paymentInstallments is ignored during creation
 
         return target;
     }
@@ -30,6 +30,6 @@ public class PaymentMapper {
         target.setPaidAmount(source.getPaidAmount());
         target.setStatus(source.getStatus());
         target.setTotalAmount(source.getTotalAmount());
-        // Note: candidate and paymentTranches are ignored in update
+        // Note: applicationFile and paymentInstallments are ignored in update
     }
 }

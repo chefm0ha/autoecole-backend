@@ -19,9 +19,9 @@ public class PaymentFacade {
 		return paymentService.findAllPayment();
 	}
 
-	@PostMapping("/savePayment/{candidateCin}")
-	public Payment savePayment(@PathVariable String candidateCin, @RequestBody Payment payment) {
-		return paymentService.savePayment(candidateCin, payment);
+	@PostMapping("/savePayment/{applicationFileId}")
+	public Payment savePayment(@PathVariable Long applicationFileId, @RequestBody Payment payment) {
+		return paymentService.savePayment(applicationFileId, payment);
 	}
 
 	@GetMapping("/getPayment/{id}")

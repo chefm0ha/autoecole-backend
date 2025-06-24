@@ -13,9 +13,9 @@ public class ExamFacade {
 	@Autowired
 	private ExamService examService;
 
-	@PostMapping("/saveExam/{candidateCin}")
-	public Exam saveExam(@PathVariable String candidateCin, @RequestBody Exam exam) {
-		return examService.saveExam(candidateCin, exam);
+	@PostMapping("/saveExam/{applicationFileId}")
+	public Exam saveExam(@PathVariable Long applicationFileId, @RequestBody Exam exam) {
+		return examService.saveExam(applicationFileId, exam);
 	}
 
 	@GetMapping("/deleteExam/{id}")

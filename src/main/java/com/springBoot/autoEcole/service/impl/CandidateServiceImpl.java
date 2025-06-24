@@ -2,6 +2,7 @@ package com.springBoot.autoEcole.service.impl;
 
 import java.time.LocalDate;
 
+import com.springBoot.autoEcole.dto.CandidateDetailsDTO;
 import com.springBoot.autoEcole.dto.CandidateListDTO;
 import com.springBoot.autoEcole.dto.CandidateSearchDTO;
 import com.springBoot.autoEcole.mapper.CandidateMapper;
@@ -116,6 +117,15 @@ public class CandidateServiceImpl implements CandidateService {
 	public Page<CandidateListDTO> searchCandidatesDTO(CandidateSearchDTO searchCriteria, Pageable pageable) {
 		Page<Candidate> candidates = searchCandidates(searchCriteria, pageable);
 		return candidateMapper.toListDTOPage(candidates);
+	}
+
+	@Override
+	public CandidateDetailsDTO getCandidateDetails(String cin) {
+		Candidate candidate = candidateDao.findByCin(cin).orElse(null);
+		if (candidate == null) {
+			return null;
+		}
+		return CandidateDetailsDTO.fromEntity(candidate);
 	}
 
 	// Helper method to check if string is null or empty

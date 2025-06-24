@@ -1,5 +1,6 @@
 package com.springBoot.autoEcole.web.rest;
 
+import com.springBoot.autoEcole.dto.CandidateDetailsDTO;
 import com.springBoot.autoEcole.dto.CandidateListDTO;
 import com.springBoot.autoEcole.dto.CandidateSearchDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class CandidateFacade {
 
 	@GetMapping("/getCandidate/{cin}")
 	public Candidate getCandidateByCin(@PathVariable @NotNull String cin) { return candidateService.findByCin(cin); }
+
+	@GetMapping("/getCandidateDetails/{cin}")
+	public CandidateDetailsDTO getCandidateDetails(@PathVariable @NotNull String cin) {
+		return candidateService.getCandidateDetails(cin);
+	}
 
 	@PostMapping("/saveCandidate")
 	public Candidate saveCandidate(@RequestBody Candidate candidate) {

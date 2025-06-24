@@ -2,13 +2,13 @@ package com.springBoot.autoEcole.mapper;
 
 import org.springframework.stereotype.Component;
 import com.springBoot.autoEcole.model.Exam;
-import com.springBoot.autoEcole.model.Candidate;
+import com.springBoot.autoEcole.model.ApplicationFile;
 
 @Component
 public class ExamMapper {
 
-    public Exam toEntity(Exam source, Candidate candidate) {
-        if (source == null || candidate == null) {
+    public Exam toEntity(Exam source, ApplicationFile applicationFile) {
+        if (source == null || applicationFile == null) {
             return null;
         }
 
@@ -17,7 +17,7 @@ public class ExamMapper {
         target.setDate(source.getDate());
         target.setExamType(source.getExamType());
         target.setStatus(source.getStatus());
-        target.setCandidate(candidate);
+        target.setApplicationFile(applicationFile);
 
         return target;
     }
@@ -31,6 +31,6 @@ public class ExamMapper {
         target.setDate(source.getDate());
         target.setExamType(source.getExamType());
         target.setStatus(source.getStatus());
-        // Note: candidate is ignored in update
+        // Note: applicationFile is ignored in update
     }
 }

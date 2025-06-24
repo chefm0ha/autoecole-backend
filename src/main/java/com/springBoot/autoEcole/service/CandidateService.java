@@ -1,5 +1,6 @@
 package com.springBoot.autoEcole.service;
 
+import com.springBoot.autoEcole.dto.CandidateDetailsDTO;
 import com.springBoot.autoEcole.dto.CandidateListDTO;
 import com.springBoot.autoEcole.dto.CandidateSearchDTO;
 import com.springBoot.autoEcole.model.Candidate;
@@ -14,4 +15,5 @@ public interface CandidateService {
 	Page<Candidate> searchCandidates(CandidateSearchDTO searchCriteria, Pageable pageable);
 	Page<CandidateListDTO> findActiveCandidatesDTO(Boolean isActive, Pageable pageable);
 	Page<CandidateListDTO> searchCandidatesDTO(CandidateSearchDTO searchCriteria, Pageable pageable);
+	CandidateDetailsDTO getCandidateDetails(String cin);
 }

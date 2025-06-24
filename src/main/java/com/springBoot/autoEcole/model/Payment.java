@@ -33,8 +33,8 @@ public class Payment {
 
 	@JsonIgnore
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "candidate_cin")
-	private Candidate candidate;
+	@JoinColumn(name = "application_file_id", unique = true)
+	private ApplicationFile applicationFile;
 
 	@OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<PaymentInstallment> paymentTranches;
