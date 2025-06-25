@@ -19,7 +19,7 @@ public class ApplicationFileDTO {
     private LocalDate startingDate;
     private String status;
     private String fileNumber;
-    private Boolean taxStamp;
+    private String taxStamp;
     private String medicalVisit;
     private String categoryCode;
 

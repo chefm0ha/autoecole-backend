@@ -64,7 +64,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
                 .startingDate(LocalDate.now())
                 .status("IN_PROGRESS")
                 .fileNumber("test-" + candidateCin + "-test")
-                .taxStamp(false)
+                .taxStamp("NOT_PAID")
                 .medicalVisit("NOT_REQUESTED")
                 .candidate(candidate)
                 .category(category)

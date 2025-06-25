@@ -10,6 +10,7 @@ import com.springBoot.autoEcole.service.PaymentInstallmentService;
 import com.springBoot.autoEcole.service.PaymentService;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 
 @Service
 @Transactional
@@ -33,15 +34,10 @@ public class PaymentInstallmentServiceImpl implements PaymentInstallmentService 
             throw new EntityNotFoundException("Payment not found with ID: " + paymentId);
         }
 
-        // Create payment installment with minimal data
-        // Status and other calculations will be handled by database triggers
         PaymentInstallment installmentToSave = new PaymentInstallment();
         installmentToSave.setAmount(paymentInstallment.getAmount());
-        installmentToSave.setDate(paymentInstallment.getDate());
-        installmentToSave.setInstallmentNumber(paymentInstallment.getInstallmentNumber());
+        installmentToSave.setDate(LocalDate.now());
         installmentToSave.setPayment(payment);
-
-        // Status will be set by database triggers (e.g., "PENDING" by default)
 
         return paymentInstallmentDao.save(installmentToSave);
     }

@@ -97,7 +97,7 @@ CREATE TABLE application_file (
     -- CANCELLED: Application cancelled/terminated before completion
     status VARCHAR(50) DEFAULT 'IN_PROGRESS',
     file_number VARCHAR(255),
-    tax_stamp BOOLEAN DEFAULT FALSE,
+    tax_stamp VARCHAR(50), -- ( 'NOT_PAID", 'PENDING', 'PAID')
     -- Medical visit status values:
     -- NOT_REQUESTED: Manager/staff hasn't asked for eye certification yet
     -- PENDING: Candidate has been asked to get eye certification but hasn't completed it

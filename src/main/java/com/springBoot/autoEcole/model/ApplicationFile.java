@@ -39,7 +39,7 @@ public class ApplicationFile {
     private String fileNumber;
 
     @Column(name = "tax_stamp")
-    private Boolean taxStamp;
+    private String taxStamp;
 
     @Column(name = "medical_visit")
     private String medicalVisit;

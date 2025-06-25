@@ -1,5 +1,7 @@
 package com.springBoot.autoEcole.web.rest;
 
+import com.springBoot.autoEcole.dto.PaymentWithInstallmentsDTO;
+import com.springBoot.autoEcole.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.springBoot.autoEcole.model.PaymentInstallment;
@@ -12,6 +14,9 @@ public class PaymentInstallmentFacade {
 
     @Autowired
     private PaymentInstallmentService paymentInstallmentService;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @GetMapping("/getPaymentInstallment/{id}")
     public PaymentInstallment getPaymentInstallmentById(@PathVariable Long id) {
