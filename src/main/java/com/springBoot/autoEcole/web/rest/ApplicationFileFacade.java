@@ -1,9 +1,13 @@
 package com.springBoot.autoEcole.web.rest;
 
+import com.springBoot.autoEcole.dto.AddApplicationFileRequestDTO;
+import com.springBoot.autoEcole.dto.ApplicationFileDTO;
 import com.springBoot.autoEcole.model.ApplicationFile;
 import com.springBoot.autoEcole.service.ApplicationFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/applicationFile")
@@ -14,8 +18,8 @@ public class ApplicationFileFacade {
     private ApplicationFileService applicationFileService;
 
     @PostMapping("/saveApplicationFile/{candidateCin}")
-    public ApplicationFile saveApplicationFile(@PathVariable String candidateCin, @RequestBody ApplicationFile applicationFile) {
-        return applicationFileService.saveApplicationFile(candidateCin, applicationFile);
+    public ApplicationFile saveApplicationFile(@PathVariable String candidateCin, @RequestBody AddApplicationFileRequestDTO request) {
+        return applicationFileService.saveApplicationFile(candidateCin, request);
     }
 
     @PutMapping("/updateApplicationFile/{id}")
@@ -31,5 +35,10 @@ public class ApplicationFileFacade {
     @DeleteMapping("/deleteApplicationFile/{id}")
     public Long deleteApplicationFile(@PathVariable Long id) {
         return applicationFileService.deleteApplicationFile(id);
+    }
+
+    @GetMapping("/getApplicationFileByCandidate/{candidateCin}")
+    public List<ApplicationFileDTO> getApplicationFileByCandidate(@PathVariable String candidateCin) {
+        return applicationFileService.getApplicationFilesByCandidate(candidateCin);
     }
 }

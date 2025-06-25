@@ -29,9 +29,6 @@ public class PaymentInstallment {
     @Column(name = "installment_number")
     private Integer installmentNumber;
 
-    @Column(name = "status")
-    private String status; // PENDING, PAID, OVERDUE
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")

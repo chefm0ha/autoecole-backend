@@ -1,6 +1,8 @@
 package com.springBoot.autoEcole.service.impl;
 
 import java.util.Collection;
+
+import com.springBoot.autoEcole.dto.PaymentWithInstallmentsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +12,8 @@ import com.springBoot.autoEcole.model.Payment;
 import com.springBoot.autoEcole.repository.PaymentDao;
 import com.springBoot.autoEcole.service.ApplicationFileService;
 import com.springBoot.autoEcole.service.PaymentService;
+
+import javax.persistence.EntityNotFoundException;
 
 @Service
 @Transactional
@@ -30,23 +34,22 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	@Override
-	public Payment savePayment(Long applicationFileId, Payment payment) {
-		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
-		if (applicationFile == null) {
-			throw new RuntimeException("ApplicationFile not found with ID: " + applicationFileId);
-		}
-
-		Payment paymentToSave = paymentMapper.toEntity(payment, applicationFile);
-		return paymentDao.save(paymentToSave);
-	}
-
-	@Override
 	public Payment findById(Long id) {
 		return paymentDao.findById(id).orElse(null);
 	}
 
 	@Override
-	public Long deletePayment(Long id) {
-		return paymentDao.removeById(id);
+	public PaymentWithInstallmentsDTO getPaymentByApplicationFile(Long applicationFileId) {
+		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
+		if (applicationFile == null) {
+			throw new EntityNotFoundException("ApplicationFile not found with ID: " + applicationFileId);
+		}
+
+		Payment payment = paymentDao.findByApplicationFile(applicationFile);
+		if (payment == null) {
+			return null; // No payment found for this application file
+		}
+
+		return PaymentWithInstallmentsDTO.fromEntity(payment);
 	}
 }

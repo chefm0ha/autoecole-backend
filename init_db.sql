@@ -79,29 +79,42 @@ CREATE TABLE candidate (
                            CONSTRAINT pk_candidate PRIMARY KEY (cin)
 );
 
--- Create ApplicationFile table
 CREATE TABLE application_file (
-                                  id BIGINT AUTO_INCREMENT,
-                                  practical_hours_completed DOUBLE,
-                                  theoretical_hours_completed DOUBLE,
-                                  is_active BOOLEAN DEFAULT TRUE,
-                                  starting_date DATE,
-                                  status VARCHAR(50),
-                                  file_number VARCHAR(255),
-                                  tax_stamp BOOLEAN,
-                                  medical_visit VARCHAR(255),
-                                  candidate_cin VARCHAR(20),
-                                  category_code VARCHAR(10),
-                                  CONSTRAINT pk_application_file PRIMARY KEY (id),
-                                  CONSTRAINT fk_application_file_candidate FOREIGN KEY (candidate_cin) REFERENCES candidate(cin) ON DELETE CASCADE,
-                                  CONSTRAINT fk_application_file_category FOREIGN KEY (category_code) REFERENCES category(code)
+    id BIGINT AUTO_INCREMENT,
+    practical_hours_completed DOUBLE DEFAULT 0,
+    theoretical_hours_completed DOUBLE DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    starting_date DATE,
+    -- Status values:
+    -- IN_PROGRESS: Student is actively learning (theory/practical phases)
+    -- THEORY_EXAM_SCHEDULED: Theory exam has been scheduled
+    -- PRACTICAL_EXAM_SCHEDULED: Practical exam has been scheduled
+    -- THEORY_PASSED: Theory exam passed, proceeding to practical
+    -- THEORY_FAILED: Theory exam failed, needs retake
+    -- PRACTICAL_FAILED: Practical exam failed, needs retake
+    -- FAILED: Application failed completely (multiple exam failures or other reasons)
+    -- GRADUATED: Successfully completed all requirements and obtained license
+    -- CANCELLED: Application cancelled/terminated before completion
+    status VARCHAR(50) DEFAULT 'IN_PROGRESS',
+    file_number VARCHAR(255),
+    tax_stamp BOOLEAN DEFAULT FALSE,
+    -- Medical visit status values:
+    -- NOT_REQUESTED: Manager/staff hasn't asked for eye certification yet
+    -- PENDING: Candidate has been asked to get eye certification but hasn't completed it
+    -- COMPLETED: Candidate has obtained the eye doctor certification
+    medical_visit VARCHAR(255) DEFAULT 'NOT_REQUESTED',
+    candidate_cin VARCHAR(20),
+    category_code VARCHAR(10),
+    CONSTRAINT pk_application_file PRIMARY KEY (id),
+    CONSTRAINT fk_application_file_candidate FOREIGN KEY (candidate_cin) REFERENCES candidate(cin) ON DELETE CASCADE,
+    CONSTRAINT fk_application_file_category FOREIGN KEY (category_code) REFERENCES category(code)
 );
 
 -- Create Payment table (One-to-One with ApplicationFile)
 CREATE TABLE payment (
                          id BIGINT AUTO_INCREMENT,
-                         paid_amount INTEGER,
-                         status VARCHAR(50),
+                         paid_amount INTEGER DEFAULT 0,
+                         status VARCHAR(50) DEFAULT 'PENDING', -- (PENDING, COMPLETED)
                          total_amount INTEGER,
                          application_file_id BIGINT UNIQUE, -- Made UNIQUE for One-to-One relationship
                          CONSTRAINT pk_payment PRIMARY KEY (id),
@@ -113,8 +126,7 @@ CREATE TABLE payment_installment (
                                      id BIGINT AUTO_INCREMENT,
                                      amount INTEGER,
                                      date DATE,
-                                     installment_number INTEGER,
-                                     status VARCHAR(20) DEFAULT 'PENDING',
+                                     installment_number INTEGER DEFAULT 1,
                                      payment_id BIGINT,
                                      CONSTRAINT pk_payment_installment PRIMARY KEY (id),
                                      CONSTRAINT fk_payment_installment_payment FOREIGN KEY (payment_id) REFERENCES payment(id) ON DELETE CASCADE
@@ -274,96 +286,6 @@ SELECT 3200, 'PARTIAL', 5000, af.id FROM application_file af WHERE af.candidate_
 
 INSERT INTO payment (paid_amount, status, total_amount, application_file_id)
 SELECT 4800, 'PARTIAL', 5000, af.id FROM application_file af WHERE af.candidate_cin = 'BB890567' AND af.category_code = 'B';
-
--- Insert Payment Installments (using dynamic payment ID references)
--- For AB123456 Category B payment
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 2000, '2024-01-15', 1, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'AB123456' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1500, '2024-02-15', 2, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'AB123456' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1500, '2024-03-15', 3, 'PENDING', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'AB123456' AND af.category_code = 'B';
-
--- For CD789012 Category B payment - Fully paid
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 2500, '2024-02-10', 1, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'CD789012' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 2500, '2024-03-10', 2, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'CD789012' AND af.category_code = 'B';
-
--- For EF345678 Category B payment
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 2000, '2023-12-05', 1, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'EF345678' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1400, '2024-01-05', 2, 'OVERDUE', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'EF345678' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1400, '2024-02-05', 3, 'PENDING', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'EF345678' AND af.category_code = 'B';
-
--- For GH901234 Category B payment
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 2600, '2024-03-20', 1, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'GH901234' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1900, '2024-04-20', 2, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'GH901234' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 700, '2024-05-20', 3, 'PENDING', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'GH901234' AND af.category_code = 'B';
-
--- For IJ567890 Category B payment
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1500, '2024-01-08', 1, 'PAID', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'IJ567890' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1750, '2024-02-08', 2, 'PENDING', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'IJ567890' AND af.category_code = 'B';
-
-INSERT INTO payment_installment (amount, date, installment_number, status, payment_id)
-SELECT 1750, '2024-03-08', 3, 'PENDING', p.id
-FROM payment p
-         JOIN application_file af ON p.application_file_id = af.id
-WHERE af.candidate_cin = 'IJ567890' AND af.category_code = 'B';
 
 -- Insert multiple application files for some candidates
 INSERT INTO application_file (practical_hours_completed, theoretical_hours_completed, is_active, starting_date, status, file_number, tax_stamp, medical_visit, candidate_cin, category_code) VALUES

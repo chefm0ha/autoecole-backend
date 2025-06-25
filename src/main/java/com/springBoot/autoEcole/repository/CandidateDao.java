@@ -20,9 +20,6 @@ public interface CandidateDao extends CrudRepository<Candidate, String> {
 
 	Optional<Candidate> findByCin(String cin);
 
-	@Query("SELECT COUNT(c) FROM Candidate c WHERE c.startingDate >= :firstDayInYear")
-	Integer findCandidatesThisYear(@Param("firstDayInYear") LocalDate firstDayInYear);
-
 	Page<Candidate> findAll(Pageable pageable);
 
 	Page<Candidate> findByIsActive(Boolean isActive, Pageable pageable);
