@@ -38,7 +38,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     private PaymentInstallmentDao paymentInstallmentDao;
 
     @Override
-    public ApplicationFile saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request) {
+    public ApplicationFileDTO saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request) {
         // 1. Find candidate and category
         Candidate candidate = candidateService.findByCin(candidateCin);
         if (candidate == null) {
@@ -81,7 +81,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
                 .build();
 
         Payment savedPayment = paymentDao.save(payment);
-
+        System.out.println(request.getTotalAmount());
         // 4. Create Initial PaymentInstallment
         PaymentInstallment initialInstallment = PaymentInstallment.builder()
                 .amount(request.getInitialAmount())
@@ -94,7 +94,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
 
         // Note: The trigger will automatically update payment paidAmount and status
 
-        return savedApplicationFile;
+        return ApplicationFileDTO.fromEntity(savedApplicationFile);
     }
 
     @Override

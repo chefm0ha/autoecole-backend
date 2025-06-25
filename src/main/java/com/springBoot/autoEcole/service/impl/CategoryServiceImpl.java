@@ -21,11 +21,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category saveCategory(Category category) {
-        return categoryDao.save(category);
-    }
-
-    @Override
     public Category findByCode(String code) {
         return categoryDao.findByCode(code);
     }

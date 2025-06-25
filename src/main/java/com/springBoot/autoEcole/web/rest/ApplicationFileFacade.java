@@ -18,7 +18,7 @@ public class ApplicationFileFacade {
     private ApplicationFileService applicationFileService;
 
     @PostMapping("/saveApplicationFile/{candidateCin}")
-    public ApplicationFile saveApplicationFile(@PathVariable String candidateCin, @RequestBody AddApplicationFileRequestDTO request) {
+    public ApplicationFileDTO saveApplicationFile(@PathVariable String candidateCin, @RequestBody AddApplicationFileRequestDTO request) {
         return applicationFileService.saveApplicationFile(candidateCin, request);
     }
 

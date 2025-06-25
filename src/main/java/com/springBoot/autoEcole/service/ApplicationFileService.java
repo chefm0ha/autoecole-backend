@@ -7,7 +7,7 @@ import com.springBoot.autoEcole.model.ApplicationFile;
 import java.util.List;
 
 public interface ApplicationFileService {
-    ApplicationFile saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request);
+    ApplicationFileDTO saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request);
     ApplicationFile updateApplicationFile(Long id, ApplicationFile applicationFile);
     Long deleteApplicationFile(Long id);
     ApplicationFile findById(Long id);

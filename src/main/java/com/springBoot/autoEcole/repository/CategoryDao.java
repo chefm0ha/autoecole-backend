@@ -8,6 +8,5 @@ import com.springBoot.autoEcole.model.Category;
 @Repository
 @Transactional
 public interface CategoryDao extends CrudRepository<Category, String> {
-
     Category findByCode(String code);
 }

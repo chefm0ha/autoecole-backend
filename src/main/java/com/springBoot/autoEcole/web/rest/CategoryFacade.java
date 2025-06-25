@@ -14,18 +14,8 @@ public class CategoryFacade {
     @Autowired
     private CategoryService categoryService;
 
-    @GetMapping("/getCategories")
-    public Collection<Category> getCategories() {
+    @GetMapping("/getAllCategories")
+    public Collection<Category> getAllCategories() {
         return categoryService.findAllCategory();
-    }
-
-    @PostMapping("/saveCategory")
-    public Category saveCategory(@RequestBody Category category) {
-        return categoryService.saveCategory(category);
-    }
-
-    @GetMapping("/getCategory/{code}")
-    public Category getCategoryByCode(@PathVariable String code) {
-        return categoryService.findByCode(code);
     }
 }
