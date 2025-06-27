@@ -5,8 +5,10 @@ import com.springBoot.autoEcole.dto.ApplicationFileDTO;
 import com.springBoot.autoEcole.model.ApplicationFile;
 import com.springBoot.autoEcole.service.ApplicationFileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @RestController
@@ -40,5 +42,35 @@ public class ApplicationFileFacade {
     @GetMapping("/getApplicationFileByCandidate/{candidateCin}")
     public List<ApplicationFileDTO> getApplicationFileByCandidate(@PathVariable String candidateCin) {
         return applicationFileService.getApplicationFilesByCandidate(candidateCin);
+    }
+
+    @PutMapping("/updateTaxStampStatus/{id}")
+    public ResponseEntity<String> updateTaxStampStatus(@PathVariable Long id, @RequestParam String taxStampStatus) {
+        ApplicationFile existingFile = applicationFileService.findById(id);
+        if (existingFile == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ApplicationFile updateRequest = new ApplicationFile();
+        updateRequest.setTaxStamp(taxStampStatus);
+
+        applicationFileService.updateApplicationFile(id, updateRequest);
+
+        return ResponseEntity.ok("Tax stamp status updated successfully");
+    }
+
+    @PutMapping("/updateMedicalVisitStatus/{id}")
+    public ResponseEntity<String> updateMedicalVisitStatus(@PathVariable Long id, @RequestParam String medicalVisitStatus) {
+        ApplicationFile existingFile = applicationFileService.findById(id);
+        if (existingFile == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ApplicationFile updateRequest = new ApplicationFile();
+        updateRequest.setMedicalVisit(medicalVisitStatus);
+
+        applicationFileService.updateApplicationFile(id, updateRequest);
+
+        return ResponseEntity.ok("Medical visit status updated successfully");
     }
 }

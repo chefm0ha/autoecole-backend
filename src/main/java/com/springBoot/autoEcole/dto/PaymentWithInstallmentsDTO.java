@@ -30,8 +30,8 @@ public class PaymentWithInstallmentsDTO {
                 .paidAmount(payment.getPaidAmount())
                 .status(payment.getStatus())
                 .totalAmount(payment.getTotalAmount())
-                .paymentInstallments(payment.getPaymentTranches() != null ?
-                        payment.getPaymentTranches().stream()
+                .paymentInstallments(payment.getPaymentInstallments() != null ?
+                        payment.getPaymentInstallments().stream()
                                 .map(PaymentInstallmentDTO::fromEntity)
                                 .collect(Collectors.toList()) : null)
                 .build();

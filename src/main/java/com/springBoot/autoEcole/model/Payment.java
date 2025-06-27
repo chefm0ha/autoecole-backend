@@ -37,5 +37,5 @@ public class Payment {
 	private ApplicationFile applicationFile;
 
 	@OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	private List<PaymentInstallment> paymentTranches;
+	private List<PaymentInstallment> paymentInstallments;
 }
