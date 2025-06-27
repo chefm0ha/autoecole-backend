@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import com.springBoot.autoEcole.model.Exam;
 import com.springBoot.autoEcole.service.ExamService;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @RestController
@@ -24,8 +25,13 @@ public class ExamFacade {
 			Exam savedExam = examService.saveExam(applicationFileId, examRequest);
 			return ResponseEntity.ok("Exam saved successfully");
 		} catch (IllegalStateException e) {
+			// These are our business rule violations
 			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (EntityNotFoundException e) {
+			// Application file not found
+			return ResponseEntity.notFound().build();
 		} catch (Exception e) {
+			// Any other unexpected errors
 			return ResponseEntity.status(500).body("Error saving exam: " + e.getMessage());
 		}
 	}

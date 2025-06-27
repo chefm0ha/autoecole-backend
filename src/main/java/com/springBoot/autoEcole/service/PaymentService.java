@@ -9,4 +9,5 @@ public interface PaymentService {
 	Collection<Payment> findAllPayment();
 	Payment findById(Long id);
 	PaymentWithInstallmentsDTO getPaymentByApplicationFile(Long applicationFileId);
+	PaymentWithInstallmentsDTO getPaymentWithInstallments(Long paymentId);
 }

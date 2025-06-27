@@ -56,7 +56,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
             throw new IllegalStateException("An active application file already exists for category: " + request.getCategoryCode());
         }
 
-        // 2. Create ApplicationFile (database defaults will handle most fields)
+        // 2. Create ApplicationFile
         ApplicationFile applicationFile = ApplicationFile.builder()
                 .practicalHoursCompleted(0.0)
                 .theoreticalHoursCompleted(0.0)
@@ -72,7 +72,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
 
         ApplicationFile savedApplicationFile = applicationFileDao.save(applicationFile);
 
-        // 3. Create Payment (database defaults will handle paid_amount and status)
+        // 3. Create Payment (without installment)
         Payment payment = Payment.builder()
                 .paidAmount(0)
                 .status("PENDING")
@@ -81,18 +81,12 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
                 .build();
 
         Payment savedPayment = paymentDao.save(payment);
-        System.out.println(request.getTotalAmount());
-        // 4. Create Initial PaymentInstallment
-        PaymentInstallment initialInstallment = PaymentInstallment.builder()
-                .amount(request.getInitialAmount())
-                .date(LocalDate.now())
-                .installmentNumber(1)
-                .payment(savedPayment)
-                .build();
 
-        paymentInstallmentDao.save(initialInstallment);
-
-        // Note: The trigger will automatically update payment paidAmount and status
+        // 4. Use stored procedure to create initial installment
+        paymentInstallmentDao.savePaymentInstallmentWithProcedure(
+                savedPayment.getId(),
+                request.getInitialAmount()
+        );
 
         return ApplicationFileDTO.fromEntity(savedApplicationFile);
     }

@@ -52,4 +52,14 @@ public class PaymentServiceImpl implements PaymentService {
 
 		return PaymentWithInstallmentsDTO.fromEntity(payment);
 	}
+
+	@Override
+	public PaymentWithInstallmentsDTO getPaymentWithInstallments(Long paymentId) {
+		Payment payment = findById(paymentId);
+		if (payment == null) {
+			throw new EntityNotFoundException("Payment not found with ID: " + paymentId);
+		}
+
+		return PaymentWithInstallmentsDTO.fromEntity(payment);
+	}
 }
