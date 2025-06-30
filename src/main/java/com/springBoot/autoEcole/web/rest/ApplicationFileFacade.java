@@ -73,4 +73,21 @@ public class ApplicationFileFacade {
 
         return ResponseEntity.ok("Medical visit status updated successfully");
     }
+
+    @PutMapping("/cancelApplicationFile/{id}")
+    public ResponseEntity<?> cancelApplicationFile(@PathVariable Long id) {
+        try {
+            applicationFileService.cancelApplicationFile(id);
+            return ResponseEntity.ok("Application file cancelled successfully");
+        } catch (IllegalStateException e) {
+            // Business rule violations
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            // Application file not found
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            // Any other unexpected errors
+            return ResponseEntity.status(500).body("Error cancelling application file: " + e.getMessage());
+        }
+    }
 }

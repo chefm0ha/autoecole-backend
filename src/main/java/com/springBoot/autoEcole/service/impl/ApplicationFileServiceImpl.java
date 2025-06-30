@@ -9,6 +9,7 @@ import com.springBoot.autoEcole.repository.PaymentInstallmentDao;
 import com.springBoot.autoEcole.service.ApplicationFileService;
 import com.springBoot.autoEcole.service.CandidateService;
 import com.springBoot.autoEcole.service.CategoryService;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,5 +143,44 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
         return applicationFiles.stream()
                 .map(ApplicationFileDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // Add this method to ApplicationFileServiceImpl.java
+
+    @Override
+    public void cancelApplicationFile(Long applicationFileId) {
+        try {
+            applicationFileDao.cancelApplicationFile(applicationFileId);
+        } catch (DataAccessException e) {
+            String message = extractErrorMessage(e);
+            throw new IllegalStateException(message);
+        } catch (Exception e) {
+            throw new RuntimeException("Error cancelling application file: " + e.getMessage());
+        }
+    }
+
+    private String extractErrorMessage(Exception e) {
+        String message = e.getMessage();
+        if (message == null) {
+            return "Database error occurred";
+        }
+
+        // Try to extract the actual error message from nested exceptions
+        Throwable cause = e;
+        while (cause != null) {
+            String causeMessage = cause.getMessage();
+            if (causeMessage != null) {
+                if (causeMessage.contains("Application file not found")) {
+                    return "Application file not found";
+                } else if (causeMessage.contains("Cannot cancel a graduated application file")) {
+                    return "Cannot cancel a graduated application file";
+                } else if (causeMessage.contains("Application file is already cancelled")) {
+                    return "Application file is already cancelled";
+                }
+            }
+            cause = cause.getCause();
+        }
+
+        return message;
     }
 }

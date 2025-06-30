@@ -12,4 +12,5 @@ public interface ApplicationFileService {
     Long deleteApplicationFile(Long id);
     ApplicationFile findById(Long id);
     List<ApplicationFileDTO> getApplicationFilesByCandidate(String candidateCin);
+    void cancelApplicationFile(Long applicationFileId);
 }

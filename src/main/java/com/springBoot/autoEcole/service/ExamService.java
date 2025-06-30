@@ -9,4 +9,5 @@ import java.util.List;
 public interface ExamService {
 	Exam saveExam(Long applicationFileId, ExamRequestDTO examRequest);
 	List<ExamResponseDTO> getExamsByApplicationFile(Long applicationFileId);
+	Exam updateExamStatus(Long examId, String newStatus);
 }

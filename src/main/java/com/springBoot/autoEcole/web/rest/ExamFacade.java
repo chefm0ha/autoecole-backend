@@ -45,4 +45,26 @@ public class ExamFacade {
 			return ResponseEntity.status(500).body(null);
 		}
 	}
+
+	@PutMapping("/updateExamStatus/{examId}")
+	public ResponseEntity<?> updateExamStatus(
+			@PathVariable Long examId,
+			@RequestParam String status) {
+		try {
+			Exam updatedExam = examService.updateExamStatus(examId, status);
+			return ResponseEntity.ok("Exam status updated successfully");
+		} catch (IllegalArgumentException e) {
+			// Invalid input parameters
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (IllegalStateException e) {
+			// Business rule violations
+			return ResponseEntity.badRequest().body(e.getMessage());
+		} catch (EntityNotFoundException e) {
+			// Exam not found
+			return ResponseEntity.notFound().build();
+		} catch (Exception e) {
+			// Any other unexpected errors
+			return ResponseEntity.status(500).body("Error updating exam status: " + e.getMessage());
+		}
+	}
 }

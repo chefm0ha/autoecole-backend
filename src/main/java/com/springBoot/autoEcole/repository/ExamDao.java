@@ -37,4 +37,11 @@ public interface ExamDao extends CrudRepository<Exam, Long>, JpaSpecificationExe
 			@Param("applicationFileId") Long applicationFileId,
 			@Param("examType") String examType
 	);
+
+	@Modifying
+	@Query(value = "CALL update_exam_status(:p_exam_id, :p_new_status)", nativeQuery = true)
+	void updateExamStatusWithBusinessLogic(
+			@Param("p_exam_id") Long examId,
+			@Param("p_new_status") String newStatus
+	);
 }

@@ -3,7 +3,10 @@ package com.springBoot.autoEcole.repository;
 import com.springBoot.autoEcole.model.ApplicationFile;
 import com.springBoot.autoEcole.model.Candidate;
 import com.springBoot.autoEcole.model.Category;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,4 +18,7 @@ public interface ApplicationFileDao extends CrudRepository<ApplicationFile, Long
     Long removeById(Long id);
     ApplicationFile findByCandidateAndCategory(Candidate candidate, Category category);
     List<ApplicationFile> findByCandidate(Candidate candidate);
+    @Modifying
+    @Query(value = "CALL cancel_application_file(:p_application_file_id)", nativeQuery = true)
+    void cancelApplicationFile(@Param("p_application_file_id") Long applicationFileId);
 }
