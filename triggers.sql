@@ -41,8 +41,8 @@ BEGIN
 
     -- Determine new application status based on exam states
     IF v_theory_passed_count > 0 AND v_practical_passed_count > 0 THEN
-        -- Both theory and practical passed - GRADUATED
-        SET v_new_status = 'GRADUATED';
+        -- Both theory and practical passed - COMPLETED
+        SET v_new_status = 'COMPLETED';
 
     ELSEIF v_total_theory_attempts >= 2 AND v_theory_passed_count = 0 THEN
         -- Failed theory 2 times - FAILED
@@ -119,8 +119,8 @@ BEGIN
 
         -- Determine new application status based on exam states
         IF v_theory_passed_count > 0 AND v_practical_passed_count > 0 THEN
-            -- Both theory and practical passed - GRADUATED
-            SET v_new_status = 'GRADUATED';
+            -- Both theory and practical passed - COMPLETED
+            SET v_new_status = 'COMPLETED';
 
         ELSEIF v_total_theory_attempts >= 3 AND v_theory_passed_count = 0 THEN
             -- Failed theory 3 times - FAILED
@@ -169,12 +169,12 @@ CREATE TRIGGER application_file_status_update
     FOR EACH ROW
 BEGIN
     -- When status changes to terminal states, mark as inactive
-    IF NEW.status IN ('FAILED', 'CANCELLED', 'GRADUATED') AND OLD.status != NEW.status THEN
+    IF NEW.status IN ('FAILED', 'CANCELLED', 'COMPLETED') AND OLD.status != NEW.status THEN
         SET NEW.is_active = FALSE;
     END IF;
 
     -- When status changes from terminal states back to active states, mark as active
-    IF NEW.status NOT IN ('FAILED', 'CANCELLED', 'GRADUATED') AND OLD.status IN ('FAILED', 'CANCELLED', 'GRADUATED') THEN
+    IF NEW.status NOT IN ('FAILED', 'CANCELLED', 'COMPLETED') AND OLD.status IN ('FAILED', 'CANCELLED', 'COMPLETED') THEN
         SET NEW.is_active = TRUE;
     END IF;
 END //

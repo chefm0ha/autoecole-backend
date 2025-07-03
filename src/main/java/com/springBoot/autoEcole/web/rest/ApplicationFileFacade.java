@@ -90,4 +90,34 @@ public class ApplicationFileFacade {
             return ResponseEntity.status(500).body("Error cancelling application file: " + e.getMessage());
         }
     }
+
+    @PutMapping("/updateTheoreticalHours/{id}")
+    public ResponseEntity<String> updateTheoreticalHours(@PathVariable Long id, @RequestParam Double hours) {
+        ApplicationFile existingFile = applicationFileService.findById(id);
+        if (existingFile == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ApplicationFile updateRequest = new ApplicationFile();
+        updateRequest.setTheoreticalHoursCompleted(hours);
+
+        applicationFileService.updateApplicationFile(id, updateRequest);
+
+        return ResponseEntity.ok("Theoretical hours updated successfully");
+    }
+
+    @PutMapping("/updatePracticalHours/{id}")
+    public ResponseEntity<String> updatePracticalHours(@PathVariable Long id, @RequestParam Double hours) {
+        ApplicationFile existingFile = applicationFileService.findById(id);
+        if (existingFile == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ApplicationFile updateRequest = new ApplicationFile();
+        updateRequest.setPracticalHoursCompleted(hours);
+
+        applicationFileService.updateApplicationFile(id, updateRequest);
+
+        return ResponseEntity.ok("Practical hours updated successfully");
+    }
 }

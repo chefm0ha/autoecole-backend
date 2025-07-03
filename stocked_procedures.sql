@@ -298,9 +298,9 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Application file not found';
     END IF;
 
-    -- Business rule: Cannot cancel if already graduated
-    IF v_current_status = 'GRADUATED' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot cancel a graduated application file';
+    -- Business rule: Cannot cancel if already COMPLETED
+    IF v_current_status = 'COMPLETED' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot cancel a COMPLETED application file';
     END IF;
 
     -- Business rule: Cannot cancel if already cancelled

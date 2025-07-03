@@ -172,8 +172,8 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
             if (causeMessage != null) {
                 if (causeMessage.contains("Application file not found")) {
                     return "Application file not found";
-                } else if (causeMessage.contains("Cannot cancel a graduated application file")) {
-                    return "Cannot cancel a graduated application file";
+                } else if (causeMessage.contains("Cannot cancel a completed application file")) {
+                    return "Cannot cancel a completed application file";
                 } else if (causeMessage.contains("Application file is already cancelled")) {
                     return "Application file is already cancelled";
                 }

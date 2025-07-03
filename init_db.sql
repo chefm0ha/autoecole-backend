@@ -93,7 +93,7 @@ CREATE TABLE application_file (
     -- THEORY_FAILED: Theory exam failed, needs retake
     -- PRACTICAL_FAILED: Practical exam failed, needs retake
     -- FAILED: Application failed completely (multiple exam failures or other reasons)
-    -- GRADUATED: Successfully completed all requirements and obtained license
+    -- COMPLETED: Successfully completed all requirements and obtained license
     -- CANCELLED: Application cancelled/terminated before completion
     status VARCHAR(50) DEFAULT 'IN_PROGRESS',
     file_number VARCHAR(255),
