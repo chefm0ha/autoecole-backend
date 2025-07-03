@@ -4,12 +4,16 @@ import com.springBoot.autoEcole.dto.AddApplicationFileRequestDTO;
 import com.springBoot.autoEcole.dto.ApplicationFileDTO;
 import com.springBoot.autoEcole.model.ApplicationFile;
 import com.springBoot.autoEcole.service.ApplicationFileService;
+import com.springBoot.autoEcole.service.impl.ApplicationFileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/applicationFile")
@@ -20,104 +24,232 @@ public class ApplicationFileFacade {
     private ApplicationFileService applicationFileService;
 
     @PostMapping("/saveApplicationFile/{candidateCin}")
-    public ApplicationFileDTO saveApplicationFile(@PathVariable String candidateCin, @RequestBody AddApplicationFileRequestDTO request) {
-        return applicationFileService.saveApplicationFile(candidateCin, request);
+    public ResponseEntity<?> saveApplicationFile(@PathVariable String candidateCin, @RequestBody AddApplicationFileRequestDTO request) {
+        try {
+            ApplicationFileDTO result = applicationFileService.saveApplicationFile(candidateCin, request);
+            return ResponseEntity.ok(result);
+        } catch (ApplicationFileServiceImpl.ApplicationFileException e) {
+            // Business rule violations with specific error codes
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", e.getErrorCode());
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (EntityNotFoundException e) {
+            // Entity not found
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 404);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (Exception e) {
+            // Any other unexpected errors
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 500);
+            error.put("message", "Error saving application file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     @PutMapping("/updateApplicationFile/{id}")
-    public ApplicationFile updateApplicationFile(@PathVariable Long id, @RequestBody ApplicationFile applicationFile) {
-        return applicationFileService.updateApplicationFile(id, applicationFile);
+    public ResponseEntity<?> updateApplicationFile(@PathVariable Long id, @RequestBody ApplicationFile applicationFile) {
+        try {
+            ApplicationFile result = applicationFileService.updateApplicationFile(id, applicationFile);
+            return ResponseEntity.ok(result);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "ENTITY_NOT_FOUND");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error updating application file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     @GetMapping("/getApplicationFile/{id}")
-    public ApplicationFile getApplicationFileById(@PathVariable Long id) {
-        return applicationFileService.findById(id);
+    public ResponseEntity<?> getApplicationFileById(@PathVariable Long id) {
+        try {
+            ApplicationFile result = applicationFileService.findById(id);
+            if (result == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "ENTITY_NOT_FOUND");
+                error.put("message", "Application file not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error retrieving application file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     @DeleteMapping("/deleteApplicationFile/{id}")
-    public Long deleteApplicationFile(@PathVariable Long id) {
-        return applicationFileService.deleteApplicationFile(id);
+    public ResponseEntity<?> deleteApplicationFile(@PathVariable Long id) {
+        try {
+            Long result = applicationFileService.deleteApplicationFile(id);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error deleting application file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     @GetMapping("/getApplicationFileByCandidate/{candidateCin}")
-    public List<ApplicationFileDTO> getApplicationFileByCandidate(@PathVariable String candidateCin) {
-        return applicationFileService.getApplicationFilesByCandidate(candidateCin);
+    public ResponseEntity<?> getApplicationFileByCandidate(@PathVariable String candidateCin) {
+        try {
+            List<ApplicationFileDTO> result = applicationFileService.getApplicationFilesByCandidate(candidateCin);
+            return ResponseEntity.ok(result);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "ENTITY_NOT_FOUND");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error retrieving application files: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
     }
 
     @PutMapping("/updateTaxStampStatus/{id}")
-    public ResponseEntity<String> updateTaxStampStatus(@PathVariable Long id, @RequestParam String taxStampStatus) {
-        ApplicationFile existingFile = applicationFileService.findById(id);
-        if (existingFile == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> updateTaxStampStatus(@PathVariable Long id, @RequestParam String taxStampStatus) {
+        try {
+            ApplicationFile existingFile = applicationFileService.findById(id);
+            if (existingFile == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "ENTITY_NOT_FOUND");
+                error.put("message", "Application file not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            ApplicationFile updateRequest = new ApplicationFile();
+            updateRequest.setTaxStamp(taxStampStatus);
+
+            applicationFileService.updateApplicationFile(id, updateRequest);
+
+            Map<String, Object> success = new HashMap<>();
+            success.put("message", "Tax stamp status updated successfully");
+            return ResponseEntity.ok(success);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error updating tax stamp status: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        ApplicationFile updateRequest = new ApplicationFile();
-        updateRequest.setTaxStamp(taxStampStatus);
-
-        applicationFileService.updateApplicationFile(id, updateRequest);
-
-        return ResponseEntity.ok("Tax stamp status updated successfully");
     }
 
     @PutMapping("/updateMedicalVisitStatus/{id}")
-    public ResponseEntity<String> updateMedicalVisitStatus(@PathVariable Long id, @RequestParam String medicalVisitStatus) {
-        ApplicationFile existingFile = applicationFileService.findById(id);
-        if (existingFile == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> updateMedicalVisitStatus(@PathVariable Long id, @RequestParam String medicalVisitStatus) {
+        try {
+            ApplicationFile existingFile = applicationFileService.findById(id);
+            if (existingFile == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "ENTITY_NOT_FOUND");
+                error.put("message", "Application file not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            ApplicationFile updateRequest = new ApplicationFile();
+            updateRequest.setMedicalVisit(medicalVisitStatus);
+
+            applicationFileService.updateApplicationFile(id, updateRequest);
+
+            Map<String, Object> success = new HashMap<>();
+            success.put("message", "Medical visit status updated successfully");
+            return ResponseEntity.ok(success);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error updating medical visit status: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        ApplicationFile updateRequest = new ApplicationFile();
-        updateRequest.setMedicalVisit(medicalVisitStatus);
-
-        applicationFileService.updateApplicationFile(id, updateRequest);
-
-        return ResponseEntity.ok("Medical visit status updated successfully");
     }
 
     @PutMapping("/cancelApplicationFile/{id}")
     public ResponseEntity<?> cancelApplicationFile(@PathVariable Long id) {
         try {
             applicationFileService.cancelApplicationFile(id);
-            return ResponseEntity.ok("Application file cancelled successfully");
-        } catch (IllegalStateException e) {
-            // Business rule violations
-            return ResponseEntity.badRequest().body(e.getMessage());
+            Map<String, Object> success = new HashMap<>();
+            success.put("message", "Application file cancelled successfully");
+            return ResponseEntity.ok(success);
+        } catch (ApplicationFileServiceImpl.ApplicationFileException e) {
+            // Business rule violations with specific error codes
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", e.getErrorCode());
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (EntityNotFoundException e) {
             // Application file not found
-            return ResponseEntity.notFound().build();
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 404);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         } catch (Exception e) {
             // Any other unexpected errors
-            return ResponseEntity.status(500).body("Error cancelling application file: " + e.getMessage());
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 500);
+            error.put("message", "Error cancelling application file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
     @PutMapping("/updateTheoreticalHours/{id}")
-    public ResponseEntity<String> updateTheoreticalHours(@PathVariable Long id, @RequestParam Double hours) {
-        ApplicationFile existingFile = applicationFileService.findById(id);
-        if (existingFile == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> updateTheoreticalHours(@PathVariable Long id, @RequestParam Double hours) {
+        try {
+            ApplicationFile existingFile = applicationFileService.findById(id);
+            if (existingFile == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "ENTITY_NOT_FOUND");
+                error.put("message", "Application file not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            ApplicationFile updateRequest = new ApplicationFile();
+            updateRequest.setTheoreticalHoursCompleted(hours);
+
+            applicationFileService.updateApplicationFile(id, updateRequest);
+
+            Map<String, Object> success = new HashMap<>();
+            success.put("message", "Theoretical hours updated successfully");
+            return ResponseEntity.ok(success);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error updating theoretical hours: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        ApplicationFile updateRequest = new ApplicationFile();
-        updateRequest.setTheoreticalHoursCompleted(hours);
-
-        applicationFileService.updateApplicationFile(id, updateRequest);
-
-        return ResponseEntity.ok("Theoretical hours updated successfully");
     }
 
     @PutMapping("/updatePracticalHours/{id}")
-    public ResponseEntity<String> updatePracticalHours(@PathVariable Long id, @RequestParam Double hours) {
-        ApplicationFile existingFile = applicationFileService.findById(id);
-        if (existingFile == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> updatePracticalHours(@PathVariable Long id, @RequestParam Double hours) {
+        try {
+            ApplicationFile existingFile = applicationFileService.findById(id);
+            if (existingFile == null) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "ENTITY_NOT_FOUND");
+                error.put("message", "Application file not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+            }
+
+            ApplicationFile updateRequest = new ApplicationFile();
+            updateRequest.setPracticalHoursCompleted(hours);
+
+            applicationFileService.updateApplicationFile(id, updateRequest);
+
+            Map<String, Object> success = new HashMap<>();
+            success.put("message", "Practical hours updated successfully");
+            return ResponseEntity.ok(success);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INTERNAL_SERVER_ERROR");
+            error.put("message", "Error updating practical hours: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
-
-        ApplicationFile updateRequest = new ApplicationFile();
-        updateRequest.setPracticalHoursCompleted(hours);
-
-        applicationFileService.updateApplicationFile(id, updateRequest);
-
-        return ResponseEntity.ok("Practical hours updated successfully");
     }
 }

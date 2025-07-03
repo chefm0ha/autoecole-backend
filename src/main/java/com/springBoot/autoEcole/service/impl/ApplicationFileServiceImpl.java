@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,58 +39,41 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     @Autowired
     private PaymentInstallmentDao paymentInstallmentDao;
 
+    @Autowired
+    private EntityManager entityManager;
+
     @Override
     public ApplicationFileDTO saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request) {
-        // 1. Find candidate and category
-        Candidate candidate = candidateService.findByCin(candidateCin);
-        if (candidate == null) {
-            throw new EntityNotFoundException("Candidate not found with CIN: " + candidateCin);
+        try {
+            // Call stored procedure to validate and save application file
+            applicationFileDao.saveApplicationFileWithValidation(
+                    candidateCin,
+                    request.getCategoryCode(),
+                    request.getTotalAmount(),
+                    request.getInitialAmount()
+            );
+
+            // Get the ID of the newly created application file
+            Long applicationFileId = applicationFileDao.getLastApplicationFileId();
+
+            // Clear Hibernate cache to get fresh data
+            entityManager.clear();
+
+            // Retrieve and return the created application file
+            ApplicationFile savedApplicationFile = applicationFileDao.findById(applicationFileId).orElse(null);
+
+            if (savedApplicationFile == null) {
+                throw new RuntimeException("Failed to retrieve created application file");
+            }
+
+            return ApplicationFileDTO.fromEntity(savedApplicationFile);
+
+        } catch (DataAccessException e) {
+            ApplicationFileError error = extractErrorMessage(e);
+            throw new ApplicationFileException(error.getCode(), error.getMessage());
+        } catch (Exception e) {
+            throw new RuntimeException("Error saving application file: " + e.getMessage());
         }
-
-        Category category = categoryService.findByCode(request.getCategoryCode());
-        if (category == null) {
-            throw new EntityNotFoundException("Category not found with code: " + request.getCategoryCode());
-        }
-
-        // Check if an active application file already exists for this category
-        ApplicationFile existingFile = applicationFileDao.findByCandidateAndCategory(candidate, category);
-        if (existingFile != null && existingFile.getIsActive()) {
-            throw new IllegalStateException("An active application file already exists for category: " + request.getCategoryCode());
-        }
-
-        // 2. Create ApplicationFile
-        ApplicationFile applicationFile = ApplicationFile.builder()
-                .practicalHoursCompleted(0.0)
-                .theoreticalHoursCompleted(0.0)
-                .isActive(true)
-                .startingDate(LocalDate.now())
-                .status("IN_PROGRESS")
-                .fileNumber("test-" + candidateCin + "-test")
-                .taxStamp("NOT_PAID")
-                .medicalVisit("NOT_REQUESTED")
-                .candidate(candidate)
-                .category(category)
-                .build();
-
-        ApplicationFile savedApplicationFile = applicationFileDao.save(applicationFile);
-
-        // 3. Create Payment (without installment)
-        Payment payment = Payment.builder()
-                .paidAmount(0)
-                .status("PENDING")
-                .totalAmount(request.getTotalAmount())
-                .applicationFile(savedApplicationFile)
-                .build();
-
-        Payment savedPayment = paymentDao.save(payment);
-
-        // 4. Use stored procedure to create initial installment
-        paymentInstallmentDao.savePaymentInstallmentWithProcedure(
-                savedPayment.getId(),
-                request.getInitialAmount()
-        );
-
-        return ApplicationFileDTO.fromEntity(savedApplicationFile);
     }
 
     @Override
@@ -145,24 +129,36 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
                 .collect(Collectors.toList());
     }
 
-    // Add this method to ApplicationFileServiceImpl.java
-
     @Override
     public void cancelApplicationFile(Long applicationFileId) {
         try {
             applicationFileDao.cancelApplicationFile(applicationFileId);
         } catch (DataAccessException e) {
-            String message = extractErrorMessage(e);
-            throw new IllegalStateException(message);
+            ApplicationFileError error = extractErrorMessage(e);
+            throw new ApplicationFileException(error.getCode(), error.getMessage());
         } catch (Exception e) {
             throw new RuntimeException("Error cancelling application file: " + e.getMessage());
         }
     }
 
-    private String extractErrorMessage(Exception e) {
+    // Custom exception class for application file errors
+    public static class ApplicationFileException extends RuntimeException {
+        private final int errorCode;
+
+        public ApplicationFileException(int errorCode, String message) {
+            super(message);
+            this.errorCode = errorCode;
+        }
+
+        public int getErrorCode() {
+            return errorCode;
+        }
+    }
+
+    private ApplicationFileError extractErrorMessage(Exception e) {
         String message = e.getMessage();
         if (message == null) {
-            return "Database error occurred";
+            return new ApplicationFileError(999, "Database error occurred");
         }
 
         // Try to extract the actual error message from nested exceptions
@@ -170,17 +166,60 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
         while (cause != null) {
             String causeMessage = cause.getMessage();
             if (causeMessage != null) {
-                if (causeMessage.contains("Application file not found")) {
-                    return "Application file not found";
-                } else if (causeMessage.contains("Cannot cancel a completed application file")) {
-                    return "Cannot cancel a completed application file";
-                } else if (causeMessage.contains("Application file is already cancelled")) {
-                    return "Application file is already cancelled";
+                ApplicationFileError extractedError = mapKnownErrorMessage(causeMessage);
+                if (extractedError != null) {
+                    return extractedError;
                 }
             }
             cause = cause.getCause();
         }
 
-        return message;
+        return new ApplicationFileError(999, message);
+    }
+
+    private ApplicationFileError mapKnownErrorMessage(String causeMessage) {
+        // Map known database error messages to error codes and messages
+        if (causeMessage.contains("Candidate not found")) {
+            return new ApplicationFileError(100, "Candidate not found");
+        }
+        if (causeMessage.contains("Category not found")) {
+            return new ApplicationFileError(101, "Category not found");
+        }
+        if (causeMessage.contains("Cannot add application file: An active application file is already in progress for this category")) {
+            return new ApplicationFileError(102, "Cannot add application file: An active application file is already in progress for this category");
+        }
+        if (causeMessage.contains("Cannot add application file: A completed application file already exists for this category")) {
+            return new ApplicationFileError(103, "Cannot add application file: A completed application file already exists for this category");
+        }
+        if (causeMessage.contains("Application file not found")) {
+            return new ApplicationFileError(104, "Application file not found");
+        }
+        if (causeMessage.contains("Cannot cancel a completed application file")) {
+            return new ApplicationFileError(105, "Cannot cancel a completed application file");
+        }
+        if (causeMessage.contains("Application file is already cancelled")) {
+            return new ApplicationFileError(106, "Application file is already cancelled");
+        }
+
+        return null; // No known mapping found
+    }
+
+    // Inner class for error handling
+    private static class ApplicationFileError {
+        private final int code;
+        private final String message;
+
+        public ApplicationFileError(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }

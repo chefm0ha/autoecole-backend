@@ -1,9 +1,131 @@
 DELIMITER //
 
+DROP PROCEDURE IF EXISTS save_application_file_with_validation //
 DROP PROCEDURE IF EXISTS save_exam_with_logic //
 DROP PROCEDURE IF EXISTS save_payment_installment //
 DROP PROCEDURE IF EXISTS update_exam_status //
 DROP PROCEDURE IF EXISTS cancel_application_file //
+
+CREATE PROCEDURE save_application_file_with_validation(
+    IN p_candidate_cin VARCHAR(255),
+    IN p_category_code VARCHAR(255),
+    IN p_total_amount INT,
+    IN p_initial_amount INT,
+    OUT p_application_file_id BIGINT
+)
+BEGIN
+    DECLARE v_candidate_exists INT DEFAULT 0;
+    DECLARE v_category_exists INT DEFAULT 0;
+    DECLARE v_active_file_exists INT DEFAULT 0;
+    DECLARE v_completed_file_exists INT DEFAULT 0;
+    DECLARE v_new_file_number VARCHAR(255);
+    DECLARE v_new_application_file_id BIGINT;
+    DECLARE v_new_payment_id BIGINT;
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+        BEGIN
+            ROLLBACK;
+            RESIGNAL;
+        END;
+
+    START TRANSACTION;
+
+    -- Check if candidate exists
+    SELECT COUNT(*) INTO v_candidate_exists
+    FROM candidate
+    WHERE cin = p_candidate_cin;
+
+    IF v_candidate_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Candidate not found';
+    END IF;
+
+    -- Check if category exists
+    SELECT COUNT(*) INTO v_category_exists
+    FROM category
+    WHERE code = p_category_code;
+
+    IF v_category_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Category not found';
+    END IF;
+
+    -- Check for any active application file (IN_PROGRESS with is_active = TRUE)
+    SELECT COUNT(*) INTO v_active_file_exists
+    FROM application_file af
+    WHERE af.candidate_cin = p_candidate_cin
+      AND af.category_code = p_category_code
+      AND af.status = 'IN_PROGRESS'
+      AND af.is_active = TRUE;
+
+    IF v_active_file_exists > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add application file: An active application file is already in progress for this category';
+    END IF;
+
+    -- Check for any completed application file
+    SELECT COUNT(*) INTO v_completed_file_exists
+    FROM application_file af
+    WHERE af.candidate_cin = p_candidate_cin
+      AND af.category_code = p_category_code
+      AND af.status = 'COMPLETED';
+
+    IF v_completed_file_exists > 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add application file: A completed application file already exists for this category';
+    END IF;
+
+    -- Note: Only FAILED status or no existing application files are allowed to create new application files
+
+    -- Generate file number
+    SET v_new_file_number = CONCAT('test-', p_candidate_cin, '-test');
+
+    -- Create new application file
+    INSERT INTO application_file (
+        candidate_cin,
+        category_code,
+        practical_hours_completed,
+        theoretical_hours_completed,
+        is_active,
+        starting_date,
+        status,
+        file_number,
+        tax_stamp,
+        medical_visit
+    ) VALUES (
+                 p_candidate_cin,
+                 p_category_code,
+                 0.0,
+                 0.0,
+                 TRUE,
+                 CURDATE(),
+                 'IN_PROGRESS',
+                 v_new_file_number,
+                 'NOT_PAID',
+                 'NOT_REQUESTED'
+             );
+
+    SET v_new_application_file_id = LAST_INSERT_ID();
+
+    -- Create payment record
+    INSERT INTO payment (
+        application_file_id,
+        paid_amount,
+        status,
+        total_amount
+    ) VALUES (
+                 v_new_application_file_id,
+                 0,
+                 'PENDING',
+                 p_total_amount
+             );
+
+    SET v_new_payment_id = LAST_INSERT_ID();
+
+    -- Create initial payment installment using existing procedure
+    CALL save_payment_installment(v_new_payment_id, p_initial_amount);
+
+    SET p_application_file_id = v_new_application_file_id;
+
+    COMMIT;
+
+END//
 
 CREATE PROCEDURE save_exam_with_logic(
     IN p_application_file_id BIGINT,
