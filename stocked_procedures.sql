@@ -134,14 +134,17 @@ CREATE PROCEDURE save_exam_with_logic(
     IN p_status VARCHAR(50)
 )
 BEGIN
-    DECLARE v_attempt_number INT DEFAULT 1;
-    DECLARE v_existing_scheduled_count INT DEFAULT 0;
-    DECLARE v_existing_passed_count INT DEFAULT 0;
+    DECLARE v_application_file_exists INT DEFAULT 0;
+    DECLARE v_tax_stamp VARCHAR(50);
+    DECLARE v_medical_visit VARCHAR(50);
+    DECLARE v_current_attempt_number INT DEFAULT 0;
     DECLARE v_theory_passed INT DEFAULT 0;
-    DECLARE v_max_attempts INT DEFAULT 3;
-    DECLARE v_exam_type_attempts INT DEFAULT 0;
-    DECLARE v_tax_stamp_status VARCHAR(50);
-    DECLARE v_medical_visit_status VARCHAR(50);
+    DECLARE v_practical_passed INT DEFAULT 0;
+    DECLARE v_scheduled_theory_count INT DEFAULT 0;
+    DECLARE v_scheduled_practical_count INT DEFAULT 0;
+    DECLARE v_total_failed_count INT DEFAULT 0;
+    DECLARE v_failed_theory_count INT DEFAULT 0;
+    DECLARE v_failed_practical_count INT DEFAULT 0;
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
         BEGIN
@@ -152,113 +155,144 @@ BEGIN
     START TRANSACTION;
 
     -- Check if application file exists and is active
-    IF NOT EXISTS (SELECT 1 FROM application_file WHERE id = p_application_file_id AND is_active = 1) THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Application file not found or inactive';
-    END IF;
-
-    -- Check tax stamp and medical visit status
-    SELECT tax_stamp, medical_visit
-    INTO v_tax_stamp_status, v_medical_visit_status
+    SELECT COUNT(*), tax_stamp, medical_visit INTO v_application_file_exists, v_tax_stamp, v_medical_visit
     FROM application_file
-    WHERE id = p_application_file_id;
+    WHERE id = p_application_file_id AND is_active = TRUE;
 
-    -- Business Rule: Tax stamp must be PAID before scheduling any exam
-    IF v_tax_stamp_status != 'PAID' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule exam: Tax stamp must be PAID first';
+    IF v_application_file_exists = 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Application file not found or not active';
     END IF;
 
-    -- Business Rule: Medical visit must be COMPLETED before scheduling any exam
-    IF v_medical_visit_status != 'COMPLETED' THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule exam: Medical visit must be COMPLETED first';
+    -- Validate tax stamp and medical visit requirements
+    IF v_tax_stamp != 'PAID' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Tax stamp must be PAID';
     END IF;
 
-    -- Check if there's already a PASSED exam of this type (THIS CHECK MUST BE FIRST)
-    SELECT COUNT(*)
-    INTO v_existing_passed_count
+    IF v_medical_visit != 'COMPLETED' THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Medical visit must be COMPLETED';
+    END IF;
+
+    -- Validate exam type
+    IF p_exam_type NOT IN ('THEORY', 'PRACTICAL') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid exam type. Must be THEORY or PRACTICAL';
+    END IF;
+
+    -- Validate exam status
+    IF p_status NOT IN ('SCHEDULED', 'PASSED', 'FAILED') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Invalid exam status. Must be SCHEDULED, PASSED, or FAILED';
+    END IF;
+
+    -- Count existing exams by type and status
+    SELECT COUNT(*) INTO v_theory_passed
     FROM exam
     WHERE application_file_id = p_application_file_id
-      AND exam_type = p_exam_type
+      AND exam_type = 'THEORY'
       AND status = 'PASSED';
 
-    -- Business Rule: Cannot add another exam if one is already PASSED
-    IF v_existing_passed_count > 0 THEN
-        IF p_exam_type = 'THEORY' THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add another THEORY exam: already have a PASSED exam of this type';
-        ELSE
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add another PRACTICAL exam: already have a PASSED exam of this type';
-        END IF;
-    END IF;
-
-    -- Get the next attempt number (sequential across all exams for this application file)
-    SELECT COALESCE(MAX(attempt_number), 0) + 1
-    INTO v_attempt_number
-    FROM exam
-    WHERE application_file_id = p_application_file_id;
-
-    -- Check maximum attempts per exam type (2 for theory, 3 for practical)
-    SELECT COUNT(*)
-    INTO v_exam_type_attempts
+    SELECT COUNT(*) INTO v_practical_passed
     FROM exam
     WHERE application_file_id = p_application_file_id
-      AND exam_type = p_exam_type;
+      AND exam_type = 'PRACTICAL'
+      AND status = 'PASSED';
 
-    IF p_exam_type = 'THEORY' AND v_exam_type_attempts >= 2 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Maximum number of attempts (2) exceeded for theory exam';
-    ELSEIF p_exam_type = 'PRACTICAL' AND v_exam_type_attempts >= 3 THEN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Maximum number of attempts (3) exceeded for practical exam';
-    END IF;
-
-    -- Check if there's already a SCHEDULED exam of this type
-    SELECT COUNT(*)
-    INTO v_existing_scheduled_count
+    SELECT COUNT(*) INTO v_scheduled_theory_count
     FROM exam
     WHERE application_file_id = p_application_file_id
-      AND exam_type = p_exam_type
+      AND exam_type = 'THEORY'
       AND status = 'SCHEDULED';
 
-    -- Business Rule: Cannot schedule if there's already a scheduled exam of the same type
-    IF p_status = 'SCHEDULED' AND v_existing_scheduled_count > 0 THEN
-        IF p_exam_type = 'THEORY' THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule THEORY exam: there is already a scheduled THEORY exam. Complete the current exam first.';
-        ELSE
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule PRACTICAL exam: there is already a scheduled PRACTICAL exam. Complete the current exam first.';
-        END IF;
-    END IF;
+    SELECT COUNT(*) INTO v_scheduled_practical_count
+    FROM exam
+    WHERE application_file_id = p_application_file_id
+      AND exam_type = 'PRACTICAL'
+      AND status = 'SCHEDULED';
 
-    -- Business Rule: For PRACTICAL exam, check if THEORY is passed first
-    IF p_exam_type = 'PRACTICAL' THEN
-        SELECT COUNT(*)
-        INTO v_theory_passed
-        FROM exam
-        WHERE application_file_id = p_application_file_id
-          AND exam_type = 'THEORY'
-          AND status = 'PASSED';
+    SELECT COUNT(*) INTO v_failed_theory_count
+    FROM exam
+    WHERE application_file_id = p_application_file_id
+      AND exam_type = 'THEORY'
+      AND status = 'FAILED';
+
+    SELECT COUNT(*) INTO v_failed_practical_count
+    FROM exam
+    WHERE application_file_id = p_application_file_id
+      AND exam_type = 'PRACTICAL'
+      AND status = 'FAILED';
+
+    -- Total failed exams across all types
+    SET v_total_failed_count = v_failed_theory_count + v_failed_practical_count;
+
+    -- Business logic validation
+    IF p_exam_type = 'THEORY' THEN
+        -- Theory exam validation
+        IF v_theory_passed > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add another THEORY exam: already have a PASSED exam of this type';
+        END IF;
+
+        IF p_status = 'SCHEDULED' AND v_scheduled_theory_count > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule theory exam: there is already a scheduled theory exam. Complete the current exam first.';
+        END IF;
+
+        -- Check if adding this failed exam would exceed the total failure limit
+        IF p_status = 'FAILED' AND v_total_failed_count >= 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Maximum number of failures exceeded: candidate has already failed once';
+        END IF;
+
+        SET v_current_attempt_number = v_failed_theory_count + 1;
+
+    ELSE -- PRACTICAL exam
+    -- Practical exam validation
+        IF v_practical_passed > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add another PRACTICAL exam: already have a PASSED exam of this type';
+        END IF;
 
         IF v_theory_passed = 0 THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule practical exam: theory exam must be passed first';
         END IF;
+
+        IF p_status = 'SCHEDULED' AND v_scheduled_practical_count > 0 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot schedule practical exam: there is already a scheduled practical exam. Complete the current exam first.';
+        END IF;
+
+        -- Check if adding this failed exam would exceed the total failure limit
+        IF p_status = 'FAILED' AND v_total_failed_count >= 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Maximum number of failures exceeded: candidate has already failed once';
+        END IF;
+
+        SET v_current_attempt_number = v_failed_practical_count + 1;
     END IF;
 
     -- Insert the new exam
-    INSERT INTO exam (application_file_id, exam_type, date, status, attempt_number)
-    VALUES (p_application_file_id, p_exam_type, p_date, p_status, v_attempt_number);
+    INSERT INTO exam (
+        application_file_id,
+        exam_type,
+        date,
+        status,
+        attempt_number
+    ) VALUES (
+                 p_application_file_id,
+                 p_exam_type,
+                 p_date,
+                 p_status,
+                 v_current_attempt_number
+             );
 
-    -- If this exam is PASSED and it's the second type to be passed, mark application as COMPLETED
-    IF p_status = 'PASSED' THEN
-        IF (SELECT COUNT(DISTINCT exam_type)
-            FROM exam
-            WHERE application_file_id = p_application_file_id
-              AND status = 'PASSED'
-              AND exam_type IN ('THEORY', 'PRACTICAL')) = 2 THEN
+    -- Update application file status if needed
+    -- Case 1: Both theory and practical are passed -> COMPLETED
+    IF v_theory_passed > 0 AND (v_practical_passed > 0 OR (p_exam_type = 'PRACTICAL' AND p_status = 'PASSED')) THEN
+        UPDATE application_file
+        SET status = 'COMPLETED', is_active = FALSE
+        WHERE id = p_application_file_id;
 
-            UPDATE application_file
-            SET status = 'COMPLETED'
-            WHERE id = p_application_file_id;
-        END IF;
+        -- Case 2: Second failure (total failures = 1 after this insert) -> FAILED
+    ELSEIF p_status = 'FAILED' AND v_total_failed_count + 1 >= 2 THEN
+        UPDATE application_file
+        SET status = 'FAILED', is_active = FALSE
+        WHERE id = p_application_file_id;
     END IF;
 
     COMMIT;
-END //
+END//
 
 CREATE PROCEDURE save_payment_installment(
     IN p_payment_id BIGINT,
