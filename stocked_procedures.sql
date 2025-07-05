@@ -155,13 +155,18 @@ BEGIN
     START TRANSACTION;
 
     -- Check if application file exists and is active
-    SELECT COUNT(*), tax_stamp, medical_visit INTO v_application_file_exists, v_tax_stamp, v_medical_visit
+    SELECT COUNT(*) INTO v_application_file_exists
     FROM application_file
     WHERE id = p_application_file_id AND is_active = TRUE;
 
     IF v_application_file_exists = 0 THEN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Application file not found or not active';
     END IF;
+
+    -- Get tax stamp and medical visit status
+    SELECT tax_stamp, medical_visit INTO v_tax_stamp, v_medical_visit
+    FROM application_file
+    WHERE id = p_application_file_id AND is_active = TRUE;
 
     -- Validate tax stamp and medical visit requirements
     IF v_tax_stamp != 'PAID' THEN
@@ -292,6 +297,7 @@ BEGIN
     END IF;
 
     COMMIT;
+
 END//
 
 CREATE PROCEDURE save_payment_installment(
