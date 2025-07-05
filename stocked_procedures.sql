@@ -239,8 +239,9 @@ BEGIN
         END IF;
 
         -- Check if adding this failed exam would exceed the total failure limit
-        IF p_status = 'FAILED' AND v_total_failed_count >= 1 THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Maximum number of failures exceeded: candidate has already failed once';
+        -- Allow the second failure to be recorded, but prevent third failure
+        IF p_status = 'FAILED' AND v_total_failed_count >= 2 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add more exams: application file has already failed due to multiple failures';
         END IF;
 
         SET v_current_attempt_number = v_failed_theory_count + 1;
@@ -260,8 +261,9 @@ BEGIN
         END IF;
 
         -- Check if adding this failed exam would exceed the total failure limit
-        IF p_status = 'FAILED' AND v_total_failed_count >= 1 THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Maximum number of failures exceeded: candidate has already failed once';
+        -- Allow the second failure to be recorded, but prevent third failure
+        IF p_status = 'FAILED' AND v_total_failed_count >= 2 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Cannot add more exams: application file has already failed due to multiple failures';
         END IF;
 
         SET v_current_attempt_number = v_failed_practical_count + 1;
@@ -289,7 +291,7 @@ BEGIN
         SET status = 'COMPLETED', is_active = FALSE
         WHERE id = p_application_file_id;
 
-        -- Case 2: Second failure (total failures = 1 after this insert) -> FAILED
+        -- Case 2: Second failure (total failures = 2 after this insert) -> FAILED
     ELSEIF p_status = 'FAILED' AND v_total_failed_count + 1 >= 2 THEN
         UPDATE application_file
         SET status = 'FAILED', is_active = FALSE

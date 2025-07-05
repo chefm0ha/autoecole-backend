@@ -9,6 +9,7 @@ import com.springBoot.autoEcole.repository.PaymentInstallmentDao;
 import com.springBoot.autoEcole.service.ApplicationFileService;
 import com.springBoot.autoEcole.service.CandidateService;
 import com.springBoot.autoEcole.service.CategoryService;
+import lombok.Getter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -142,6 +143,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     }
 
     // Custom exception class for application file errors
+    @Getter
     public static class ApplicationFileException extends RuntimeException {
         private final int errorCode;
 
@@ -150,9 +152,6 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
             this.errorCode = errorCode;
         }
 
-        public int getErrorCode() {
-            return errorCode;
-        }
     }
 
     private ApplicationFileError extractErrorMessage(Exception e) {
@@ -191,6 +190,9 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
         if (causeMessage.contains("Cannot add application file: A completed application file already exists for this category")) {
             return new ApplicationFileError(103, "Cannot add application file: A completed application file already exists for this category");
         }
+        if (causeMessage.contains("Cannot add more exams: application file has already failed due to multiple failures")) {
+            return new ApplicationFileError(107, "Cannot add more exams: application file has already failed due to multiple failures");
+        }
         if (causeMessage.contains("Application file not found")) {
             return new ApplicationFileError(104, "Application file not found");
         }
@@ -205,6 +207,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     }
 
     // Inner class for error handling
+    @Getter
     private static class ApplicationFileError {
         private final int code;
         private final String message;
@@ -214,12 +217,5 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
             this.message = message;
         }
 
-        public int getCode() {
-            return code;
-        }
-
-        public String getMessage() {
-            return message;
-        }
     }
 }
