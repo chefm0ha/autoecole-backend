@@ -1,5 +1,6 @@
 package com.springBoot.autoEcole.service.impl;
 
+import com.springBoot.autoEcole.dto.CalendarExamDTO;
 import com.springBoot.autoEcole.dto.ExamRequestDTO;
 import com.springBoot.autoEcole.dto.ExamResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import com.springBoot.autoEcole.service.ApplicationFileService;
 import com.springBoot.autoEcole.service.ExamService;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,6 +82,66 @@ public class ExamServiceImpl implements ExamService {
 			String errorMessage = extractErrorMessage(e);
 			throw new IllegalStateException(errorMessage);
 		}
+	}
+
+	// ==================== CALENDAR METHODS ====================
+
+	@Override
+	public List<CalendarExamDTO> getExamsByMonth(int year, int month) {
+		// Validate month range
+		if (month < 1 || month > 12) {
+			throw new IllegalArgumentException("Month must be between 1 and 12");
+		}
+
+		// Validate year range (reasonable bounds)
+		if (year < 2000 || year > 2100) {
+			throw new IllegalArgumentException("Year must be between 2000 and 2100");
+		}
+
+		List<Exam> exams = examDao.findExamsByYearAndMonth(year, month);
+		return exams.stream()
+				.map(CalendarExamDTO::fromEntity)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<CalendarExamDTO> getExamsByDate(LocalDate date) {
+		if (date == null) {
+			throw new IllegalArgumentException("Date cannot be null");
+		}
+
+		List<Exam> exams = examDao.findExamsByDate(date);
+		return exams.stream()
+				.map(CalendarExamDTO::fromEntity)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<CalendarExamDTO> getExamsByDateRange(LocalDate startDate, LocalDate endDate) {
+		if (startDate == null || endDate == null) {
+			throw new IllegalArgumentException("Start date and end date cannot be null");
+		}
+
+		if (startDate.isAfter(endDate)) {
+			throw new IllegalArgumentException("Start date cannot be after end date");
+		}
+
+		List<Exam> exams = examDao.findExamsByDateRange(startDate, endDate);
+		return exams.stream()
+				.map(CalendarExamDTO::fromEntity)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<CalendarExamDTO> getScheduledExamsFromDate(LocalDate fromDate) {
+		if (fromDate == null) {
+			fromDate = LocalDate.now(); // Default to today
+		}
+
+		List<Exam> exams = examDao.findScheduledExamsFromDate(fromDate);
+		return exams.stream()
+				.map(CalendarExamDTO::fromEntity)
+				.collect(Collectors.toList());
 	}
 
 	// ==================== PRIVATE VALIDATION METHODS ====================
