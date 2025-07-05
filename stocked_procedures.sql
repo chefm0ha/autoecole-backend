@@ -121,6 +121,11 @@ BEGIN
     -- Create initial payment installment using existing procedure
     CALL save_payment_installment(v_new_payment_id, p_initial_amount);
 
+    -- Activate the candidate (set isActive = TRUE) since they now have an active application file
+    UPDATE candidate
+    SET is_active = TRUE
+    WHERE cin = p_candidate_cin;
+
     SET p_application_file_id = v_new_application_file_id;
 
     COMMIT;
