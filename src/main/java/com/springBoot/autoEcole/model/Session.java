@@ -3,6 +3,7 @@ package com.springBoot.autoEcole.model;
 import java.time.LocalDate;
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springBoot.autoEcole.enums.SessionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,8 +29,9 @@ public class Session {
     @Column(name = "status")
     private String status;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "session_type")
-    private String sessionType;
+    private SessionType sessionType;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

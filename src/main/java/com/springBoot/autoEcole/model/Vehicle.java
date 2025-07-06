@@ -7,12 +7,14 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-
+import com.springBoot.autoEcole.enums.FuelType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,8 +45,9 @@ public class Vehicle {
 	@Column(name = "vehicle_brand")
 	private String vehicleBrand;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "fuel_type")
-	private String fuelType;
+	private FuelType fuelType;
 
 	@Column(name = "vehicle_type")
 	private String vehicleType;

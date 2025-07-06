@@ -2,6 +2,7 @@ package com.springBoot.autoEcole.model;
 
 import javax.persistence.*;
 
+import com.springBoot.autoEcole.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,6 +31,7 @@ public class User {
 	@Column(name = "password")
 	private String password;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "role")
-	private String role;
+	private UserRole role;
 }

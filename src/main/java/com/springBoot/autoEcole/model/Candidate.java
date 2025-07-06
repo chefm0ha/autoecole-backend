@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.persistence.*;
 
-
+import com.springBoot.autoEcole.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,8 +39,9 @@ public class Candidate {
 	@Column(name = "first_name")
 	private String firstName;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "gender")
-	private String gender;
+	private Gender gender;
 
 	@Column(name = "gsm")
 	private String gsm;

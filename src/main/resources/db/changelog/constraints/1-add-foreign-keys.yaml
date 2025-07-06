@@ -1,0 +1,118 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-application-file-foreign-keys
+      author: dev
+      comment: Add foreign key constraints for application_file table
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: application_file
+            baseColumnNames: category_code
+            constraintName: fk_application_file_category
+            referencedTableName: category
+            referencedColumnNames: code
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: application_file
+            baseColumnNames: candidate_cin
+            constraintName: fk_application_file_candidate
+            referencedTableName: candidate
+            referencedColumnNames: cin
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: add-session-foreign-keys
+      author: dev
+      comment: Add foreign key constraints for session table
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: session
+            baseColumnNames: candidate_cin
+            constraintName: fk_session_candidate
+            referencedTableName: candidate
+            referencedColumnNames: cin
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: session
+            baseColumnNames: instructor_cin
+            constraintName: fk_session_instructor
+            referencedTableName: instructor
+            referencedColumnNames: cin
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: session
+            baseColumnNames: vehicle_immat
+            constraintName: fk_session_vehicle
+            referencedTableName: vehicle
+            referencedColumnNames: immatriculation
+            onDelete: RESTRICT
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: add-payment-foreign-keys
+      author: dev
+      comment: Add foreign key constraints for payment tables
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: payment
+            baseColumnNames: application_file_id
+            constraintName: fk_payment_application_file
+            referencedTableName: application_file
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: payment_installment
+            baseColumnNames: payment_id
+            constraintName: fk_payment_installment_payment
+            referencedTableName: payment
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: add-exam-foreign-keys
+      author: dev
+      comment: Add foreign key constraints for exam table
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: exam
+            baseColumnNames: application_file_id
+            constraintName: fk_exam_application_file
+            referencedTableName: application_file
+            referencedColumnNames: id
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+  - changeSet:
+      id: add-vehicle-related-foreign-keys
+      author: dev
+      comment: Add foreign key constraints for vehicle-related tables
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: insurance
+            baseColumnNames: vehicle_immat
+            constraintName: fk_insurance_vehicle
+            referencedTableName: vehicle
+            referencedColumnNames: immatriculation
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: oil_change
+            baseColumnNames: vehicle_immat
+            constraintName: fk_oil_change_vehicle
+            referencedTableName: vehicle
+            referencedColumnNames: immatriculation
+            onDelete: CASCADE
+            onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: technical_visit
+            baseColumnNames: vehicle_immat
+            constraintName: fk_technical_visit_vehicle
+            referencedTableName: vehicle
+            referencedColumnNames: immatriculation
+            onDelete: CASCADE
+            onUpdate: CASCADE

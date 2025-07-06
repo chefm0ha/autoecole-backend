@@ -3,6 +3,7 @@ package com.springBoot.autoEcole.model;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springBoot.autoEcole.enums.PaymentStatus;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +26,9 @@ public class Payment {
 	@Column(name = "paid_amount")
 	private Integer paidAmount;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name = "status")
-	private String status;
+	private PaymentStatus status;
 
 	@Column(name = "total_amount")
 	private Integer totalAmount;

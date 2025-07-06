@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springBoot.autoEcole.enums.ApplicationFileStatus;
+import com.springBoot.autoEcole.enums.TaxStampStatus;
+import com.springBoot.autoEcole.enums.MedicalVisitStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,17 +35,20 @@ public class ApplicationFile {
     @Column(name = "starting_date")
     private LocalDate startingDate;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private ApplicationFileStatus status;
 
     @Column(name = "file_number")
     private String fileNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "tax_stamp")
-    private String taxStamp;
+    private TaxStampStatus taxStamp;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "medical_visit")
-    private String medicalVisit;
+    private MedicalVisitStatus medicalVisit;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_code")
