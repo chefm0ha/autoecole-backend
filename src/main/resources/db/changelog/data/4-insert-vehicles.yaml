@@ -1,0 +1,81 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-vehicles-data
+      author: system
+      changes:
+        - insert:
+            tableName: vehicle
+            columns:
+              - column:
+                  name: immatriculation
+                  value: 123-A-45
+              - column:
+                  name: vehicle_brand
+                  value: Toyota
+              - column:
+                  name: vehicle_type
+                  value: Sedan
+              - column:
+                  name: fuel_type
+                  value: ESSENCE
+              - column:
+                  name: category
+                  value: B
+              - column:
+                  name: km_initial
+                  valueNumeric: 50000
+              - column:
+                  name: amount_vignette
+                  valueNumeric: 1500.00
+        - insert:
+            tableName: vehicle
+            columns:
+              - column:
+                  name: immatriculation
+                  value: 456-B-78
+              - column:
+                  name: vehicle_brand
+                  value: Honda
+              - column:
+                  name: vehicle_type
+                  value: Motorcycle
+              - column:
+                  name: fuel_type
+                  value: ESSENCE
+              - column:
+                  name: category
+                  value: A
+              - column:
+                  name: km_initial
+                  valueNumeric: 25000
+              - column:
+                  name: amount_vignette
+                  valueNumeric: 800.00
+        - insert:
+            tableName: vehicle
+            columns:
+              - column:
+                  name: immatriculation
+                  value: 789-C-12
+              - column:
+                  name: vehicle_brand
+                  value: Mercedes
+              - column:
+                  name: vehicle_type
+                  value: Truck
+              - column:
+                  name: fuel_type
+                  value: DIESEL
+              - column:
+                  name: category
+                  value: C
+              - column:
+                  name: km_initial
+                  valueNumeric: 80000
+              - column:
+                  name: amount_vignette
+                  valueNumeric: 3000.00
+      rollback:
+        - delete:
+            tableName: vehicle
+            where: immatriculation IN ('123-A-45', '456-B-78', '789-C-12')

@@ -3,6 +3,12 @@ package com.springBoot.autoEcole.service.impl;
 import com.springBoot.autoEcole.dto.CalendarExamDTO;
 import com.springBoot.autoEcole.dto.ExamRequestDTO;
 import com.springBoot.autoEcole.dto.ExamResponseDTO;
+import com.springBoot.autoEcole.enums.ApplicationFileStatus;
+import com.springBoot.autoEcole.enums.ExamStatus;
+import com.springBoot.autoEcole.enums.ExamType;
+import com.springBoot.autoEcole.enums.MedicalVisitStatus;
+import com.springBoot.autoEcole.enums.TaxStampStatus;
+import com.springBoot.autoEcole.mapper.ExamMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,26 +33,47 @@ public class ExamServiceImpl implements ExamService {
 	@Autowired
 	private ExamDao examDao;
 
+	@Autowired
+	private ExamMapper examMapper;
+
 	@Override
 	public Exam saveExam(Long applicationFileId, ExamRequestDTO examRequest) {
-		// Validate application file
+		// 1. Validate application file exists and is active
 		ApplicationFile applicationFile = validateApplicationFile(applicationFileId);
 
-		// Call stored procedure to save exam with business logic
-		try {
-			examDao.saveExamWithBusinessLogic(
-					applicationFileId,
-					examRequest.getExamType(),
-					examRequest.getDate(),
-					examRequest.getStatus()
-			);
+		// 2. Validate prerequisites (tax stamp, medical visit)
+		validateExamPrerequisites(applicationFile);
 
-			return examDao.findLatestExamByApplicationFileAndType(applicationFileId, examRequest.getExamType());
+		// 3. Parse and validate exam type and status
+		ExamType examType = ExamType.valueOf(examRequest.getExamType());
+		ExamStatus examStatus = ExamStatus.valueOf(examRequest.getStatus());
 
-		} catch (Exception e) {
-			String errorMessage = extractErrorMessage(e);
-			throw new IllegalStateException(errorMessage);
+		// 4. Check attempt limits and existing exams
+		validateExamBusinessRules(applicationFile, examType, examStatus);
+
+		// 5. For practical exams, ensure theory is passed
+		if (examType == ExamType.PRACTICAL) {
+			validateTheoryExamPassed(applicationFile);
 		}
+
+		// 6. Calculate attempt number
+		Integer attemptNumber = calculateAttemptNumber(applicationFile, examType);
+
+		// 7. Create source exam with the data
+		Exam sourceExam = new Exam();
+		sourceExam.setExamType(examType);
+		sourceExam.setStatus(examStatus);
+		sourceExam.setDate(examRequest.getDate());
+		sourceExam.setAttemptNumber(attemptNumber);
+
+		// 8. Create and save exam using mapper
+		Exam exam = examMapper.toEntity(sourceExam, applicationFile);
+		Exam savedExam = examDao.save(exam);
+
+		// 9. Update application file status based on exam
+		updateApplicationFileStatusAfterExam(applicationFile, examType, examStatus);
+
+		return savedExam;
 	}
 
 	@Override
@@ -62,26 +89,28 @@ public class ExamServiceImpl implements ExamService {
 
 	@Override
 	public Exam updateExamStatus(Long examId, String newStatus) {
-		// Validate exam exists
-		Exam existingExam = validateExamExists(examId);
+		// 1. Validate exam exists
+		Exam exam = validateExamExists(examId);
 
-		// Validate and normalize status
-		String normalizedStatus = validateAndNormalizeStatus(newStatus);
+		// 2. Validate and parse new status
+		ExamStatus newExamStatus = ExamStatus.valueOf(newStatus.toUpperCase());
 
-		// Check business rules
-		validateStatusChangeRules(existingExam, normalizedStatus);
+		// 3. Validate status transition rules
+		validateStatusTransition(exam, newExamStatus);
 
-		try {
-			// Call stored procedure to update exam status with business logic
-			examDao.updateExamStatusWithBusinessLogic(examId, normalizedStatus);
+		// 4. Create source exam with new status
+		Exam sourceExam = new Exam();
+		sourceExam.setStatus(newExamStatus);
 
-			// Return the updated exam
-			return examDao.findById(examId).orElse(existingExam);
+		// 5. Update exam using mapper
+		ExamStatus oldStatus = exam.getStatus();
+		examMapper.updateEntity(exam, sourceExam);
+		Exam updatedExam = examDao.save(exam);
 
-		} catch (Exception e) {
-			String errorMessage = extractErrorMessage(e);
-			throw new IllegalStateException(errorMessage);
-		}
+		// 6. Update application file status based on new exam status
+		updateApplicationFileStatusAfterStatusChange(exam.getApplicationFile(), exam.getExamType(), oldStatus, newExamStatus);
+
+		return updatedExam;
 	}
 
 	// ==================== CALENDAR METHODS ====================
@@ -260,5 +289,155 @@ public class ExamServiceImpl implements ExamService {
 		}
 
 		return null; // No known mapping found
+	}
+
+	// ==================== BUSINESS LOGIC METHODS ====================
+
+	private void validateExamPrerequisites(ApplicationFile applicationFile) {
+		if (applicationFile.getTaxStamp() != TaxStampStatus.PAID) {
+			throw new IllegalStateException("Tax stamp must be PAID");
+		}
+
+		if (applicationFile.getMedicalVisit() != MedicalVisitStatus.COMPLETED) {
+			throw new IllegalStateException("Medical visit must be COMPLETED");
+		}
+	}
+
+	private void validateExamBusinessRules(ApplicationFile applicationFile, ExamType examType, ExamStatus examStatus) {
+		List<Exam> existingExams = examDao.findByApplicationFileOrderByDateDesc(applicationFile);
+
+		// Count exams by type and status
+		long passedCount = existingExams.stream()
+			.filter(e -> e.getExamType() == examType && e.getStatus() == ExamStatus.PASSED)
+			.count();
+
+		long scheduledCount = existingExams.stream()
+			.filter(e -> e.getExamType() == examType && e.getStatus() == ExamStatus.SCHEDULED)
+			.count();
+
+		long failedCount = existingExams.stream()
+			.filter(e -> e.getExamType() == examType && e.getStatus() == ExamStatus.FAILED)
+			.count();
+
+		long totalFailedCount = existingExams.stream()
+			.filter(e -> e.getStatus() == ExamStatus.FAILED)
+			.count();
+
+		// Business rules validation
+		if (passedCount > 0) {
+			throw new IllegalStateException("Cannot add another " + examType + " exam: already have a PASSED exam of this type");
+		}
+
+		if (examStatus == ExamStatus.SCHEDULED && scheduledCount > 0) {
+			throw new IllegalStateException("Cannot schedule " + examType.name().toLowerCase() + " exam: there is already a scheduled " + examType.name().toLowerCase() + " exam");
+		}
+
+		// Check total failure limit (max 2 failures across all exam types)
+		if (examStatus == ExamStatus.FAILED && totalFailedCount >= 2) {
+			throw new IllegalStateException("Cannot add more exams: application file has already failed due to multiple failures");
+		}
+	}
+
+	private void validateTheoryExamPassed(ApplicationFile applicationFile) {
+		List<Exam> exams = examDao.findByApplicationFileOrderByDateDesc(applicationFile);
+		boolean theoryPassed = exams.stream()
+			.anyMatch(e -> e.getExamType() == ExamType.THEORY && e.getStatus() == ExamStatus.PASSED);
+
+		if (!theoryPassed) {
+			throw new IllegalStateException("Cannot schedule practical exam: theory exam must be passed first");
+		}
+	}
+
+	private Integer calculateAttemptNumber(ApplicationFile applicationFile, ExamType examType) {
+		List<Exam> existingExams = examDao.findByApplicationFileOrderByDateDesc(applicationFile);
+		int existingAttempts = (int) existingExams.stream()
+			.filter(e -> e.getExamType() == examType)
+			.count();
+		return existingAttempts + 1;
+	}
+
+	private void updateApplicationFileStatusAfterExam(ApplicationFile applicationFile, ExamType examType, ExamStatus examStatus) {
+		if (examStatus == ExamStatus.SCHEDULED) {
+			if (examType == ExamType.THEORY) {
+				applicationFile.setStatus(ApplicationFileStatus.THEORY_EXAM_SCHEDULED);
+			} else if (examType == ExamType.PRACTICAL) {
+				applicationFile.setStatus(ApplicationFileStatus.PRACTICAL_EXAM_SCHEDULED);
+			}
+		}
+		// Other status updates will be handled by the trigger replacement logic
+		updateApplicationFileStatusBasedOnExams(applicationFile);
+	}
+
+	private void validateStatusTransition(Exam exam, ExamStatus newStatus) {
+		// Cannot change status of already passed exam to non-passed
+		if (exam.getStatus() == ExamStatus.PASSED && newStatus != ExamStatus.PASSED) {
+			throw new IllegalStateException("Cannot change status of an already passed exam");
+		}
+	}
+
+	private void updateApplicationFileStatusAfterStatusChange(ApplicationFile applicationFile, ExamType examType, ExamStatus oldStatus, ExamStatus newStatus) {
+		// If marking as PASSED, check if both exams are now passed
+		if (newStatus == ExamStatus.PASSED) {
+			updateApplicationFileStatusBasedOnExams(applicationFile);
+		}
+		// If changing from PASSED to FAILED, revert to IN_PROGRESS
+		else if (oldStatus == ExamStatus.PASSED && newStatus == ExamStatus.FAILED) {
+			applicationFile.setStatus(ApplicationFileStatus.IN_PROGRESS);
+			applicationFileService.updateApplicationFile(applicationFile.getId(), applicationFile);
+		}
+	}
+
+	/**
+	 * Updates application file status based on current exam states (replaces trigger logic)
+	 */
+	private void updateApplicationFileStatusBasedOnExams(ApplicationFile applicationFile) {
+		List<Exam> exams = examDao.findByApplicationFileOrderByDateDesc(applicationFile);
+		
+		// Count exam statuses
+		long theoryPassed = exams.stream().filter(e -> e.getExamType() == ExamType.THEORY && e.getStatus() == ExamStatus.PASSED).count();
+		long theoryFailed = exams.stream().filter(e -> e.getExamType() == ExamType.THEORY && e.getStatus() == ExamStatus.FAILED).count();
+		long theoryScheduled = exams.stream().filter(e -> e.getExamType() == ExamType.THEORY && e.getStatus() == ExamStatus.SCHEDULED).count();
+		
+		long practicalPassed = exams.stream().filter(e -> e.getExamType() == ExamType.PRACTICAL && e.getStatus() == ExamStatus.PASSED).count();
+		long practicalFailed = exams.stream().filter(e -> e.getExamType() == ExamType.PRACTICAL && e.getStatus() == ExamStatus.FAILED).count();
+		long practicalScheduled = exams.stream().filter(e -> e.getExamType() == ExamType.PRACTICAL && e.getStatus() == ExamStatus.SCHEDULED).count();
+		
+		long totalTheoryAttempts = exams.stream().filter(e -> e.getExamType() == ExamType.THEORY).count();
+		long totalPracticalAttempts = exams.stream().filter(e -> e.getExamType() == ExamType.PRACTICAL).count();
+		long totalFailed = theoryFailed + practicalFailed;
+
+		ApplicationFileStatus newStatus;
+
+		// Determine new status based on exam states
+		if (theoryPassed > 0 && practicalPassed > 0) {
+			// Both theory and practical passed - COMPLETED
+			newStatus = ApplicationFileStatus.COMPLETED;
+			applicationFile.setIsActive(false);
+		} else if (totalFailed >= 2) {
+			// Two or more failures total - FAILED
+			newStatus = ApplicationFileStatus.FAILED;
+			applicationFile.setIsActive(false);
+		} else if (theoryPassed > 0 && practicalScheduled > 0) {
+			// Theory passed, practical scheduled
+			newStatus = ApplicationFileStatus.PRACTICAL_EXAM_SCHEDULED;
+		} else if (theoryPassed > 0 && practicalFailed > 0) {
+			// Theory passed, practical failed
+			newStatus = ApplicationFileStatus.PRACTICAL_FAILED;
+		} else if (theoryPassed > 0) {
+			// Theory passed, no practical attempts yet
+			newStatus = ApplicationFileStatus.THEORY_PASSED;
+		} else if (theoryScheduled > 0) {
+			// Theory exam scheduled
+			newStatus = ApplicationFileStatus.THEORY_EXAM_SCHEDULED;
+		} else if (theoryFailed > 0 && theoryPassed == 0) {
+			// Theory failed but not exhausted attempts
+			newStatus = ApplicationFileStatus.THEORY_FAILED;
+		} else {
+			// Default state - actively learning
+			newStatus = ApplicationFileStatus.IN_PROGRESS;
+		}
+
+		applicationFile.setStatus(newStatus);
+		applicationFileService.updateApplicationFile(applicationFile.getId(), applicationFile);
 	}
 }

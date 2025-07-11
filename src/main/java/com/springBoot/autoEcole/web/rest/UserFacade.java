@@ -1,6 +1,8 @@
 package com.springBoot.autoEcole.web.rest;
 
 import java.util.Collection;
+
+import com.springBoot.autoEcole.enums.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,7 +29,7 @@ public class UserFacade {
             return ResponseEntity.badRequest().body("Email already exists");
         }
 
-        user.setRole("MANAGER");
+        user.setRole(UserRole.MANAGER);
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
     }
@@ -38,7 +40,7 @@ public class UserFacade {
             return ResponseEntity.badRequest().body("Email already exists");
         }
 
-        user.setRole("STAFF");
+        user.setRole(UserRole.STAFF);
         User savedUser = userService.saveUser(user);
         return ResponseEntity.ok(savedUser);
     }

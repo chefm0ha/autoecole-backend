@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-instructors-data
+      author: system
+      changes:
+        - insert:
+            tableName: instructor
+            columns:
+              - column:
+                  name: cin
+                  value: I123456789
+              - column:
+                  name: first_name
+                  value: Ahmed
+              - column:
+                  name: last_name
+                  value: Bennani
+              - column:
+                  name: email
+                  value: ahmed.bennani@autoecole.ma
+              - column:
+                  name: address
+                  value: 123 Rue Mohammed V
+              - column:
+                  name: city
+                  value: Casablanca
+              - column:
+                  name: gsm
+                  value: '0612345678'
+              - column:
+                  name: starting_date
+                  valueDate: '2023-01-15'
+        - insert:
+            tableName: instructor
+            columns:
+              - column:
+                  name: cin
+                  value: I987654321
+              - column:
+                  name: first_name
+                  value: Fatima
+              - column:
+                  name: last_name
+                  value: Alaoui
+              - column:
+                  name: email
+                  value: fatima.alaoui@autoecole.ma
+              - column:
+                  name: address
+                  value: 456 Avenue Hassan II
+              - column:
+                  name: city
+                  value: Rabat
+              - column:
+                  name: gsm
+                  value: '0687654321'
+              - column:
+                  name: starting_date
+                  valueDate: '2023-02-01'
+      rollback:
+        - delete:
+            tableName: instructor
+            where: cin IN ('I123456789', 'I987654321')

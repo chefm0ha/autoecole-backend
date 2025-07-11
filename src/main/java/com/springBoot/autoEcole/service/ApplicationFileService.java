@@ -13,4 +13,10 @@ public interface ApplicationFileService {
     ApplicationFile findById(Long id);
     List<ApplicationFileDTO> getApplicationFilesByCandidate(String candidateCin);
     void cancelApplicationFile(Long applicationFileId);
+    
+    // Specific update methods for individual fields
+    void updateTaxStampStatus(Long id, String taxStampStatus);
+    void updateMedicalVisitStatus(Long id, String medicalVisitStatus);
+    void updateTheoreticalHours(Long id, Double hours);
+    void updatePracticalHours(Long id, Double hours);
 }

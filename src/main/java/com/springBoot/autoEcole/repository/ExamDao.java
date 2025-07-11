@@ -21,30 +21,6 @@ public interface ExamDao extends CrudRepository<Exam, Long>, JpaSpecificationExe
 
 	List<Exam> findByApplicationFileOrderByDateDesc(ApplicationFile applicationFile);
 
-	@Modifying
-	@Query(value = "CALL save_exam_with_logic(:p_application_file_id, :p_exam_type, :p_date, :p_status)",
-			nativeQuery = true)
-	void saveExamWithBusinessLogic(
-			@Param("p_application_file_id") Long applicationFileId,
-			@Param("p_exam_type") String examType,
-			@Param("p_date") LocalDate date,
-			@Param("p_status") String status
-	);
-
-	@Query(value = "SELECT * FROM exam WHERE application_file_id = :applicationFileId AND exam_type = :examType ORDER BY attempt_number DESC LIMIT 1",
-			nativeQuery = true)
-	Exam findLatestExamByApplicationFileAndType(
-			@Param("applicationFileId") Long applicationFileId,
-			@Param("examType") String examType
-	);
-
-	@Modifying
-	@Query(value = "CALL update_exam_status(:p_exam_id, :p_new_status)", nativeQuery = true)
-	void updateExamStatusWithBusinessLogic(
-			@Param("p_exam_id") Long examId,
-			@Param("p_new_status") String newStatus
-	);
-
 	// Calendar-specific queries
 	@Query("SELECT e FROM Exam e " +
 			"JOIN FETCH e.applicationFile af " +

@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-vehicle-table
+      author: dev
+      comment: Create vehicle table for driving school vehicles
+      changes:
+        - createTable:
+            tableName: vehicle
+            columns:
+              - column:
+                  name: immatriculation
+                  type: VARCHAR(20)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount_vignette
+                  type: DOUBLE
+              - column:
+                  name: category
+                  type: VARCHAR(10)
+              - column:
+                  name: date_last_vignette
+                  type: DATE
+              - column:
+                  name: km_initial
+                  type: INT
+              - column:
+                  name: vehicle_brand
+                  type: VARCHAR(100)
+              - column:
+                  name: fuel_type
+                  type: ENUM('ESSENCE', 'DIESEL', 'ELECTRIC', 'HYBRID')
+              - column:
+                  name: vehicle_type
+                  type: VARCHAR(50)

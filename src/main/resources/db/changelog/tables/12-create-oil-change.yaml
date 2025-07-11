@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-oil-change-table
+      author: dev
+      comment: Create oil change table for vehicle maintenance records
+      changes:
+        - createTable:
+            tableName: oil_change
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: amount
+                  type: INT
+              - column:
+                  name: company
+                  type: VARCHAR(255)
+              - column:
+                  name: next_operation_date
+                  type: DATE
+              - column:
+                  name: operation_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: vehicle_immat
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false

@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-unique-constraints
+      author: dev
+      comment: Add unique constraints for business rules
+      changes:
+        - addUniqueConstraint:
+            tableName: user
+            columnNames: email
+            constraintName: uk_user_email
+        - addUniqueConstraint:
+            tableName: payment
+            columnNames: application_file_id
+            constraintName: uk_payment_application_file
+        - addUniqueConstraint:
+            tableName: instructor
+            columnNames: email
+            constraintName: uk_instructor_email
+        - addUniqueConstraint:
+            tableName: candidate
+            columnNames: email
+            constraintName: uk_candidate_email

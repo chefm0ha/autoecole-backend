@@ -35,10 +35,10 @@ public class ApplicationFileDTO {
                 .theoreticalHoursCompleted(applicationFile.getTheoreticalHoursCompleted())
                 .isActive(applicationFile.getIsActive())
                 .startingDate(applicationFile.getStartingDate())
-                .status(applicationFile.getStatus())
+                .status(applicationFile.getStatus() != null ? applicationFile.getStatus().name() : null)
                 .fileNumber(applicationFile.getFileNumber())
-                .taxStamp(applicationFile.getTaxStamp())
-                .medicalVisit(applicationFile.getMedicalVisit())
+                .taxStamp(applicationFile.getTaxStamp() != null ? applicationFile.getTaxStamp().name() : null)
+                .medicalVisit(applicationFile.getMedicalVisit() != null ? applicationFile.getMedicalVisit().name() : null)
                 .categoryCode(applicationFile.getCategory() != null ?
                         applicationFile.getCategory().getCode() : null)
                 .build();

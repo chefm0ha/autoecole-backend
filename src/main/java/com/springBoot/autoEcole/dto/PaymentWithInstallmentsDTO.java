@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,12 +29,26 @@ public class PaymentWithInstallmentsDTO {
         return PaymentWithInstallmentsDTO.builder()
                 .id(payment.getId())
                 .paidAmount(payment.getPaidAmount())
-                .status(payment.getStatus())
+                .status(payment.getStatus() != null ? payment.getStatus().name() : null)
                 .totalAmount(payment.getTotalAmount())
                 .paymentInstallments(payment.getPaymentInstallments() != null ?
                         payment.getPaymentInstallments().stream()
                                 .map(PaymentInstallmentDTO::fromEntity)
                                 .collect(Collectors.toList()) : null)
                 .build();
+    }
+
+    public PaymentWithInstallmentsDTO addPaymentInstallmentDTO(PaymentInstallmentDTO installmentDTO) {
+        if (installmentDTO == null) {
+            return this;
+        }
+
+        // Initialize the list if it's null
+        if (this.paymentInstallments == null) {
+            this.paymentInstallments = new ArrayList<>();
+        }
+
+        this.paymentInstallments.add(installmentDTO);
+        return this;
     }
 }

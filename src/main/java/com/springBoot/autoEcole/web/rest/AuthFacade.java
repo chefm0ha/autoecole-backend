@@ -48,7 +48,7 @@ public class AuthFacade {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             User user = userDetails.getUser();
 
-            return ResponseEntity.ok(new LoginResponse("Login successful", user.getEmail(), user.getRole()));
+            return ResponseEntity.ok(new LoginResponse("Login successful", user.getEmail(), user.getRole().name()));
 
         } catch (AuthenticationException e) {
             return ResponseEntity.badRequest().body(new LoginResponse("Invalid credentials", null, null));
@@ -90,7 +90,7 @@ public class AuthFacade {
             if (authentication.getPrincipal() instanceof CustomUserDetails) {
                 CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
                 User user = userDetails.getUser();
-                return ResponseEntity.ok(new LoginResponse("User found", user.getEmail(), user.getRole()));
+                return ResponseEntity.ok(new LoginResponse("User found", user.getEmail(), user.getRole().name()));
             } else {
                 return ResponseEntity.status(401).body("Invalid authentication type");
             }

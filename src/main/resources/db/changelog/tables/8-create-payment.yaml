@@ -17,10 +17,10 @@ databaseChangeLog:
               - column:
                   name: paid_amount
                   type: INT
-                  defaultValue: 0
+                  defaultValue: '0'
               - column:
                   name: status
-                  type: VARCHAR(50)
+                  type: ENUM('PENDING', 'COMPLETED')
                   defaultValue: "PENDING"
               - column:
                   name: total_amount

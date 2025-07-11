@@ -31,9 +31,9 @@ public class CalendarExamDTO {
 
         return CalendarExamDTO.builder()
                 .id(exam.getId())
-                .examType(exam.getExamType())
+                .examType(exam.getExamType() != null ? exam.getExamType().name() : null)
                 .date(exam.getDate())
-                .status(exam.getStatus())
+                .status(exam.getStatus() != null ? exam.getStatus().name() : null)
                 .attemptNumber(exam.getAttemptNumber())
                 .candidateFirstName(exam.getApplicationFile() != null &&
                         exam.getApplicationFile().getCandidate() != null ?

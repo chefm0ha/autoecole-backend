@@ -60,12 +60,17 @@
 		    <artifactId>lombok</artifactId>
 		     <version>1.18.32</version>
 		    <scope>provided</scope>
-		</dependency>	
+		</dependency>
+		<!-- Liquibase Core -->
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
 		<dependency>
         <groupId>mysql</groupId>
         <artifactId>mysql-connector-java</artifactId>
         <scope>runtime</scope>
-    </dependency> 
+    </dependency>
 	</dependencies>
 
 	<build>
@@ -94,7 +99,14 @@
 			        <target>17</target>
 			    </configuration>
 			</plugin>
-
+			<plugin>
+				<groupId>org.liquibase</groupId>
+				<artifactId>liquibase-maven-plugin</artifactId>
+				<version>3.10.3</version>
+				<configuration>
+					<changeLogFile>src/main/resources/db/changelog/db.changelog-master.yaml</changeLogFile>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>

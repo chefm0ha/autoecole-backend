@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-session-table
+      author: dev
+      comment: Create session table for driving lessons
+      changes:
+        - createTable:
+            tableName: session
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: date_session
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: duration
+                  type: DOUBLE
+              - column:
+                  name: status
+                  type: VARCHAR(50)
+                  defaultValue: "SCHEDULED"
+              - column:
+                  name: session_type
+                  type: ENUM('THEORY', 'PRACTICAL')
+                  constraints:
+                    nullable: false
+              - column:
+                  name: candidate_cin
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: instructor_cin
+                  type: VARCHAR(20)
+              - column:
+                  name: vehicle_immat
+                  type: VARCHAR(20)

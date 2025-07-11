@@ -43,7 +43,7 @@ public class CandidateDetailsDTO {
                 .address(candidate.getAddress())
                 .city(candidate.getCity())
                 .email(candidate.getEmail())
-                .gender(candidate.getGender())
+                .gender(candidate.getGender() != null ? candidate.getGender().name() : null)
                 .gsm(candidate.getGsm())
                 .isActive(candidate.getIsActive())
                 .startingDate(candidate.getStartingDate())

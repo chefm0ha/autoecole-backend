@@ -2,6 +2,11 @@ package com.springBoot.autoEcole.service.impl;
 
 import com.springBoot.autoEcole.dto.AddApplicationFileRequestDTO;
 import com.springBoot.autoEcole.dto.ApplicationFileDTO;
+import com.springBoot.autoEcole.enums.ApplicationFileStatus;
+import com.springBoot.autoEcole.enums.ExamStatus;
+import com.springBoot.autoEcole.enums.MedicalVisitStatus;
+import com.springBoot.autoEcole.enums.PaymentStatus;
+import com.springBoot.autoEcole.enums.TaxStampStatus;
 import com.springBoot.autoEcole.model.*;
 import com.springBoot.autoEcole.repository.ApplicationFileDao;
 import com.springBoot.autoEcole.repository.PaymentDao;
@@ -46,32 +51,86 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     @Override
     public ApplicationFileDTO saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request) {
         try {
-            // Call stored procedure to validate and save application file
-            applicationFileDao.saveApplicationFileWithValidation(
-                    candidateCin,
-                    request.getCategoryCode(),
-                    request.getTotalAmount(),
-                    request.getInitialAmount()
-            );
-
-            // Get the ID of the newly created application file
-            Long applicationFileId = applicationFileDao.getLastApplicationFileId();
-
-            // Clear Hibernate cache to get fresh data
-            entityManager.clear();
-
-            // Retrieve and return the created application file
-            ApplicationFile savedApplicationFile = applicationFileDao.findById(applicationFileId).orElse(null);
-
-            if (savedApplicationFile == null) {
-                throw new RuntimeException("Failed to retrieve created application file");
+            // 1. Validate candidate exists
+            Candidate candidate = candidateService.findByCin(candidateCin);
+            if (candidate == null) {
+                throw new ApplicationFileException(100, "Candidate not found");
             }
+
+            // 2. Validate category exists
+            Category category = categoryService.findByCode(request.getCategoryCode());
+            if (category == null) {
+                throw new ApplicationFileException(101, "Category not found");
+            }
+
+            // 3. Check for active application file for this category
+            ApplicationFile existingActiveFile = applicationFileDao.findByCandidateAndCategory(candidate, category);
+            if (existingActiveFile != null && existingActiveFile.getIsActive() && 
+                existingActiveFile.getStatus() == ApplicationFileStatus.IN_PROGRESS) {
+                throw new ApplicationFileException(102, "Cannot add application file: An active application file is already in progress for this category");
+            }
+
+            // 4. Check for completed application file for this category
+            if (existingActiveFile != null && existingActiveFile.getStatus() == ApplicationFileStatus.COMPLETED) {
+                throw new ApplicationFileException(103, "Cannot add application file: A completed application file already exists for this category");
+            }
+
+            // 5. Generate file number
+            String fileNumber = "test-" + candidateCin + "-test";
+
+            // 6. Create new application file
+            ApplicationFile newApplicationFile = ApplicationFile.builder()
+                .candidate(candidate)
+                .category(category)
+                .practicalHoursCompleted(0.0)
+                .theoreticalHoursCompleted(0.0)
+                .isActive(true)
+                .startingDate(LocalDate.now())
+                .status(ApplicationFileStatus.IN_PROGRESS)
+                .fileNumber(fileNumber)
+                .taxStamp(TaxStampStatus.NOT_PAID)
+                .medicalVisit(MedicalVisitStatus.NOT_REQUESTED)
+                .build();
+
+            ApplicationFile savedApplicationFile = applicationFileDao.save(newApplicationFile);
+
+            // 7. Create payment record
+            Payment payment = Payment.builder()
+                .applicationFile(savedApplicationFile)
+                .paidAmount(0)
+                .status(PaymentStatus.PENDING)
+                .totalAmount(request.getTotalAmount())
+                .build();
+
+            Payment savedPayment = paymentDao.save(payment);
+
+            // 8. Create initial payment installment
+            PaymentInstallment initialInstallment = PaymentInstallment.builder()
+                .payment(savedPayment)
+                .amount(request.getInitialAmount())
+                .date(LocalDate.now())
+                .installmentNumber(1)
+                .build();
+
+            paymentInstallmentDao.save(initialInstallment);
+
+            // 9. Update payment with new paid amount and status (manual calculation for the initial installment)
+            savedPayment.setPaidAmount(request.getInitialAmount());
+            if (request.getInitialAmount() >= savedPayment.getTotalAmount()) {
+                savedPayment.setStatus(PaymentStatus.COMPLETED);
+            } else {
+                savedPayment.setStatus(PaymentStatus.PENDING);
+            }
+            paymentDao.save(savedPayment);
+
+            // 10. Activate the candidate
+            candidate.setIsActive(true);
+            candidateService.saveCandidate(candidate);
 
             return ApplicationFileDTO.fromEntity(savedApplicationFile);
 
-        } catch (DataAccessException e) {
-            ApplicationFileError error = extractErrorMessage(e);
-            throw new ApplicationFileException(error.getCode(), error.getMessage());
+        } catch (ApplicationFileException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error saving application file: " + e.getMessage());
         }
@@ -133,13 +192,127 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     @Override
     public void cancelApplicationFile(Long applicationFileId) {
         try {
-            applicationFileDao.cancelApplicationFile(applicationFileId);
-        } catch (DataAccessException e) {
-            ApplicationFileError error = extractErrorMessage(e);
-            throw new ApplicationFileException(error.getCode(), error.getMessage());
+            // 1. Find application file
+            ApplicationFile applicationFile = findById(applicationFileId);
+            if (applicationFile == null) {
+                throw new ApplicationFileException(104, "Application file not found");
+            }
+
+            // 2. Check if already completed (cannot cancel)
+            if (applicationFile.getStatus() == ApplicationFileStatus.COMPLETED) {
+                throw new ApplicationFileException(105, "Cannot cancel a completed application file");
+            }
+
+            // 3. Check if already cancelled
+            if (applicationFile.getStatus() == ApplicationFileStatus.CANCELLED) {
+                throw new ApplicationFileException(106, "Application file is already cancelled");
+            }
+
+            // 4. Update application file status
+            applicationFile.setStatus(ApplicationFileStatus.CANCELLED);
+            applicationFile.setIsActive(false);
+            applicationFileDao.save(applicationFile);
+
+            // 5. Cancel all scheduled exams
+            List<Exam> scheduledExams = applicationFile.getExams().stream()
+                .filter(exam -> exam.getStatus() == ExamStatus.SCHEDULED)
+                .collect(Collectors.toList());
+            
+            for (Exam exam : scheduledExams) {
+                exam.setStatus(ExamStatus.FAILED);
+            }
+
+            // 6. Check if candidate has other active application files
+            Candidate candidate = applicationFile.getCandidate();
+            boolean hasOtherActiveFiles = candidate.getApplicationFiles().stream()
+                .anyMatch(af -> af.getIsActive() && !af.getId().equals(applicationFileId));
+
+            if (!hasOtherActiveFiles) {
+                candidate.setIsActive(false);
+                candidateService.saveCandidate(candidate);
+            }
+
+        } catch (ApplicationFileException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException("Error cancelling application file: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void updateTaxStampStatus(Long id, String taxStampStatus) {
+        ApplicationFile applicationFile = findById(id);
+        if (applicationFile == null) {
+            throw new EntityNotFoundException("Application file not found with ID: " + id);
+        }
+        
+        applicationFile.setTaxStamp(TaxStampStatus.valueOf(taxStampStatus));
+        applicationFileDao.save(applicationFile);
+    }
+
+    @Override
+    public void updateMedicalVisitStatus(Long id, String medicalVisitStatus) {
+        ApplicationFile applicationFile = findById(id);
+        if (applicationFile == null) {
+            throw new EntityNotFoundException("Application file not found with ID: " + id);
+        }
+        
+        applicationFile.setMedicalVisit(MedicalVisitStatus.valueOf(medicalVisitStatus));
+        applicationFileDao.save(applicationFile);
+    }
+
+    @Override
+    public void updateTheoreticalHours(Long id, Double hours) {
+        ApplicationFile applicationFile = findById(id);
+        if (applicationFile == null) {
+            throw new EntityNotFoundException("Application file not found with ID: " + id);
+        }
+        
+        if (hours < 0) {
+            throw new IllegalArgumentException("Theoretical hours cannot be negative");
+        }
+        
+        applicationFile.setTheoreticalHoursCompleted(hours);
+        applicationFileDao.save(applicationFile);
+    }
+
+    @Override
+    public void updatePracticalHours(Long id, Double hours) {
+        ApplicationFile applicationFile = findById(id);
+        if (applicationFile == null) {
+            throw new EntityNotFoundException("Application file not found with ID: " + id);
+        }
+        
+        if (hours < 0) {
+            throw new IllegalArgumentException("Practical hours cannot be negative");
+        }
+        
+        applicationFile.setPracticalHoursCompleted(hours);
+        applicationFileDao.save(applicationFile);
+    }
+
+    /**
+     * Updates payment status and paid amount after a new installment is added
+     */
+    private void updatePaymentAfterInstallment(Payment payment) {
+        // Calculate total paid amount from all installments
+        Integer totalPaidAmount = 0;
+        if (payment.getPaymentInstallments() != null) {
+            totalPaidAmount = payment.getPaymentInstallments().stream()
+                .mapToInt(PaymentInstallment::getAmount)
+                .sum();
+        }
+
+        // Update payment
+        payment.setPaidAmount(totalPaidAmount);
+        
+        if (totalPaidAmount >= payment.getTotalAmount()) {
+            payment.setStatus(PaymentStatus.COMPLETED);
+        } else if (totalPaidAmount > 0) {
+            payment.setStatus(PaymentStatus.PENDING);
+        }
+
+        paymentDao.save(payment);
     }
 
     // Custom exception class for application file errors

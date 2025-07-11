@@ -120,22 +120,16 @@ public class ApplicationFileFacade {
     @PutMapping("/updateTaxStampStatus/{id}")
     public ResponseEntity<?> updateTaxStampStatus(@PathVariable Long id, @RequestParam String taxStampStatus) {
         try {
-            ApplicationFile existingFile = applicationFileService.findById(id);
-            if (existingFile == null) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("error", "ENTITY_NOT_FOUND");
-                error.put("message", "Application file not found with ID: " + id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-            }
-
-            ApplicationFile updateRequest = new ApplicationFile();
-            updateRequest.setTaxStamp(taxStampStatus);
-
-            applicationFileService.updateApplicationFile(id, updateRequest);
+            applicationFileService.updateTaxStampStatus(id, taxStampStatus);
 
             Map<String, Object> success = new HashMap<>();
             success.put("message", "Tax stamp status updated successfully");
             return ResponseEntity.ok(success);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "ENTITY_NOT_FOUND");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "INTERNAL_SERVER_ERROR");
@@ -147,22 +141,16 @@ public class ApplicationFileFacade {
     @PutMapping("/updateMedicalVisitStatus/{id}")
     public ResponseEntity<?> updateMedicalVisitStatus(@PathVariable Long id, @RequestParam String medicalVisitStatus) {
         try {
-            ApplicationFile existingFile = applicationFileService.findById(id);
-            if (existingFile == null) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("error", "ENTITY_NOT_FOUND");
-                error.put("message", "Application file not found with ID: " + id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-            }
-
-            ApplicationFile updateRequest = new ApplicationFile();
-            updateRequest.setMedicalVisit(medicalVisitStatus);
-
-            applicationFileService.updateApplicationFile(id, updateRequest);
+            applicationFileService.updateMedicalVisitStatus(id, medicalVisitStatus);
 
             Map<String, Object> success = new HashMap<>();
             success.put("message", "Medical visit status updated successfully");
             return ResponseEntity.ok(success);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "ENTITY_NOT_FOUND");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "INTERNAL_SERVER_ERROR");
@@ -202,22 +190,21 @@ public class ApplicationFileFacade {
     @PutMapping("/updateTheoreticalHours/{id}")
     public ResponseEntity<?> updateTheoreticalHours(@PathVariable Long id, @RequestParam Double hours) {
         try {
-            ApplicationFile existingFile = applicationFileService.findById(id);
-            if (existingFile == null) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("error", "ENTITY_NOT_FOUND");
-                error.put("message", "Application file not found with ID: " + id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-            }
-
-            ApplicationFile updateRequest = new ApplicationFile();
-            updateRequest.setTheoreticalHoursCompleted(hours);
-
-            applicationFileService.updateApplicationFile(id, updateRequest);
+            applicationFileService.updateTheoreticalHours(id, hours);
 
             Map<String, Object> success = new HashMap<>();
             success.put("message", "Theoretical hours updated successfully");
             return ResponseEntity.ok(success);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "ENTITY_NOT_FOUND");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INVALID_INPUT");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "INTERNAL_SERVER_ERROR");
@@ -229,22 +216,21 @@ public class ApplicationFileFacade {
     @PutMapping("/updatePracticalHours/{id}")
     public ResponseEntity<?> updatePracticalHours(@PathVariable Long id, @RequestParam Double hours) {
         try {
-            ApplicationFile existingFile = applicationFileService.findById(id);
-            if (existingFile == null) {
-                Map<String, Object> error = new HashMap<>();
-                error.put("error", "ENTITY_NOT_FOUND");
-                error.put("message", "Application file not found with ID: " + id);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-            }
-
-            ApplicationFile updateRequest = new ApplicationFile();
-            updateRequest.setPracticalHoursCompleted(hours);
-
-            applicationFileService.updateApplicationFile(id, updateRequest);
+            applicationFileService.updatePracticalHours(id, hours);
 
             Map<String, Object> success = new HashMap<>();
             success.put("message", "Practical hours updated successfully");
             return ResponseEntity.ok(success);
+        } catch (EntityNotFoundException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "ENTITY_NOT_FOUND");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "INVALID_INPUT");
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "INTERNAL_SERVER_ERROR");
