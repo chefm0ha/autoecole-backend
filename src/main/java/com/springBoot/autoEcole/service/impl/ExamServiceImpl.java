@@ -98,16 +98,12 @@ public class ExamServiceImpl implements ExamService {
 		// 3. Validate status transition rules
 		validateStatusTransition(exam, newExamStatus);
 
-		// 4. Create source exam with new status
-		Exam sourceExam = new Exam();
-		sourceExam.setStatus(newExamStatus);
-
-		// 5. Update exam using mapper
+		// 4. Update exam
 		ExamStatus oldStatus = exam.getStatus();
-		examMapper.updateEntity(exam, sourceExam);
+		exam.setStatus(newExamStatus);
 		Exam updatedExam = examDao.save(exam);
 
-		// 6. Update application file status based on new exam status
+		// 5. Update application file status based on new exam status
 		updateApplicationFileStatusAfterStatusChange(exam.getApplicationFile(), exam.getExamType(), oldStatus, newExamStatus);
 
 		return updatedExam;
