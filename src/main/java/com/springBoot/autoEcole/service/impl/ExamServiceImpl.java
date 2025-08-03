@@ -405,11 +405,7 @@ public class ExamServiceImpl implements ExamService {
 		ApplicationFileStatus newStatus;
 
 		// Determine new status based on exam states
-		if (theoryPassed > 0 && practicalPassed > 0) {
-			// Both theory and practical passed - COMPLETED
-			newStatus = ApplicationFileStatus.COMPLETED;
-			applicationFile.setIsActive(false);
-		} else if (totalFailed >= 2) {
+		 if (totalFailed >= 2) {
 			// Two or more failures total - FAILED
 			newStatus = ApplicationFileStatus.FAILED;
 			applicationFile.setIsActive(false);

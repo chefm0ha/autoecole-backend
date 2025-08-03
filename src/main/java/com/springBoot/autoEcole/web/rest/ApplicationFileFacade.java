@@ -238,4 +238,44 @@ public class ApplicationFileFacade {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
+
+    @PutMapping("/closeApplicationFile/{id}")
+    public ResponseEntity<?> closeApplicationFile(@PathVariable Long id) {
+        try {
+            // Check eligibility first for informative response
+            boolean isEligible = applicationFileService.isEligibleForCompletion(id);
+
+            applicationFileService.closeApplicationFile(id);
+
+            Map<String, Object> success = new HashMap<>();
+            if (isEligible) {
+                success.put("message", "Application file completed successfully");
+                success.put("status", "COMPLETED");
+            } else {
+                success.put("message", "Application file cancelled - not eligible for completion");
+                success.put("status", "CANCELLED");
+                success.put("reason", "Both theory and practical exams must be passed to complete the application file");
+            }
+
+            return ResponseEntity.ok(success);
+        } catch (ApplicationFileServiceImpl.ApplicationFileException e) {
+            // Business rule violations with specific error codes
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", e.getErrorCode());
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        } catch (EntityNotFoundException e) {
+            // Application file not found
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 404);
+            error.put("message", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+        } catch (Exception e) {
+            // Any other unexpected errors
+            Map<String, Object> error = new HashMap<>();
+            error.put("code", 500);
+            error.put("message", "Error closing application file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
 }

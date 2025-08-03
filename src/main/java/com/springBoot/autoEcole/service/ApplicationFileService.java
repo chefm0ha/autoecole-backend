@@ -19,4 +19,6 @@ public interface ApplicationFileService {
     void updateMedicalVisitStatus(Long id, String medicalVisitStatus);
     void updateTheoreticalHours(Long id, Double hours);
     void updatePracticalHours(Long id, Double hours);
+    void closeApplicationFile(Long applicationFileId);
+    boolean isEligibleForCompletion(Long applicationFileId);
 }

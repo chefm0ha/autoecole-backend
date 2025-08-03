@@ -2,11 +2,7 @@ package com.springBoot.autoEcole.service.impl;
 
 import com.springBoot.autoEcole.dto.AddApplicationFileRequestDTO;
 import com.springBoot.autoEcole.dto.ApplicationFileDTO;
-import com.springBoot.autoEcole.enums.ApplicationFileStatus;
-import com.springBoot.autoEcole.enums.ExamStatus;
-import com.springBoot.autoEcole.enums.MedicalVisitStatus;
-import com.springBoot.autoEcole.enums.PaymentStatus;
-import com.springBoot.autoEcole.enums.TaxStampStatus;
+import com.springBoot.autoEcole.enums.*;
 import com.springBoot.autoEcole.model.*;
 import com.springBoot.autoEcole.repository.ApplicationFileDao;
 import com.springBoot.autoEcole.repository.PaymentDao;
@@ -289,6 +285,82 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
         
         applicationFile.setPracticalHoursCompleted(hours);
         applicationFileDao.save(applicationFile);
+    }
+
+    @Override
+    public void closeApplicationFile(Long applicationFileId) {
+        try {
+            // 1. Find application file
+            ApplicationFile applicationFile = findById(applicationFileId);
+            if (applicationFile == null) {
+                throw new ApplicationFileException(104, "Application file not found");
+            }
+
+            // 2. Check if already completed or cancelled
+            if (applicationFile.getStatus() == ApplicationFileStatus.COMPLETED) {
+                throw new ApplicationFileException(108, "Application file is already completed");
+            }
+
+            if (applicationFile.getStatus() == ApplicationFileStatus.CANCELLED) {
+                throw new ApplicationFileException(109, "Application file is already cancelled");
+            }
+
+            // 3. Check if eligible for completion
+            if (isEligibleForCompletion(applicationFileId)) {
+                // Mark as COMPLETED
+                applicationFile.setStatus(ApplicationFileStatus.COMPLETED);
+                applicationFile.setIsActive(false);
+            } else {
+                // Mark as CANCELLED
+                applicationFile.setStatus(ApplicationFileStatus.CANCELLED);
+                applicationFile.setIsActive(false);
+
+                // Cancel all scheduled exams
+                List<Exam> scheduledExams = applicationFile.getExams().stream()
+                        .filter(exam -> exam.getStatus() == ExamStatus.SCHEDULED)
+                        .collect(Collectors.toList());
+
+                for (Exam exam : scheduledExams) {
+                    exam.setStatus(ExamStatus.FAILED);
+                }
+            }
+
+            applicationFileDao.save(applicationFile);
+
+            // 4. Check if candidate has other active application files
+            Candidate candidate = applicationFile.getCandidate();
+            boolean hasOtherActiveFiles = candidate.getApplicationFiles().stream()
+                    .anyMatch(af -> af.getIsActive() && !af.getId().equals(applicationFileId));
+
+            if (!hasOtherActiveFiles) {
+                candidate.setIsActive(false);
+                candidateService.saveCandidate(candidate);
+            }
+
+        } catch (ApplicationFileException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error closing application file: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean isEligibleForCompletion(Long applicationFileId) {
+        ApplicationFile applicationFile = findById(applicationFileId);
+        if (applicationFile == null) {
+            return false;
+        }
+
+        List<Exam> exams = applicationFile.getExams();
+
+        // Check if both theory and practical exams are passed
+        boolean theoryPassed = exams.stream()
+                .anyMatch(e -> e.getExamType() == ExamType.THEORY && e.getStatus() == ExamStatus.PASSED);
+
+        boolean practicalPassed = exams.stream()
+                .anyMatch(e -> e.getExamType() == ExamType.PRACTICAL && e.getStatus() == ExamStatus.PASSED);
+
+        return theoryPassed && practicalPassed;
     }
 
     /**
