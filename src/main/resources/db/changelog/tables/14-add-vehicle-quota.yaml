@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-vehicle-quota
+      author: dev
+      changes:
+        - addColumn:
+            tableName: vehicle
+            columns:
+              - column:
+                  name: quota
+                  type: int
+                  defaultValue: 12

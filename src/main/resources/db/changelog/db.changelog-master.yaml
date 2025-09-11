@@ -1,0 +1,54 @@
+databaseChangeLog:
+  # Table Creation
+  - include:
+      file: db/changelog/tables/1-create-user.yaml
+  - include:
+      file: db/changelog/tables/2-create-category.yaml
+  - include:
+      file: db/changelog/tables/3-create-instructor.yaml
+  - include:
+      file: db/changelog/tables/4-create-vehicle.yaml
+  - include:
+      file: db/changelog/tables/5-create-candidate.yaml
+  - include:
+      file: db/changelog/tables/6-create-application-file.yaml
+  - include:
+      file: db/changelog/tables/7-create-session.yaml
+  - include:
+      file: db/changelog/tables/8-create-payment.yaml
+  - include:
+      file: db/changelog/tables/9-create-payment-installment.yaml
+  - include:
+      file: db/changelog/tables/10-create-exam.yaml
+  - include:
+      file: db/changelog/tables/11-create-insurance.yaml
+  - include:
+      file: db/changelog/tables/12-create-oil-change.yaml
+  - include:
+      file: db/changelog/tables/13-create-technical-visit.yaml
+  - include:
+      file: db/changelog/tables/14-add-vehicle-quota.yaml
+
+  # Constraints
+  - include:
+      file: db/changelog/constraints/1-add-foreign-keys.yaml
+  - include:
+      file: db/changelog/constraints/2-add-indexes.yaml
+  - include:
+      file: db/changelog/constraints/3-add-unique-constraints.yaml
+
+  # Data
+  - include:
+      file: db/changelog/data/1-insert-categories.yaml
+  - include:
+      file: db/changelog/data/2-insert-users.yaml
+  - include:
+      file: db/changelog/data/3-insert-instructors.yaml
+  - include:
+      file: db/changelog/data/4-insert-vehicles.yaml
+  - include:
+      file: db/changelog/data/5-insert-candidates.yaml
+  - include:
+      file: db/changelog/data/6-insert-vehicles.yaml
+  - include:
+      file: db/changelog/data/7-insert-vehicles.yaml

@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-users-data
+      author: system
+      changes:
+        - insert:
+            tableName: user
+            columns:
+              - column:
+                  name: email
+                  value: admin@autoecole.ma
+              - column:
+                  name: first_name
+                  value: Admin
+              - column:
+                  name: last_name
+                  value: User
+              - column:
+                  name: password
+                  value: $2a$12$TxYvH66NrxMhp.fAOX/HsOZH4Ulws.OX1pQbaFFPFGG5SK4xcfbJa
+              - column:
+                  name: role
+                  value: ADMIN
+      rollback:
+        - delete:
+            tableName: user
+            where: email = 'admin@autoecole.ma'

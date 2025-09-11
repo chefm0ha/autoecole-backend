@@ -1,0 +1,6 @@
+docker run -d `
+  --name mysql `
+  -e MYSQL_ROOT_PASSWORD=Lakraa `
+  -e MYSQL_DATABASE=autoEcole_Lakraa `
+  -p 3306:3306 `
+  mysql:8

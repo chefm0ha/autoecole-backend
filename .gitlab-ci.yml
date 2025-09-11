@@ -1,0 +1,41 @@
+stages:
+  - build
+  - deploy
+
+mvn_build:
+  stage: build
+  image: maven:3.9.6-eclipse-temurin-17
+  script:
+    - mvn install
+  artifacts:
+    paths:
+      - target/*.jar
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: never
+
+deploy_master: 
+  stage: deploy
+  image: ubuntu
+  before_script:
+    - apt-get update && apt-get install -y openssh-client sshpass
+  script:
+    - chmod 600 $SSH_KEY_BBOX
+    - sshpass -p "$SSH_PASSWORD" scp -P 50022 -o StrictHostKeyChecking=no target/*.jar root@176.159.137.152:/autoEcole2025/docker/backend/master/app/app.jar 
+    - sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@176.159.137.152 -p 50022 'cd /autoEcole2025/docker/backend/master && docker compose build && docker compose up -d'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: never
+
+#deploy_develop: 
+#  stage: deploy
+#  image: ubuntu
+#  before_script:
+#    - apt-get update && apt-get install -y openssh-client
+#  script:
+#    - chmod 600 $SSH_KEY_BBOX
+#    - sshpass -p "$SSH_PASSWORD" scp -P 50022 -o StrictHostKeyChecking=no target/*.jar root@176.159.137.152:/autoEcole2025/docker/backend/develop/app/app.jar 
+#    - sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no root@176.159.137.152 -p 50022 'cd /autoEcole2025/docker/backend/develop && docker compose build && docker compose up -d'
+#  rules:
+#    - if: '$CI_COMMIT_BRANCH == "develop"'
+#      when: always

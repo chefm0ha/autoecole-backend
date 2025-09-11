@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-candidate-table
+      author: dev
+      comment: Create candidate table for driving school students
+      changes:
+        - createTable:
+            tableName: candidate
+            columns:
+              - column:
+                  name: cin
+                  type: VARCHAR(20)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: birth_day
+                  type: DATE
+              - column:
+                  name: birth_place
+                  type: VARCHAR(100)
+              - column:
+                  name: city
+                  type: VARCHAR(100)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: first_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gender
+                  type: ENUM('M', 'F')
+              - column:
+                  name: gsm
+                  type: VARCHAR(20)
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: 'true'
+              - column:
+                  name: last_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: starting_date
+                  type: DATE

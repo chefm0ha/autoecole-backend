@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-application-file-table
+      author: dev
+      comment: Create application file table for candidate applications
+      changes:
+        - createTable:
+            tableName: application_file
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: practical_hours_completed
+                  type: DOUBLE
+                  defaultValue: '0.0'
+              - column:
+                  name: theoretical_hours_completed
+                  type: DOUBLE
+                  defaultValue: '0.0'
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValue: 'true'
+              - column:
+                  name: starting_date
+                  type: DATE
+              - column:
+                  name: status
+                  type: ENUM('IN_PROGRESS', 'THEORY_EXAM_SCHEDULED', 'PRACTICAL_EXAM_SCHEDULED', 'THEORY_PASSED', 'THEORY_FAILED', 'PRACTICAL_FAILED', 'COMPLETED', 'CANCELLED', 'FAILED')
+                  defaultValue: "IN_PROGRESS"
+              - column:
+                  name: file_number
+                  type: VARCHAR(100)
+              - column:
+                  name: tax_stamp
+                  type: ENUM('NOT_PAID', 'PENDING', 'PAID')
+                  defaultValue: "NOT_PAID"
+              - column:
+                  name: medical_visit
+                  type: ENUM('NOT_REQUESTED', 'PENDING', 'COMPLETED')
+                  defaultValue: "NOT_REQUESTED"
+              - column:
+                  name: category_code
+                  type: VARCHAR(10)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: candidate_cin
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false

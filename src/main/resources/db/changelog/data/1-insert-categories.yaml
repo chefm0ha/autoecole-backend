@@ -1,0 +1,113 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-categories-data
+      author: system
+      changes:
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "AM"
+              - column:
+                  name: description
+                  value: "Cyclomoteur ≤4kw/50cm³/50km/h et quadricycle léger ≤4kw/350kg"
+              - column:
+                  name: min_age
+                  valueNumeric: 16
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "A1"
+              - column:
+                  name: description
+                  value: "Motocycle ≤125cm³ et/ou ≤15kw"
+              - column:
+                  name: min_age
+                  valueNumeric: 18
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "A"
+              - column:
+                  name: description
+                  value: "Motocycle >125cm³ avec puissance ≤73.6kw avec/sans side-car"
+              - column:
+                  name: min_age
+                  valueNumeric: 20
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "B"
+              - column:
+                  name: description
+                  value: "Véhicules transport personnes ≤9 places et marchandises PTAC ≤3.5t"
+              - column:
+                  name: min_age
+                  valueNumeric: 18
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "C"
+              - column:
+                  name: description
+                  value: "Véhicules transport marchandises PTAC >3500kg"
+              - column:
+                  name: min_age
+                  valueNumeric: 21
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "D"
+              - column:
+                  name: description
+                  value: "Véhicules transport personnes >8 places assises"
+              - column:
+                  name: min_age
+                  valueNumeric: 24
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "EB"
+              - column:
+                  name: description
+                  value: "Catégorie B + remorque PTAC >750kg (conditions spéciales)"
+              - column:
+                  name: min_age
+                  valueNumeric: 18
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "EC"
+              - column:
+                  name: description
+                  value: "Catégorie C + remorque PTAC >750kg"
+              - column:
+                  name: min_age
+                  valueNumeric: 21
+        - insert:
+            tableName: category
+            columns:
+              - column:
+                  name: code
+                  value: "ED"
+              - column:
+                  name: description
+                  value: "Catégorie D + remorque PTAC >750kg"
+              - column:
+                  name: min_age
+                  valueNumeric: 24

@@ -1,0 +1,42 @@
+stages:
+  - build
+  - deploy
+
+mvn_build:
+  stage: build
+  image: maven:3-openjdk-17
+  script:
+    - mvn install
+  artifacts:
+    paths:
+      - target/*.jar
+
+deploy_master: 
+  stage: deploy
+  image: ubuntu
+  before_script:
+    - apt-get update && apt-get install -y openssh-client
+  script:
+    - ls
+    - cat /builds/RCA1949/autoecole.tmp/SSH_KEY
+    - chmod 600 /builds/RCA1949/autoecole.tmp/SSH_KEY
+    - scp -P 50022 -o StrictHostKeyChecking=no -i /builds/RCA1949/autoecole.tmp/SSH_KEY target/*.jar root@212.227.212.233:/docker/backend/master/app/app.jar 
+    - ssh -o StrictHostKeyChecking=no -i /builds/RCA1949/autoecole.tmp/SSH_KEY root@212.227.212.233 -p 50022 'docker restart backend'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      when: always
+
+deploy_develop: 
+  stage: deploy
+  image: ubuntu
+  before_script:
+    - apt-get update && apt-get install -y openssh-client
+  script:
+    - ls
+    - cat /builds/RCA1949/autoecole.tmp/SSH_KEY
+    - chmod 600 /builds/RCA1949/autoecole.tmp/SSH_KEY
+    - scp -P 50022 -o StrictHostKeyChecking=no -i /builds/RCA1949/autoecole.tmp/SSH_KEY target/*.jar root@212.227.212.233:/docker/backend/develop/app/app.jar 
+    - ssh -o StrictHostKeyChecking=no -i /builds/RCA1949/autoecole.tmp/SSH_KEY root@212.227.212.233 -p 50022 'docker restart backend-develop'
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+      when: always

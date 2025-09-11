@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-payment-table
+      author: dev
+      comment: Create payment table for application file payments
+      changes:
+        - createTable:
+            tableName: payment
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: paid_amount
+                  type: INT
+                  defaultValue: '0'
+              - column:
+                  name: status
+                  type: ENUM('PENDING', 'COMPLETED')
+                  defaultValue: "PENDING"
+              - column:
+                  name: total_amount
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: application_file_id
+                  type: BIGINT
+                  constraints:
+                    unique: true
+                    nullable: false

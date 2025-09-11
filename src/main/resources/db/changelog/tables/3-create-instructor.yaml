@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-instructor-table
+      author: dev
+      comment: Create instructor table for driving school instructors
+      changes:
+        - createTable:
+            tableName: instructor
+            columns:
+              - column:
+                  name: cin
+                  type: VARCHAR(20)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(255)
+              - column:
+                  name: birthday
+                  type: DATE
+              - column:
+                  name: city
+                  type: VARCHAR(100)
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: first_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: gsm
+                  type: VARCHAR(20)
+              - column:
+                  name: last_name
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: starting_date
+                  type: DATE

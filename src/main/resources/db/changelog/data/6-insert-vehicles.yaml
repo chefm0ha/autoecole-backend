@@ -1,0 +1,69 @@
+databaseChangeLog:
+  - changeSet:
+      id: insert-vehicles-all-categories
+      author: dev
+      changes:
+        # Category A (Motorcycles)
+        - insert:
+            tableName: vehicle
+            columns:
+              - column: {name: immatriculation, value: MOTO-001-A}
+              - column: {name: vehicle_brand, value: Yamaha}
+              - column: {name: vehicle_type, value: Motorcycle}
+              - column: {name: fuel_type, value: ESSENCE}
+              - column: {name: category, value: A}
+              - column: {name: km_initial, valueNumeric: 12000}
+              - column: {name: amount_vignette, valueNumeric: 500.00}
+
+        # Category B (Cars)
+        - insert:
+            tableName: vehicle
+            columns:
+              - column: {name: immatriculation, value: CAR-002-B}
+              - column: {name: vehicle_brand, value: Peugeot}
+              - column: {name: vehicle_type, value: Sedan}
+              - column: {name: fuel_type, value: DIESEL}
+              - column: {name: category, value: B}
+              - column: {name: km_initial, valueNumeric: 40000}
+              - column: {name: amount_vignette, valueNumeric: 1500.00}
+
+        # Category C (Trucks)
+        - insert:
+            tableName: vehicle
+            columns:
+              - column: {name: immatriculation, value: TRUCK-003-C}
+              - column: {name: vehicle_brand, value: Volvo}
+              - column: {name: vehicle_type, value: Truck}
+              - column: {name: fuel_type, value: DIESEL}
+              - column: {name: category, value: C}
+              - column: {name: km_initial, valueNumeric: 95000}
+              - column: {name: amount_vignette, valueNumeric: 3000.00}
+
+        # Category D (Buses)
+        - insert:
+            tableName: vehicle
+            columns:
+              - column: {name: immatriculation, value: BUS-004-D}
+              - column: {name: vehicle_brand, value: MAN}
+              - column: {name: vehicle_type, value: Bus}
+              - column: {name: fuel_type, value: DIESEL}
+              - column: {name: category, value: D}
+              - column: {name: km_initial, valueNumeric: 120000}
+              - column: {name: amount_vignette, valueNumeric: 4000.00}
+
+        # Category E (Heavy vehicles with trailers)
+        - insert:
+            tableName: vehicle
+            columns:
+              - column: {name: immatriculation, value: TRAILER-005-E}
+              - column: {name: vehicle_brand, value: Scania}
+              - column: {name: vehicle_type, value: Tractor-Trailer}
+              - column: {name: fuel_type, value: DIESEL}
+              - column: {name: category, value: E}
+              - column: {name: km_initial, valueNumeric: 180000}
+              - column: {name: amount_vignette, valueNumeric: 6000.00}
+
+      rollback:
+        - delete:
+            tableName: vehicle
+            where: immatriculation IN ('MOTO-001-A', 'CAR-002-B', 'TRUCK-003-C', 'BUS-004-D', 'TRAILER-005-E')

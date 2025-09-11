@@ -1,0 +1,96 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-candidate-indexes
+      author: dev
+      comment: Add performance indexes for candidate table
+      changes:
+        - createIndex:
+            indexName: idx_candidate_email
+            tableName: candidate
+            columns:
+              - column:
+                  name: email
+        - createIndex:
+            indexName: idx_candidate_active
+            tableName: candidate
+            columns:
+              - column:
+                  name: is_active
+        - createIndex:
+            indexName: idx_candidate_name
+            tableName: candidate
+            columns:
+              - column:
+                  name: last_name
+              - column:
+                  name: first_name
+
+  - changeSet:
+      id: add-session-indexes
+      author: dev
+      comment: Add performance indexes for session table
+      changes:
+        - createIndex:
+            indexName: idx_session_date
+            tableName: session
+            columns:
+              - column:
+                  name: date_session
+        - createIndex:
+            indexName: idx_session_candidate_date
+            tableName: session
+            columns:
+              - column:
+                  name: candidate_cin
+              - column:
+                  name: date_session
+
+  - changeSet:
+      id: add-application-file-indexes
+      author: dev
+      comment: Add performance indexes for application_file table
+      changes:
+        - createIndex:
+            indexName: idx_application_file_candidate
+            tableName: application_file
+            columns:
+              - column:
+                  name: candidate_cin
+        - createIndex:
+            indexName: idx_application_file_status
+            tableName: application_file
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_application_file_active
+            tableName: application_file
+            columns:
+              - column:
+                  name: is_active
+
+  - changeSet:
+      id: add-exam-indexes
+      author: dev
+      comment: Add performance indexes for exam table
+      changes:
+        - createIndex:
+            indexName: idx_exam_application_file
+            tableName: exam
+            columns:
+              - column:
+                  name: application_file_id
+        - createIndex:
+            indexName: idx_exam_date
+            tableName: exam
+            columns:
+              - column:
+                  name: date
+        - createIndex:
+            indexName: idx_exam_type_status
+            tableName: exam
+            columns:
+              - column:
+                  name: exam_type
+              - column:
+                  name: status
