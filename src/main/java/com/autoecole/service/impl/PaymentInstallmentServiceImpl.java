@@ -2,8 +2,12 @@ package com.autoecole.service.impl;
 
 import com.autoecole.dto.response.PaymentInstallmentDTO;
 import com.autoecole.dto.response.PaymentWithInstallmentsDTO;
+import com.autoecole.enums.PaymentInstallmentStatus;
 import com.autoecole.enums.PaymentStatus;
+import com.autoecole.exception.BusinessException;
+import com.autoecole.exception.NotFoundException;
 import com.autoecole.mapper.PaymentInstallmentMapper;
+import com.autoecole.service.AuthenticationHelper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +29,7 @@ public class PaymentInstallmentServiceImpl implements PaymentInstallmentService 
     private final PaymentDao paymentDao;
     private final PaymentService paymentService;
     private final PaymentInstallmentMapper paymentInstallmentMapper;
+    private final AuthenticationHelper authenticationHelper;
 
     @Override
     public PaymentInstallment findById(Long id) {
@@ -41,39 +46,77 @@ public class PaymentInstallmentServiceImpl implements PaymentInstallmentService 
 
         // 2. Calculate next installment number
         Integer nextInstallmentNumber = payment.getPaymentInstallments().stream()
-            .mapToInt(PaymentInstallment::getInstallmentNumber)
-            .max()
-            .orElse(0) + 1;
+                .mapToInt(PaymentInstallment::getInstallmentNumber)
+                .max()
+                .orElse(0) + 1;
 
-        // 3. Create new payment installment using mapper
-        PaymentInstallment newInstallment = paymentInstallmentMapper.toEntity(amount, payment, nextInstallmentNumber);
+        // 3. Determine installment status based on a user role
+        PaymentInstallmentStatus installmentStatus = authenticationHelper.isCurrentUserAdmin()
+                ? PaymentInstallmentStatus.VALIDATED
+                : PaymentInstallmentStatus.PENDING;
+
+        // 4. Create a new payment installment using mapper with role-based status
+        PaymentInstallment newInstallment = paymentInstallmentMapper.toEntity(
+                amount, payment, nextInstallmentNumber, installmentStatus);
 
         paymentInstallmentDao.save(newInstallment);
 
-        // 4. Update payment status and paid amount
-        updatePaymentAfterInstallment(amount, payment);
+        // 5. Update payment status and paid amount (only if installment is validated)
+        if (installmentStatus == PaymentInstallmentStatus.VALIDATED) {
+            updatePaymentAfterInstallment(payment, amount);
+        }
 
-        // 5. Return updated payment with installments
+        // 6. Return updated payment with installments
         return paymentService.getPaymentWithInstallments(paymentId)
                 .addPaymentInstallmentDTO(PaymentInstallmentDTO.fromEntity(newInstallment));
     }
 
-    private void updatePaymentAfterInstallment(Integer amount, Payment payment) {
-        // Calculate the total paid amount from all installments
-        Integer totalPaidAmount = payment.getPaidAmount() + amount;
+    @Override
+    public PaymentWithInstallmentsDTO validatePaymentInstallment(Long installmentId) {
+        // 1. Find the installment
+        PaymentInstallment installment = paymentInstallmentDao.findById(installmentId)
+                .orElseThrow(() -> new NotFoundException("Payment installment not found with ID: " + installmentId));
 
-        // Update payment status based on total paid vs. total amount
+        // 2. Check if user is admin
+        if (!authenticationHelper.isCurrentUserAdmin()) {
+            throw new BusinessException("Only administrators can validate payment installments");
+        }
+
+        // 3. Check if installment is already validated
+        if (installment.getStatus() == PaymentInstallmentStatus.VALIDATED) {
+            throw new BusinessException("Payment installment is already validated");
+        }
+
+        // 4. Validate the installment
+        installment.setStatus(PaymentInstallmentStatus.VALIDATED);
+        paymentInstallmentDao.save(installment);
+
+        // 5. Update payment totals (add this installment's amount to current paid amount)
+        Payment payment = installment.getPayment();
+        updatePaymentAfterInstallment(payment, installment.getAmount());
+
+        // 6. Return updated payment with installments
+        return paymentService.getPaymentWithInstallments(payment.getId());
+    }
+
+    private void updatePaymentAfterInstallment(Payment payment, Integer additionalAmount) {
+        // Add the new validated amount to the current paid amount
+        int newPaidAmount = payment.getPaidAmount() + additionalAmount;
+
+        // Update payment status based on new total vs. total amount
         PaymentStatus newStatus;
-        if (totalPaidAmount >= payment.getTotalAmount()) {
+        if (newPaidAmount >= payment.getTotalAmount()) {
             newStatus = PaymentStatus.COMPLETED;
-        } else if (totalPaidAmount > 0) {
+            // Ensure we don't exceed the total amount
+            newPaidAmount = payment.getTotalAmount();
+        } else if (newPaidAmount > 0) {
             newStatus = PaymentStatus.PENDING;
         } else {
-            newStatus = PaymentStatus.PENDING; // Default to PENDING if no payments made yet
+            newStatus = PaymentStatus.PENDING; // Default to PENDING
         }
 
         // Update payment
-        payment.setPaidAmount(totalPaidAmount);
+        payment.setPaidAmount(newPaidAmount);
         payment.setStatus(newStatus);
         paymentDao.save(payment);
     }

@@ -1,7 +1,6 @@
 package com.autoecole.service.impl;
 
 import com.autoecole.dto.request.AddApplicationFileRequestDTO;
-import com.autoecole.dto.response.ApplicationFileCloseResponseDTO;
 import com.autoecole.dto.response.ApplicationFileDTO;
 import com.autoecole.enums.*;
 import com.autoecole.exception.ApplicationFileException;
@@ -11,6 +10,7 @@ import com.autoecole.repository.ApplicationFileDao;
 import com.autoecole.repository.PaymentDao;
 import com.autoecole.repository.PaymentInstallmentDao;
 import com.autoecole.service.ApplicationFileService;
+import com.autoecole.service.AuthenticationHelper;
 import com.autoecole.service.CandidateService;
 import com.autoecole.service.CategoryService;
 import lombok.AllArgsConstructor;
@@ -29,6 +29,7 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
     private final CategoryService categoryService;
     private final PaymentDao paymentDao;
     private final PaymentInstallmentDao paymentInstallmentDao;
+    private final AuthenticationHelper authenticationHelper;
 
     @Override
     public ApplicationFileDTO saveApplicationFile(String candidateCin, AddApplicationFileRequestDTO request) {
@@ -62,16 +63,27 @@ public class ApplicationFileServiceImpl implements ApplicationFileService {
                 Payment.createNew(savedApplicationFile, request.getTotalAmount())
         );
 
-        // Create initial payment installment
+        // Determine payment installment status based on a user role
+        PaymentInstallmentStatus installmentStatus = authenticationHelper.isCurrentUserAdmin()
+                ? PaymentInstallmentStatus.VALIDATED
+                : PaymentInstallmentStatus.PENDING;
+
+        // Create initial payment installment with appropriate status
         paymentInstallmentDao.save(
-                PaymentInstallment.createInitial(savedPayment, request.getInitialAmount())
+                PaymentInstallment.createInitial(savedPayment, request.getInitialAmount(), installmentStatus)
         );
 
-        // Update payment with new paid amount and status
-        savedPayment.setPaidAmount(request.getInitialAmount());
-        if (request.getInitialAmount() >= savedPayment.getTotalAmount()) {
-            savedPayment.setStatus(PaymentStatus.COMPLETED);
+        // Update payment with new paid amount and status (only if installment is validated)
+        if (installmentStatus == PaymentInstallmentStatus.VALIDATED) {
+            savedPayment.setPaidAmount(request.getInitialAmount());
+            if (request.getInitialAmount() >= savedPayment.getTotalAmount()) {
+                savedPayment.setStatus(PaymentStatus.COMPLETED);
+            } else {
+                savedPayment.setStatus(PaymentStatus.PENDING);
+            }
         } else {
+            // If installment is pending, don't update payment amounts yet
+            savedPayment.setPaidAmount(0);
             savedPayment.setStatus(PaymentStatus.PENDING);
         }
         paymentDao.save(savedPayment);

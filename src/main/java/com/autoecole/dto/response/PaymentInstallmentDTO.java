@@ -8,7 +8,8 @@ public record PaymentInstallmentDTO(
         @JsonProperty("id") Long id,
         @JsonProperty("amount") Integer amount,
         @JsonProperty("date") LocalDate date,
-        @JsonProperty("installmentNumber") Integer installmentNumber
+        @JsonProperty("installmentNumber") Integer installmentNumber,
+        @JsonProperty("status") String status
 ) {
     public static PaymentInstallmentDTO fromEntity(PaymentInstallment installment) {
         if (installment == null) return null;
@@ -17,7 +18,8 @@ public record PaymentInstallmentDTO(
                 installment.getId(),
                 installment.getAmount(),
                 installment.getDate(),
-                installment.getInstallmentNumber()
+                installment.getInstallmentNumber(),
+                installment.getStatus() != null ? installment.getStatus().name() : null
         );
     }
 }
