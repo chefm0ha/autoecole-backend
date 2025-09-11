@@ -26,8 +26,6 @@ databaseChangeLog:
       file: db/changelog/tables/12-create-oil-change.yaml
   - include:
       file: db/changelog/tables/13-create-technical-visit.yaml
-  - include:
-      file: db/changelog/tables/14-add-vehicle-quota.yaml
 
   # Constraints
   - include:

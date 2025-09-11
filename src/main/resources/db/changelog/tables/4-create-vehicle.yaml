@@ -34,3 +34,7 @@ databaseChangeLog:
               - column:
                   name: vehicle_type
                   type: VARCHAR(50)
+              - column:
+                  name: quota
+                  type: int
+                  defaultValue: "12"

@@ -26,6 +26,9 @@ public class PaymentInstallment {
     @Column(name = "date")
     private LocalDate date;
 
+    @Column(name = "status")
+    private String status;
+
     @Column(name = "installment_number")
     private Integer installmentNumber;
 
