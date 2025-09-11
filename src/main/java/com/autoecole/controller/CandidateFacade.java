@@ -1,8 +1,8 @@
 package com.autoecole.controller;
 
-import com.autoecole.dto.CandidateDetailsDTO;
-import com.autoecole.dto.CandidateListDTO;
-import com.autoecole.dto.CandidateSearchDTO;
+import com.autoecole.dto.response.CandidateDetailsDTO;
+import com.autoecole.dto.response.CandidateListDTO;
+import com.autoecole.dto.request.CandidateSearchDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,9 +21,6 @@ import com.sun.istack.NotNull;
 public class CandidateFacade {
 
 	private final CandidateService candidateService;
-
-	@GetMapping("/getCandidate/{cin}")
-	public Candidate getCandidateByCin(@PathVariable @NotNull String cin) { return candidateService.findByCin(cin); }
 
 	@GetMapping("/getCandidateDetails/{cin}")
 	public CandidateDetailsDTO getCandidateDetails(@PathVariable @NotNull String cin) {

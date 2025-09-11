@@ -1,8 +1,8 @@
 package com.autoecole.service;
 
-import com.autoecole.dto.CandidateDetailsDTO;
-import com.autoecole.dto.CandidateListDTO;
-import com.autoecole.dto.CandidateSearchDTO;
+import com.autoecole.dto.response.CandidateDetailsDTO;
+import com.autoecole.dto.response.CandidateListDTO;
+import com.autoecole.dto.request.CandidateSearchDTO;
 import com.autoecole.model.Candidate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

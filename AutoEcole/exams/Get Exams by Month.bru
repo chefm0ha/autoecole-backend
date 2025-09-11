@@ -1,0 +1,20 @@
+meta {
+  name: Get Exams by Month
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/exam/getExamsByMonth?year=2025&month=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  year: 2025
+  month: 10
+}
+
+settings {
+  encodeUrl: true
+}

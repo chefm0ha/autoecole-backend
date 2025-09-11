@@ -14,14 +14,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import com.autoecole.config.CustomUserDetails;
-import com.autoecole.dto.LoginRequest;
-import com.autoecole.dto.LoginResponse;
+import com.autoecole.dto.request.LoginRequest;
+import com.autoecole.dto.response.LoginResponse;
 import com.autoecole.model.User;
 import com.autoecole.service.UserService;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AuthFacade {
 
     @Autowired

@@ -1,4 +1,4 @@
-package com.autoecole.dto;
+package com.autoecole.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,8 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class LoginResponse {
-    private String message;
+public class LoginRequest {
     private String email;
-    private String role;
+    private String password;
 }

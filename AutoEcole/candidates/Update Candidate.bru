@@ -1,0 +1,24 @@
+meta {
+  name: Update Candidate
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/candidate/updateCandidate/XY123456
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "firstName": "Ahmed Updated", 
+    "lastName": "Benali Updated",
+    "email": "ahmed.updated@email.com",
+    "gsm": "+212601234999"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

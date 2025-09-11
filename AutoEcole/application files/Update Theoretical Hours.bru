@@ -1,0 +1,19 @@
+meta {
+  name: Update Theoretical Hours
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/applicationFile/updateTheoreticalHours/1?hours=25.5
+  body: none
+  auth: inherit
+}
+
+params:query {
+  hours: 25.5
+}
+
+settings {
+  encodeUrl: true
+}

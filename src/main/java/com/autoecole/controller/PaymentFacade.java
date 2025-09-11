@@ -1,11 +1,8 @@
 package com.autoecole.controller;
 
-import java.util.Collection;
-
-import com.autoecole.dto.PaymentWithInstallmentsDTO;
+import com.autoecole.dto.response.PaymentWithInstallmentsDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import com.autoecole.model.Payment;
 import com.autoecole.service.PaymentService;
 
 @RestController
@@ -15,16 +12,6 @@ import com.autoecole.service.PaymentService;
 public class PaymentFacade {
 
 	private final PaymentService paymentService;
-
-	@GetMapping("/getAllPayments")
-	public Collection<Payment> getAllPayments() {
-		return paymentService.findAllPayment();
-	}
-
-	@GetMapping("/getPayment/{id}")
-	public Payment getPaymentById(@PathVariable Long id) {
-		return paymentService.findById(id);
-	}
 
 	@GetMapping("/getPaymentByApplicationFile/{applicationFileId}")
 	public PaymentWithInstallmentsDTO getPaymentByApplicationFile(@PathVariable Long applicationFileId) {

@@ -1,4 +1,4 @@
-package com.autoecole.dto;
+package com.autoecole.dto.response;
 
 import com.autoecole.model.Payment;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,6 @@ public class PaymentWithInstallmentsDTO {
     private Integer totalAmount;
     private List<PaymentInstallmentDTO> paymentInstallments;
 
-    // Static factory method to create DTO from Payment entity
     public static PaymentWithInstallmentsDTO fromEntity(Payment payment) {
         if (payment == null) {
             return null;

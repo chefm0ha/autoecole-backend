@@ -1,4 +1,4 @@
-package com.autoecole.dto;
+package com.autoecole.dto.request;
 
 import lombok.*;
 

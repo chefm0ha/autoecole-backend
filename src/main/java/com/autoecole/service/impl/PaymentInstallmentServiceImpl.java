@@ -1,7 +1,7 @@
 package com.autoecole.service.impl;
 
-import com.autoecole.dto.PaymentInstallmentDTO;
-import com.autoecole.dto.PaymentWithInstallmentsDTO;
+import com.autoecole.dto.response.PaymentInstallmentDTO;
+import com.autoecole.dto.response.PaymentWithInstallmentsDTO;
 import com.autoecole.enums.PaymentStatus;
 import com.autoecole.mapper.PaymentInstallmentMapper;
 import lombok.AllArgsConstructor;

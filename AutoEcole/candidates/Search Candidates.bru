@@ -1,0 +1,26 @@
+meta {
+  name: Search Candidates
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/candidate/search?firstName=Ahmed&lastName=&cin=&isActive=true&page=0&size=10&sortBy=firstName&sortDirection=asc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  firstName: Ahmed
+  lastName: 
+  cin: 
+  isActive: true
+  page: 0
+  size: 10
+  sortBy: firstName
+  sortDirection: asc
+}
+
+settings {
+  encodeUrl: true
+}

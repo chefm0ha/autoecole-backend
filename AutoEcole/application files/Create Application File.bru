@@ -1,0 +1,23 @@
+meta {
+  name: Create Application File
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/applicationFile/saveApplicationFile/AB123456
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "categoryCode": "B",
+    "totalAmount": 5000,
+    "initialAmount": 1500
+  }
+}
+
+settings {
+  encodeUrl: true
+}

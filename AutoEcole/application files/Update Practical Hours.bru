@@ -1,0 +1,19 @@
+meta {
+  name: Update Practical Hours
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/applicationFile/updatePracticalHours/1?hours=20.0
+  body: none
+  auth: inherit
+}
+
+params:query {
+  hours: 20.0
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Cancel Application File
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/applicationFile/cancelApplicationFile/1
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

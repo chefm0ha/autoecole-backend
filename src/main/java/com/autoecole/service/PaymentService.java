@@ -2,7 +2,7 @@ package com.autoecole.service;
 
 import java.util.Collection;
 
-import com.autoecole.dto.PaymentWithInstallmentsDTO;
+import com.autoecole.dto.response.PaymentWithInstallmentsDTO;
 import com.autoecole.model.Payment;
 
 public interface PaymentService {

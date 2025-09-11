@@ -1,0 +1,23 @@
+meta {
+  name: Update Application File
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/applicationFile/updateApplicationFile/12
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "practicalHoursCompleted": 10,
+      "theoreticalHoursCompleted": 0,
+      "status": "IN_PROGRESS"
+    }
+}
+
+settings {
+  encodeUrl: true
+}

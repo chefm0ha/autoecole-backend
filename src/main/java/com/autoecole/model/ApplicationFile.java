@@ -64,4 +64,19 @@ public class ApplicationFile {
 
     @OneToOne(mappedBy = "applicationFile", cascade = CascadeType.ALL)
     private Payment payment;
+
+    public static ApplicationFile createNew(Candidate candidate, Category category, String fileNumber) {
+        return ApplicationFile.builder()
+                .candidate(candidate)
+                .category(category)
+                .practicalHoursCompleted(0.0)
+                .theoreticalHoursCompleted(0.0)
+                .isActive(true)
+                .startingDate(LocalDate.now())
+                .status(ApplicationFileStatus.IN_PROGRESS)
+                .fileNumber(fileNumber)
+                .taxStamp(TaxStampStatus.NOT_PAID)
+                .medicalVisit(MedicalVisitStatus.NOT_REQUESTED)
+                .build();
+    }
 }

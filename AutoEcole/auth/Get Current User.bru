@@ -1,0 +1,15 @@
+meta {
+  name: Get Current User
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/auth/user
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

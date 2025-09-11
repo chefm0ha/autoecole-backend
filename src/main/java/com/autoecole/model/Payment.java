@@ -40,4 +40,13 @@ public class Payment {
 
 	@OneToMany(mappedBy = "payment", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	private List<PaymentInstallment> paymentInstallments;
+
+	public static Payment createNew(ApplicationFile applicationFile, Integer totalAmount) {
+		return Payment.builder()
+				.applicationFile(applicationFile)
+				.paidAmount(0)
+				.status(PaymentStatus.PENDING)
+				.totalAmount(totalAmount)
+				.build();
+	}
 }

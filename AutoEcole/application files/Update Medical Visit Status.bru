@@ -1,0 +1,19 @@
+meta {
+  name: Update Medical Visit Status
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/applicationFile/updateMedicalVisitStatus/12?medicalVisitStatus=COMPLETED
+  body: none
+  auth: inherit
+}
+
+params:query {
+  medicalVisitStatus: COMPLETED
+}
+
+settings {
+  encodeUrl: true
+}

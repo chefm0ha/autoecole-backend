@@ -1,8 +1,8 @@
 package com.autoecole.controller;
 
-import com.autoecole.dto.CalendarExamDTO;
-import com.autoecole.dto.ExamRequestDTO;
-import com.autoecole.dto.ExamResponseDTO;
+import com.autoecole.dto.response.CalendarExamDTO;
+import com.autoecole.dto.request.ExamRequestDTO;
+import com.autoecole.dto.response.ExamResponseDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;

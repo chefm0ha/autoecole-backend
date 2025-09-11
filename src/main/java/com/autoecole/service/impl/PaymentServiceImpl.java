@@ -2,7 +2,7 @@ package com.autoecole.service.impl;
 
 import java.util.Collection;
 
-import com.autoecole.dto.PaymentWithInstallmentsDTO;
+import com.autoecole.dto.response.PaymentWithInstallmentsDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -1,0 +1,15 @@
+meta {
+  name: Get Payment Installment
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/paymentInstallment/getPaymentInstallment/1
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

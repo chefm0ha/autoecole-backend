@@ -1,8 +1,8 @@
 package com.autoecole.service.impl;
 
-import com.autoecole.dto.CalendarExamDTO;
-import com.autoecole.dto.ExamRequestDTO;
-import com.autoecole.dto.ExamResponseDTO;
+import com.autoecole.dto.response.CalendarExamDTO;
+import com.autoecole.dto.request.ExamRequestDTO;
+import com.autoecole.dto.response.ExamResponseDTO;
 import com.autoecole.enums.*;
 import com.autoecole.exception.BusinessException;
 import com.autoecole.exception.NotFoundException;
@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -55,7 +54,7 @@ public class ExamServiceImpl implements ExamService {
 		}
 
 		// 7. Calculate attempt number
-		Integer attemptNumber = calculateAttemptNumber(applicationFile, examType);
+		Integer attemptNumber = calculateAttemptNumber(applicationFile);
 
 		// 8. Create and save exam
 		Exam sourceExam = buildExam(examRequest, examType, examStatus, attemptNumber);
@@ -75,12 +74,12 @@ public class ExamServiceImpl implements ExamService {
 
 	@Override
 	public List<ExamResponseDTO> getExamsByApplicationFile(Long applicationFileId) {
-		ApplicationFile applicationFile = validateApplicationFileExists(applicationFileId);
+		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
 
 		List<Exam> exams = examDao.findByApplicationFileOrderByDateDesc(applicationFile);
 		return exams.stream()
 				.map(ExamResponseDTO::fromEntity)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	@Override
@@ -101,7 +100,7 @@ public class ExamServiceImpl implements ExamService {
 
 		// 5. Update application file status
 		updateApplicationFileStatusAfterStatusChange(
-				exam.getApplicationFile(), exam.getExamType(), oldStatus, newExamStatus);
+				exam.getApplicationFile(), oldStatus, newExamStatus);
 
 		return updatedExam;
 	}
@@ -115,7 +114,7 @@ public class ExamServiceImpl implements ExamService {
 		List<Exam> exams = examDao.findExamsByYearAndMonth(year, month);
 		return exams.stream()
 				.map(CalendarExamDTO::fromEntity)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	@Override
@@ -127,29 +126,18 @@ public class ExamServiceImpl implements ExamService {
 		List<Exam> exams = examDao.findExamsByDate(date);
 		return exams.stream()
 				.map(CalendarExamDTO::fromEntity)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	// ==================== PRIVATE VALIDATION METHODS ====================
 
 	private ApplicationFile validateApplicationFile(Long applicationFileId) {
 		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
-		if (applicationFile == null) {
-			throw new NotFoundException("Application file not found with ID: " + applicationFileId);
-		}
 
-		if (!applicationFile.getIsActive()) {
+		if (Boolean.FALSE.equals(applicationFile.getIsActive())) {
 			throw new BusinessException("Cannot add exam to inactive application file");
 		}
 
-		return applicationFile;
-	}
-
-	private ApplicationFile validateApplicationFileExists(Long applicationFileId) {
-		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
-		if (applicationFile == null) {
-			throw new NotFoundException("Application file not found with ID: " + applicationFileId);
-		}
 		return applicationFile;
 	}
 
@@ -292,12 +280,12 @@ public class ExamServiceImpl implements ExamService {
 		return exam;
 	}
 
-	private Integer calculateAttemptNumber(ApplicationFile applicationFile, ExamType examType) {
+	private Integer calculateAttemptNumber(ApplicationFile applicationFile) {
 		List<Exam> existingExams = examDao.findByApplicationFileOrderByDateDesc(applicationFile);
-		int existingAttempts = (int) existingExams.stream()
-				.filter(e -> e.getExamType() == examType)
-				.count();
-		return existingAttempts + 1;
+		return existingExams.stream()
+				.mapToInt(Exam::getAttemptNumber)
+				.max()
+				.orElse(0) + 1;
 	}
 
 	private void updateApplicationFileStatusAfterExam(ApplicationFile applicationFile, ExamType examType, ExamStatus examStatus) {
@@ -311,7 +299,7 @@ public class ExamServiceImpl implements ExamService {
 		updateApplicationFileStatusBasedOnExams(applicationFile);
 	}
 
-	private void updateApplicationFileStatusAfterStatusChange(ApplicationFile applicationFile, ExamType examType, ExamStatus oldStatus, ExamStatus newStatus) {
+	private void updateApplicationFileStatusAfterStatusChange(ApplicationFile applicationFile, ExamStatus oldStatus, ExamStatus newStatus) {
 		if (newStatus == ExamStatus.PASSED) {
 			updateApplicationFileStatusBasedOnExams(applicationFile);
 		} else if (oldStatus == ExamStatus.PASSED && newStatus == ExamStatus.FAILED) {
@@ -349,7 +337,7 @@ public class ExamServiceImpl implements ExamService {
 			newStatus = ApplicationFileStatus.THEORY_PASSED;
 		} else if (theoryScheduled > 0) {
 			newStatus = ApplicationFileStatus.THEORY_EXAM_SCHEDULED;
-		} else if (theoryFailed > 0 && theoryPassed == 0) {
+		} else if (theoryFailed > 0) {
 			newStatus = ApplicationFileStatus.THEORY_FAILED;
 		} else {
 			newStatus = ApplicationFileStatus.IN_PROGRESS;

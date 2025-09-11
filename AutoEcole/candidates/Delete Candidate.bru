@@ -1,0 +1,15 @@
+meta {
+  name: Delete Candidate
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/candidate/deleteCandidate/XY123456
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

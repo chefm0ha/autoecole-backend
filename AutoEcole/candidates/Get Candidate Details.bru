@@ -1,0 +1,15 @@
+meta {
+  name: Get Candidate Details
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/candidate/getCandidateDetails/XY123456
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

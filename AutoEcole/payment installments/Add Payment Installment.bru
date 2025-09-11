@@ -1,0 +1,19 @@
+meta {
+  name: Add Payment Installment
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/paymentInstallment/savePaymentInstallment/1?amount=1500
+  body: none
+  auth: inherit
+}
+
+params:query {
+  amount: 1500
+}
+
+settings {
+  encodeUrl: true
+}

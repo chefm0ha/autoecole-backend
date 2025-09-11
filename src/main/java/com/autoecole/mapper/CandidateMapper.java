@@ -3,7 +3,7 @@ package com.autoecole.mapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
-import com.autoecole.dto.CandidateListDTO;
+import com.autoecole.dto.response.CandidateListDTO;
 import com.autoecole.model.Candidate;
 import java.util.List;
 import java.util.stream.Collectors;

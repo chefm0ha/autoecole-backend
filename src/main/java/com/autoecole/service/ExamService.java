@@ -1,8 +1,8 @@
 package com.autoecole.service;
 
-import com.autoecole.dto.CalendarExamDTO;
-import com.autoecole.dto.ExamRequestDTO;
-import com.autoecole.dto.ExamResponseDTO;
+import com.autoecole.dto.response.CalendarExamDTO;
+import com.autoecole.dto.request.ExamRequestDTO;
+import com.autoecole.dto.response.ExamResponseDTO;
 import com.autoecole.model.Exam;
 
 import java.time.LocalDate;

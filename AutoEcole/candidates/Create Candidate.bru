@@ -1,0 +1,35 @@
+meta {
+  name: Create Candidate
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/candidate/saveCandidate
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "cin": "XY123456",
+    "firstName": "Ahmed",
+    "lastName": "Benali",
+    "email": "ahmed.benali@email.com",
+    "address": "123 Rue Mohammed V",
+    "city": "Casablanca",
+    "gender": "M",
+    "gsm": "+212601234567",
+    "birthDay": "1995-05-15",
+    "birthPlace": "Casablanca",
+    "isActive": true
+  }
+}
+
+settings {
+  encodeUrl: true
+}

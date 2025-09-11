@@ -1,4 +1,4 @@
-package com.autoecole.dto;
+package com.autoecole.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,7 +14,6 @@ public class CandidateSearchDTO {
     private String cin;
     private Boolean isActive;
 
-    // Helper method to check if any search criteria is provided
     public boolean hasSearchCriteria() {
         return (firstName != null && !firstName.trim().isEmpty()) ||
                 (lastName != null && !lastName.trim().isEmpty()) ||

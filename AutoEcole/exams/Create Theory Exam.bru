@@ -1,0 +1,23 @@
+meta {
+  name: Create Theory Exam
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/exam/saveExam/12
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "examType": "THEORY",
+    "date": "2025-10-15",
+    "status": "SCHEDULED"
+  }
+}
+
+settings {
+  encodeUrl: true
+}

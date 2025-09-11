@@ -1,0 +1,22 @@
+meta {
+  name: Get Active Candidates
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/candidate/getActiveCandidates?page=0&size=10&sortBy=cin&sortDirection=asc
+  body: none
+  auth: inherit
+}
+
+params:query {
+  page: 0
+  size: 10
+  sortBy: cin
+  sortDirection: asc
+}
+
+settings {
+  encodeUrl: true
+}

@@ -33,4 +33,13 @@ public class PaymentInstallment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id")
     private Payment payment;
+
+    public static PaymentInstallment createInitial(Payment payment, Integer amount) {
+        return PaymentInstallment.builder()
+                .payment(payment)
+                .amount(amount)
+                .date(LocalDate.now())
+                .installmentNumber(1)
+                .build();
+    }
 }

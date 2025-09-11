@@ -1,8 +1,8 @@
 package com.autoecole.controller;
 
-import com.autoecole.dto.AddApplicationFileRequestDTO;
-import com.autoecole.dto.ApplicationFileDTO;
-import com.autoecole.dto.ApplicationFileCloseResponseDTO;
+import com.autoecole.dto.request.AddApplicationFileRequestDTO;
+import com.autoecole.dto.response.ApplicationFileDTO;
+import com.autoecole.dto.response.ApplicationFileCloseResponseDTO;
 import com.autoecole.model.ApplicationFile;
 import com.autoecole.service.ApplicationFileService;
 import lombok.AllArgsConstructor;
@@ -31,11 +31,6 @@ public class ApplicationFileFacade {
             @PathVariable Long id,
             @RequestBody ApplicationFile applicationFile) {
         return applicationFileService.updateApplicationFile(id, applicationFile);
-    }
-
-    @GetMapping("/getApplicationFile/{id}")
-    public ApplicationFile getApplicationFileById(@PathVariable Long id) {
-        return applicationFileService.findById(id);
     }
 
     @DeleteMapping("/deleteApplicationFile/{id}")
@@ -85,10 +80,5 @@ public class ApplicationFileFacade {
             @RequestParam Double hours) {
         applicationFileService.updatePracticalHours(id, hours);
         return ResponseEntity.ok("Practical hours updated successfully");
-    }
-
-    @PutMapping("/closeApplicationFile/{id}")
-    public ApplicationFileCloseResponseDTO closeApplicationFile(@PathVariable Long id) {
-        return applicationFileService.closeApplicationFile(id);
     }
 }
