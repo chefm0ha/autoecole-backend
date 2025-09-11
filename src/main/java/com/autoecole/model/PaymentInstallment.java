@@ -1,6 +1,8 @@
 package com.autoecole.model;
 
 import javax.persistence.*;
+
+import com.autoecole.enums.PaymentInstallmentStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,8 +28,9 @@ public class PaymentInstallment {
     @Column(name = "date")
     private LocalDate date;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;
+    private PaymentInstallmentStatus status;
 
     @Column(name = "installment_number")
     private Integer installmentNumber;
@@ -37,12 +40,13 @@ public class PaymentInstallment {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    public static PaymentInstallment createInitial(Payment payment, Integer amount) {
+    public static PaymentInstallment createInitial(Payment payment, Integer amount, PaymentInstallmentStatus status) {
         return PaymentInstallment.builder()
                 .payment(payment)
                 .amount(amount)
                 .date(LocalDate.now())
                 .installmentNumber(1)
+                .status(status)
                 .build();
     }
 }
