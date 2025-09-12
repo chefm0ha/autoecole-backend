@@ -1,0 +1,15 @@
+meta {
+  name: Get Candidate By CIN
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/candidate/getCandidate/AA567234
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

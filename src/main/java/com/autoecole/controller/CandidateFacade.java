@@ -22,6 +22,11 @@ public class CandidateFacade {
 
 	private final CandidateService candidateService;
 
+	@GetMapping("/getCandidate/{cin}")
+	public Candidate getCandidateByCin(@PathVariable @NotNull String cin) {
+		return candidateService.findByCin(cin);
+	}
+
 	@GetMapping("/getCandidateDetails/{cin}")
 	public CandidateDetailsDTO getCandidateDetails(@PathVariable @NotNull String cin) {
 		return candidateService.getCandidateDetails(cin);
