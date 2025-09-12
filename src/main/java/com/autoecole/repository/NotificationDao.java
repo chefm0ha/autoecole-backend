@@ -33,4 +33,24 @@ public interface NotificationDao extends CrudRepository<Notification, Long> {
     @Modifying
     @Query("DELETE FROM Notification n WHERE n.createdAt < :beforeDate")
     void deleteNotificationsOlderThan(@Param("beforeDate") LocalDateTime beforeDate);
+
+    // Check if broadcast notification exists for exam and type
+    @Query("SELECT COUNT(n) > 0 FROM Notification n WHERE n.exam = :exam AND n.type = :type AND n.user IS NULL")
+    boolean existsByExamAndTypeAndUserIsNull(@Param("exam") Exam exam, @Param("type") NotificationType type);
+
+    // Get notifications for STAFF/ADMIN: user-specific OR broadcast EXAM_REMINDER notifications
+    @Query("SELECT n FROM Notification n WHERE " +
+            "(n.user = :user) OR " +
+            "(n.user IS NULL AND n.type = 'EXAM_REMINDER') " +
+            "ORDER BY n.createdAt DESC")
+    List<Notification> findNotificationsForStaffAndAdmin(@Param("user") User user);
+
+    // Count unread notifications for STAFF/ADMIN: user-specific OR broadcast EXAM_REMINDER notifications
+    @Query("SELECT COUNT(n) FROM Notification n WHERE " +
+            "((n.user = :user) OR (n.user IS NULL AND n.type = 'EXAM_REMINDER')) " +
+            "AND n.readAt IS NULL")
+    long countUnreadNotificationsForStaffAndAdmin(@Param("user") User user);
+
+    @Query("SELECT COUNT(n) > 0 FROM Notification n WHERE n.exam = :exam AND n.user = :user")
+    boolean existsByExamAndUser(@Param("exam") Exam exam, @Param("user") User user);
 }

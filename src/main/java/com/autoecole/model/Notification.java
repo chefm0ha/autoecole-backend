@@ -75,16 +75,4 @@ public class Notification {
             whatsappSent = false;
         }
     }
-
-    public static Notification createExamReminder(Exam exam, User user, String message) {
-        return Notification.builder()
-                .title("Exam Reminder - 5 Days Left")
-                .message(message)
-                .type(NotificationType.EXAM_REMINDER)
-                .status(NotificationStatus.PENDING)
-                .exam(exam)
-                .user(user)
-                .whatsappSent(false)
-                .build();
-    }
 }

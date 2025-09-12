@@ -1,5 +1,6 @@
 package com.autoecole.service;
 
+import com.autoecole.dto.response.NotificationDTO;
 import com.autoecole.model.Exam;
 import com.autoecole.model.Notification;
 import com.autoecole.model.User;
@@ -11,11 +12,17 @@ public interface NotificationService {
     // ==================== CRUD OPERATIONS ====================
 
     /**
+     * Send broadcast notification to all STAFF and ADMIN users
+     * @param notification The notification to broadcast
+     */
+    void sendBroadcastNotification(Notification notification);
+
+    /**
      * Get all notifications for a specific user
      * @param user The user to get notifications for
      * @return List of notifications ordered by creation date (newest first)
      */
-    List<Notification> getNotificationsByUser(User user);
+    List<NotificationDTO> getNotificationsByUser(User user);
 
 
     /**
@@ -29,20 +36,14 @@ public interface NotificationService {
     // ==================== NOTIFICATION CREATION ====================
 
     /**
-     * Create and save an exam reminder notification
+     * Create and save an exam reminder notification (for broadcast)
      * @param exam The exam to create a reminder for
-     * @param user The user to notify
+     * @param user The user to notify (can be null for broadcast notifications)
      * @return Created notification or null if already exists
      */
-    Notification createExamReminderNotification(Exam exam, User user);
+    Notification createExamReminderNotification(Exam exam);
 
     // ==================== NOTIFICATION SENDING ====================
-
-    /**
-     * Send in-app notification (via WebSocket)
-     * @param notification The notification to send
-     */
-    void sendNotification(Notification notification);
 
     /**
      * Send WhatsApp notification

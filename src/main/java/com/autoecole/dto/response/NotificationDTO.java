@@ -2,59 +2,52 @@ package com.autoecole.dto.response;
 
 import com.autoecole.model.Notification;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.LocalDateTime;
 
-/**
- * Modern Record-based NotificationMessage
- * <p>
- * Benefits of using Record:
- * - Immutable by default
- * - Automatic equals(), hashCode(), toString()
- * - Compact syntax
- * - Better performance
- * - Clear intent (data carrier)
- */
-public record NotificationMessage(
+public record NotificationDTO(
         @JsonProperty("id") Long id,
         @JsonProperty("title") String title,
         @JsonProperty("message") String message,
         @JsonProperty("type") String type,
         @JsonProperty("createdAt") LocalDateTime createdAt,
+        @JsonProperty("sentAt") LocalDateTime sentAt,
+        @JsonProperty("readAt") LocalDateTime readAt,
         @JsonProperty("examId") Long examId,
         @JsonProperty("examDate") String examDate,
+        @JsonProperty("examType") String examType,
         @JsonProperty("candidateName") String candidateName,
         @JsonProperty("categoryCode") String categoryCode
 ) {
+    public static NotificationDTO fromEntity(Notification notification) {
+        if (notification == null) return null;
 
-    /**
-     * Factory method to create NotificationMessage from Notification entity
-     * Records can have static methods just like classes
-     */
-    public static NotificationMessage fromNotification(Notification notification) {
-        return new NotificationMessage(
+        return new NotificationDTO(
                 notification.getId(),
                 notification.getTitle(),
                 notification.getMessage(),
-                notification.getType().name(),
+                notification.getType() != null ? notification.getType().name() : null,
                 notification.getCreatedAt(),
+                notification.getSentAt(),
+                notification.getReadAt(),
                 extractExamId(notification),
                 extractExamDate(notification),
+                extractExamType(notification),
                 extractCandidateName(notification),
                 extractCategoryCode(notification)
         );
     }
 
-    /**
-     * Helper methods for safe navigation through object relationships
-     * Records can have private static methods
-     */
     private static Long extractExamId(Notification notification) {
         return notification.getExam() != null ? notification.getExam().getId() : null;
     }
 
     private static String extractExamDate(Notification notification) {
         return notification.getExam() != null ? notification.getExam().getDate().toString() : null;
+    }
+
+    private static String extractExamType(Notification notification) {
+        return notification.getExam() != null && notification.getExam().getExamType() != null
+                ? notification.getExam().getExamType().name() : null;
     }
 
     private static String extractCandidateName(Notification notification) {

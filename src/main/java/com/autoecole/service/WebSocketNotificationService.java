@@ -1,6 +1,6 @@
 package com.autoecole.service;
 
-import com.autoecole.dto.response.websocket.NotificationMessage;
+import com.autoecole.dto.response.NotificationMessage;
 import com.autoecole.dto.common.WebSocketResponse;
 import com.autoecole.model.Notification;
 import lombok.AllArgsConstructor;

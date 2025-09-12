@@ -1,11 +1,14 @@
 package com.autoecole.service.impl;
 
+import com.autoecole.dto.response.NotificationDTO;
 import com.autoecole.enums.NotificationStatus;
 import com.autoecole.enums.NotificationType;
+import com.autoecole.enums.UserRole;
 import com.autoecole.model.Exam;
 import com.autoecole.model.Notification;
 import com.autoecole.model.User;
 import com.autoecole.repository.NotificationDao;
+import com.autoecole.repository.UserDao;
 import com.autoecole.service.NotificationService;
 import com.autoecole.service.WhatsAppService;
 import com.autoecole.service.WebSocketNotificationService;
@@ -16,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,33 +30,56 @@ import java.util.Optional;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationDao notificationDao;
+    private final UserDao userDao;
     private final WhatsAppService whatsAppService;
     private final WebSocketNotificationService webSocketNotificationService;
 
     // ==================== CRUD OPERATIONS ====================
 
     @Override
-    public List<Notification> getNotificationsByUser(User user) {
+    public List<NotificationDTO> getNotificationsByUser(User user) {
         log.debug("Getting all notifications for user: {}", user.getEmail());
-        return notificationDao.findByUserOrderByCreatedAtDesc(user);
+
+        List<Notification> notifications;
+
+        // Check if user is STAFF or ADMIN
+        if (user.getRole() == UserRole.STAFF || user.getRole() == UserRole.ADMIN) {
+            // Get both user-specific notifications AND broadcast EXAM_REMINDER notifications
+            notifications = notificationDao.findNotificationsForStaffAndAdmin(user);
+        } else {
+            // Regular users only get their specific notifications
+            notifications = notificationDao.findByUserOrderByCreatedAtDesc(user);
+        }
+
+        // Convert to DTOs
+        return notifications.stream()
+                .map(NotificationDTO::fromEntity)
+                .toList();
     }
 
     @Override
     public long getUnreadNotificationCount(User user) {
         log.debug("Getting unread notification count for user: {}", user.getEmail());
-        return notificationDao.countByUserAndReadAtIsNull(user);
+
+        // Check if user is STAFF or ADMIN
+        if (user.getRole() == UserRole.STAFF || user.getRole() == UserRole.ADMIN) {
+            // Count both user-specific AND broadcast EXAM_REMINDER unread notifications
+            return notificationDao.countUnreadNotificationsForStaffAndAdmin(user);
+        } else {
+            // Regular users only count their specific unread notifications
+            return notificationDao.countByUserAndReadAtIsNull(user);
+        }
     }
 
     // ==================== NOTIFICATION CREATION ====================
 
     @Override
-    public Notification createExamReminderNotification(Exam exam, User user) {
-        log.debug("Creating exam reminder notification for exam {} and user {}", exam.getId(), user.getEmail());
+    public Notification createExamReminderNotification(Exam exam) {
+        log.debug("Creating exam reminder notification for exam {}", exam.getId());
 
-        // Check if notification already exists to prevent duplicates
-        if (notificationExists(exam, user, NotificationType.EXAM_REMINDER)) {
-            log.debug("Exam reminder notification already exists for exam {} and user {}",
-                    exam.getId(), user.getEmail());
+        // For broadcast notifications (user = null), check if notification already exists for this exam
+        if (broadcastNotificationExists(exam)) {
+            log.debug("Broadcast exam reminder notification already exists for exam {}", exam.getId());
             return null;
         }
 
@@ -61,47 +88,27 @@ public class NotificationServiceImpl implements NotificationService {
         String title = "Exam Reminder - 5 Days Left";
 
         // Create notification
-        Notification notification = Notification.createExamReminder(exam, user, message);
-        notification.setTitle(title);
-        notification.setRecipientPhone(user.getPhone()); // For WhatsApp
+        Notification notification = Notification.builder()
+                .title(title)
+                .message(message)
+                .type(NotificationType.EXAM_REMINDER)
+                .status(NotificationStatus.PENDING)
+                .exam(exam)
+                .user(null) // null for broadcast notifications
+                .whatsappSent(false)
+                .build();
 
         // Save notification
         Notification savedNotification = notificationDao.save(notification);
-        log.info("Created exam reminder notification {} for exam {} and user {}",
-                savedNotification.getId(), exam.getId(), user.getEmail());
+
+        log.info("Created broadcast exam reminder notification {} for exam {}",
+                    savedNotification.getId(), exam.getId());
+
 
         return savedNotification;
     }
 
     // ==================== NOTIFICATION SENDING ====================
-
-    @Override
-    public void sendNotification(Notification notification) {
-        try {
-            log.debug("Sending in-app notification: {}", notification.getId());
-
-            // Mark as sent
-            notification.setStatus(NotificationStatus.SENT);
-            notification.setSentAt(LocalDateTime.now());
-            notificationDao.save(notification);
-
-            // Send via WebSocket
-            if (notification.getUser() != null) {
-                webSocketNotificationService.sendNotificationToUser(
-                        notification.getUser().getEmail(),
-                        notification
-                );
-            }
-
-            log.info("In-app notification sent successfully: {}", notification.getId());
-
-        } catch (Exception e) {
-            log.error("Failed to send in-app notification {}: {}", notification.getId(), e.getMessage(), e);
-            notification.setStatus(NotificationStatus.FAILED);
-            notification.setErrorMessage(e.getMessage());
-            notificationDao.save(notification);
-        }
-    }
 
     @Override
     public void sendWhatsAppNotification(Notification notification) {
@@ -211,15 +218,61 @@ public class NotificationServiceImpl implements NotificationService {
         log.info("Cleaned up notifications older than {}", cutoffDate);
     }
 
+    @Override
+    public void sendBroadcastNotification(Notification notification) {
+        log.debug("Sending broadcast notification: {}", notification.getId());
+
+        try {
+            // Get all STAFF and ADMIN users
+            List<User> staffUsers = userDao.findByRole(UserRole.STAFF);
+            List<User> adminUsers = userDao.findByRole(UserRole.ADMIN);
+
+            List<User> allTargetUsers = new ArrayList<>();
+            allTargetUsers.addAll(staffUsers);
+            allTargetUsers.addAll(adminUsers);
+
+            if (allTargetUsers.isEmpty()) {
+                log.warn("No staff or admin users found to send broadcast notification to");
+                return;
+            }
+
+            // Mark notification as sent
+            notification.setStatus(NotificationStatus.SENT);
+            notification.setSentAt(LocalDateTime.now());
+            notificationDao.save(notification);
+
+            // Send to all target users via WebSocket
+            for (User user : allTargetUsers) {
+                try {
+                    webSocketNotificationService.sendNotificationToUser(user.getEmail(), notification);
+
+                    // Try to send WhatsApp if user has phone number
+                    if (user.getPhone() != null && !user.getPhone().trim().isEmpty()) {
+                        whatsAppService.sendMessage(user.getPhone(), notification.getMessage());
+                    }
+                } catch (Exception e) {
+                    log.error("Failed to send broadcast notification to user {}: {}",
+                            user.getEmail(), e.getMessage());
+                }
+            }
+
+            log.info("Broadcast notification {} sent to {} users",
+                    notification.getId(), allTargetUsers.size());
+
+        } catch (Exception e) {
+            log.error("Failed to send broadcast notification {}: {}",
+                    notification.getId(), e.getMessage(), e);
+            notification.setStatus(NotificationStatus.FAILED);
+            notification.setErrorMessage(e.getMessage());
+            notificationDao.save(notification);
+        }
+    }
+
     // ==================== PRIVATE HELPER METHODS ====================
 
-    /**
-     * Check if a notification already exists for a specific exam, user, and type
-     */
-    private boolean notificationExists(Exam exam, User user, NotificationType type) {
-        // This method is referenced but not implemented in the original code
-        // You may need to add this query to NotificationDao or implement it here
-        return false; // Placeholder implementation
+    private boolean broadcastNotificationExists(Exam exam) {
+        // You'll need to add this query to NotificationDao
+        return notificationDao.existsByExamAndTypeAndUserIsNull(exam, NotificationType.EXAM_REMINDER);
     }
 
     /**

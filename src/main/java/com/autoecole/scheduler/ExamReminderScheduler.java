@@ -1,11 +1,8 @@
 package com.autoecole.scheduler;
 
 import com.autoecole.enums.ExamStatus;
-import com.autoecole.enums.UserRole;
 import com.autoecole.model.Exam;
-import com.autoecole.model.User;
 import com.autoecole.repository.ExamDao;
-import com.autoecole.repository.UserDao;
 import com.autoecole.service.NotificationService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +18,6 @@ import java.util.List;
 public class ExamReminderScheduler {
 
     private final ExamDao examDao;
-    private final UserDao userDao;
     private final NotificationService notificationService;
 
     /**
@@ -46,15 +42,7 @@ public class ExamReminderScheduler {
 
             log.info("Found {} exam(s) scheduled for {}", upcomingExams.size(), targetDate);
 
-            // Get all staff users who should receive notifications
-            List<User> staffUsers = userDao.findByRole(UserRole.STAFF);
-
-            if (staffUsers.isEmpty()) {
-                log.warn("No staff users found to send notifications to");
-                return;
-            }
-
-            // Create notifications for each exam and each staff member
+            // Create notifications for each exam (with user_id = null for broadcast)
             int notificationsCreated = 0;
 
             for (Exam exam : upcomingExams) {
@@ -65,24 +53,17 @@ public class ExamReminderScheduler {
                     continue;
                 }
 
-                for (User staff : staffUsers) {
-                    try {
-                        var notification = notificationService.createExamReminderNotification(exam, staff);
-                        if (notification != null) {
-                            // Send in-app notification
-                            notificationService.sendNotification(notification);
-
-                            // Try to send WhatsApp notification
-                            // TODO: Staff users might not have phone numbers in the User entity
-                            // You might need to add a phone field to User or get it from another source
-                            notificationService.sendWhatsAppNotification(notification);
-
-                            notificationsCreated++;
-                        }
-                    } catch (Exception e) {
-                        log.error("Failed to create notification for exam {} and staff {}: {}",
-                                exam.getId(), staff.getEmail(), e.getMessage(), e);
+                try {
+                    // Create notification with user_id = null (broadcast to all staff/admin)
+                    var notification = notificationService.createExamReminderNotification(exam);
+                    if (notification != null) {
+                        // Send broadcast notification to all staff/admin
+                        notificationService.sendBroadcastNotification(notification);
+                        notificationsCreated++;
                     }
+                } catch (Exception e) {
+                    log.error("Failed to create notification for exam {}: {}",
+                            exam.getId(), e.getMessage(), e);
                 }
             }
 
