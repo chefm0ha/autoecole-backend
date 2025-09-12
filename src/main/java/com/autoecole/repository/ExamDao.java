@@ -59,4 +59,6 @@ public interface ExamDao extends CrudRepository<Exam, Long>, JpaSpecificationExe
 			"WHERE e.status = 'SCHEDULED' AND e.date >= :fromDate " +
 			"ORDER BY e.date ASC, e.examType ASC, c.lastName ASC, c.firstName ASC")
 	List<Exam> findScheduledExamsFromDate(@Param("fromDate") LocalDate fromDate);
+
+	List<Exam> findByDateBetween(LocalDate startDate, LocalDate endDate);
 }

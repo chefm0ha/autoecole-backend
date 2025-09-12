@@ -16,4 +16,5 @@ public interface ExamService {
 	// Calendar-specific methods
 	List<CalendarExamDTO> getExamsByMonth(int year, int month);
 	List<CalendarExamDTO> getExamsByDate(LocalDate date);
+	List<Exam> getScheduledExamsThisWeek();
 }

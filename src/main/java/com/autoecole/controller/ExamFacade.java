@@ -3,6 +3,7 @@ package com.autoecole.controller;
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
+import com.autoecole.model.Exam;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -61,4 +62,7 @@ public class ExamFacade {
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		return examService.getExamsByDate(date);
 	}
+
+	@GetMapping("/getScheduledExamsThisWeek")
+	public List<Exam> getScheduledExamsThisWeek() { return examService.getScheduledExamsThisWeek(); }
 }

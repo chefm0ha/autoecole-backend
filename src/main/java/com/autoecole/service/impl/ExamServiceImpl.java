@@ -129,6 +129,17 @@ public class ExamServiceImpl implements ExamService {
 				.toList();
 	}
 
+	@Override
+	public List<Exam> getScheduledExamsThisWeek() {
+		LocalDate today = LocalDate.now();
+		int dayNumber = today.getDayOfWeek().getValue();
+
+		LocalDate startDate = today.minusDays(dayNumber - 1);
+		LocalDate endDate = startDate.plusDays(6);
+
+		return examDao.findByDateBetween(startDate, endDate);
+	}
+
 	// ==================== PRIVATE VALIDATION METHODS ====================
 
 	private ApplicationFile validateApplicationFile(Long applicationFileId) {
