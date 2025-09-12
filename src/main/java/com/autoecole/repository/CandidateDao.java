@@ -23,6 +23,8 @@ public interface CandidateDao extends CrudRepository<Candidate, String> {
 
 	Page<Candidate> findByIsActive(Boolean isActive, Pageable pageable);
 
+	Long countByIsActive(Boolean isActive);
+
 	@Query("SELECT c FROM Candidate c WHERE " +
 			"(:firstName IS NULL OR LOWER(c.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND " +
 			"(:lastName IS NULL OR LOWER(c.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))) AND " +
