@@ -2,6 +2,7 @@ package com.autoecole.controller;
 
 import java.util.Collection;
 
+import com.autoecole.dto.response.VehicleDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,9 @@ public class VehicleFacade {
 	public Collection<Vehicle> getVehicles() {
 		return vehicleService.findAllVehicle();
 	}
+
+	@GetMapping("/getVehiclesByCategory/{applicationFileId}")
+	public Collection<VehicleDTO> getVehiclesByCategory(@PathVariable Long applicationFileId) { return vehicleService.findVehicleByCode(applicationFileId); }
 
 	@PostMapping("/saveVehicle")
 	public Vehicle saveVehicle(@RequestBody Vehicle vehicle) {
