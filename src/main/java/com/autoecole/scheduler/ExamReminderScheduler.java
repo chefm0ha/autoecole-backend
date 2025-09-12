@@ -123,38 +123,4 @@ public class ExamReminderScheduler {
             log.error("Error during notification cleanup: {}", e.getMessage(), e);
         }
     }
-
-    /**
-     * Manual method to test the reminder system
-     * This can be called from a REST endpoint for testing
-     */
-    public void testExamReminders() {
-        log.info("Running test exam reminder check...");
-
-        // Get exams for the next 7 days for testing
-        LocalDate today = LocalDate.now();
-        for (int i = 1; i <= 7; i++) {
-            LocalDate testDate = today.plusDays(i);
-            List<Exam> exams = examDao.findExamsByDate(testDate);
-
-            if (!exams.isEmpty()) {
-                log.info("Found {} exam(s) for {} days from today ({})",
-                        exams.size(), i, testDate);
-
-                // Create notifications for the first exam found (for testing)
-                Exam testExam = exams.get(0);
-                List<User> staffUsers = userDao.findByRole(UserRole.STAFF);
-
-                for (User staff : staffUsers) {
-                    var notification = notificationService.createExamReminderNotification(testExam, staff);
-                    if (notification != null) {
-                        notificationService.sendNotification(notification);
-                        log.info("Test notification created for exam {} and staff {}",
-                                testExam.getId(), staff.getEmail());
-                    }
-                }
-                break; // Only test with one exam
-            }
-        }
-    }
 }

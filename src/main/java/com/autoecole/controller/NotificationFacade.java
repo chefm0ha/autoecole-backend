@@ -6,6 +6,7 @@ import com.autoecole.scheduler.ExamReminderScheduler;
 import com.autoecole.service.AuthenticationHelper;
 import com.autoecole.service.NotificationService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,5 +28,19 @@ public class NotificationFacade {
     public List<Notification> getUserNotifications() {
         User currentUser = authenticationHelper.getCurrentUser();
         return notificationService.getNotificationsByUser(currentUser);
+    }
+
+    /**
+     * TEST ENDPOINT - Trigger the actual scheduler manually
+     */
+    // TODO: delete after test, it worked btw
+    @PostMapping("/test/schedulerCheck")
+    public ResponseEntity<String> testSchedulerCheck() {
+        try {
+            examReminderScheduler.checkExamsAndSendReminders();
+            return ResponseEntity.ok("Scheduler check completed. Check logs for details.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.autoecole.service;
 
-import com.autoecole.enums.NotificationType;
 import com.autoecole.model.Exam;
 import com.autoecole.model.Notification;
 import com.autoecole.model.User;
@@ -26,43 +25,16 @@ public interface NotificationService {
      */
     long getUnreadNotificationCount(User user);
 
-    /**
-     * Find notification by ID
-     * @param id The notification ID
-     * @return Notification or null if not found
-     */
-    Notification findById(Long id);
 
     // ==================== NOTIFICATION CREATION ====================
 
     /**
      * Create and save an exam reminder notification
-     * @param exam The exam to create reminder for
+     * @param exam The exam to create a reminder for
      * @param user The user to notify
      * @return Created notification or null if already exists
      */
     Notification createExamReminderNotification(Exam exam, User user);
-
-    /**
-     * Create a general notification
-     * @param user The user to notify
-     * @param type The notification type
-     * @param title The notification title
-     * @param message The notification message
-     * @return Created notification
-     */
-    Notification createNotification(User user, NotificationType type, String title, String message);
-
-    /**
-     * Create a notification related to an exam
-     * @param user The user to notify
-     * @param exam The related exam
-     * @param type The notification type
-     * @param title The notification title
-     * @param message The notification message
-     * @return Created notification
-     */
-    Notification createExamNotification(User user, Exam exam, NotificationType type, String title, String message);
 
     // ==================== NOTIFICATION SENDING ====================
 
@@ -77,12 +49,6 @@ public interface NotificationService {
      * @param notification The notification to send via WhatsApp
      */
     void sendWhatsAppNotification(Notification notification);
-
-    /**
-     * Send notification via all available channels (in-app + WhatsApp)
-     * @param notification The notification to send
-     */
-    void sendNotificationAllChannels(Notification notification);
 
     // ==================== NOTIFICATION MANAGEMENT ====================
 

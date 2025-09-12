@@ -1,0 +1,15 @@
+meta {
+  name: Get User notifications
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/notification/getUserNotifications
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

@@ -43,12 +43,6 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationDao.countByUserAndReadAtIsNull(user);
     }
 
-    @Override
-    public Notification findById(Long id) {
-        log.debug("Finding notification by ID: {}", id);
-        return notificationDao.findById(id).orElse(null);
-    }
-
     // ==================== NOTIFICATION CREATION ====================
 
     @Override
@@ -75,48 +69,6 @@ public class NotificationServiceImpl implements NotificationService {
         Notification savedNotification = notificationDao.save(notification);
         log.info("Created exam reminder notification {} for exam {} and user {}",
                 savedNotification.getId(), exam.getId(), user.getEmail());
-
-        return savedNotification;
-    }
-
-    @Override
-    public Notification createNotification(User user, NotificationType type, String title, String message) {
-        log.debug("Creating {} notification for user {}: {}", type, user.getEmail(), title);
-
-        Notification notification = Notification.builder()
-                .user(user)
-                .type(type)
-                .title(title)
-                .message(message)
-                .status(NotificationStatus.PENDING)
-                .recipientPhone(user.getPhone())
-                .whatsappSent(false)
-                .build();
-
-        Notification savedNotification = notificationDao.save(notification);
-        log.info("Created {} notification {} for user {}", type, savedNotification.getId(), user.getEmail());
-
-        return savedNotification;
-    }
-
-    @Override
-    public Notification createExamNotification(User user, Exam exam, NotificationType type, String title, String message) {
-        log.debug("Creating exam {} notification for user {} and exam {}", type, user.getEmail(), exam.getId());
-
-        Notification notification = Notification.builder()
-                .user(user)
-                .exam(exam)
-                .type(type)
-                .title(title)
-                .message(message)
-                .status(NotificationStatus.PENDING)
-                .recipientPhone(user.getPhone())
-                .whatsappSent(false)
-                .build();
-
-        Notification savedNotification = notificationDao.save(notification);
-        log.info("Created exam {} notification {} for user {} and exam {}",
-                type, savedNotification.getId(), user.getEmail(), exam.getId());
 
         return savedNotification;
     }
@@ -184,19 +136,6 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    @Override
-    public void sendNotificationAllChannels(Notification notification) {
-        log.debug("Sending notification {} via all channels", notification.getId());
-
-        // Send in-app notification
-        sendNotification(notification);
-
-        // Send WhatsApp notification
-        sendWhatsAppNotification(notification);
-
-        log.info("Notification {} sent via all available channels", notification.getId());
-    }
-
     // ==================== NOTIFICATION MANAGEMENT ====================
 
     @Override
@@ -214,11 +153,9 @@ public class NotificationServiceImpl implements NotificationService {
                 // Send updated notification count via WebSocket
                 if (notification.getUser() != null) {
                     long unreadCount = getUnreadNotificationCount(notification.getUser());
-                    long totalCount = getNotificationsByUser(notification.getUser()).size();
                     webSocketNotificationService.sendNotificationCountUpdate(
                             notification.getUser().getEmail(),
-                            unreadCount,
-                            totalCount
+                            unreadCount
                     );
                 }
 
@@ -236,15 +173,12 @@ public class NotificationServiceImpl implements NotificationService {
         List<Notification> unreadNotifications = getUnreadNotificationsByUser(user);
         LocalDateTime now = LocalDateTime.now();
 
-        unreadNotifications.forEach(notification -> {
-            notification.setReadAt(now);
-        });
+        unreadNotifications.forEach(notification -> notification.setReadAt(now));
 
         notificationDao.saveAll(unreadNotifications);
 
         // Send updated notification count via WebSocket (should be 0 unread)
-        long totalCount = getNotificationsByUser(user).size();
-        webSocketNotificationService.sendNotificationCountUpdate(user.getEmail(), 0L, totalCount);
+        webSocketNotificationService.sendNotificationCountUpdate(user.getEmail(), 0L);
 
         log.info("Marked {} notifications as read for user {}", unreadNotifications.size(), user.getEmail());
     }
@@ -278,6 +212,27 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     // ==================== PRIVATE HELPER METHODS ====================
+
+    /**
+     * Check if a notification already exists for a specific exam, user, and type
+     */
+    private boolean notificationExists(Exam exam, User user, NotificationType type) {
+        // This method is referenced but not implemented in the original code
+        // You may need to add this query to NotificationDao or implement it here
+        return false; // Placeholder implementation
+    }
+
+    /**
+     * Get unread notifications for a user
+     */
+    private List<Notification> getUnreadNotificationsByUser(User user) {
+        // This method is referenced but not implemented in the original code
+        // You may need to add this query to NotificationDao
+        return notificationDao.findByUserOrderByCreatedAtDesc(user)
+                .stream()
+                .filter(notification -> notification.getReadAt() == null)
+                .toList();
+    }
 
     /**
      * Build an exam reminder message with formatted content

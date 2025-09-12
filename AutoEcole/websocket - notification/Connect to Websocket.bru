@@ -1,0 +1,22 @@
+meta {
+  name: Connect to Websocket
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/ws
+  body: text
+  auth: inherit
+}
+
+body:text {
+  SUBSCRIBE
+  id:sub-1
+  destination:/user/queue/notifications
+  
+}
+
+settings {
+  encodeUrl: true
+}
