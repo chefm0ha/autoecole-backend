@@ -2,7 +2,6 @@ package com.autoecole.controller;
 
 import com.autoecole.dto.request.AddApplicationFileRequestDTO;
 import com.autoecole.dto.response.ApplicationFileDTO;
-import com.autoecole.dto.response.ApplicationFileCloseResponseDTO;
 import com.autoecole.model.ApplicationFile;
 import com.autoecole.service.ApplicationFileService;
 import lombok.AllArgsConstructor;

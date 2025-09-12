@@ -33,6 +33,9 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: role
-                  type: ENUM('ADMIN', 'MANAGER', 'STAFF')
+                  type: ENUM('ADMIN', 'STAFF')
                   constraints:
                     nullable: false
+              - column:
+                  name: phone
+                  type: VARCHAR(20)

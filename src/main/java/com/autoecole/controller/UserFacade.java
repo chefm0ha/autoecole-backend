@@ -21,17 +21,6 @@ public class UserFacade {
 
     private final UserService userService;
 
-    @PostMapping("/createManager")
-    public ResponseEntity<?> createManager(@RequestBody User user) {
-        if (userService.existsByEmail(user.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
-        }
-
-        user.setRole(UserRole.MANAGER);
-        User savedUser = userService.saveUser(user);
-        return ResponseEntity.ok(savedUser);
-    }
-
     @PostMapping("/createStaff")
     public ResponseEntity<?> createStaff(@RequestBody User user) {
         if (userService.existsByEmail(user.getEmail())) {

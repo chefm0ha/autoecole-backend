@@ -54,20 +54,4 @@ public class AuthenticationHelper {
         UserRole currentRole = getCurrentUserRole();
         return currentRole == UserRole.STAFF;
     }
-
-    /**
-     * Check if the current user is a manager
-     */
-    public boolean isCurrentUserManager() {
-        UserRole currentRole = getCurrentUserRole();
-        return currentRole == UserRole.MANAGER;
-    }
-
-    /**
-     * Get the email of the currently authenticated user
-     */
-    public String getCurrentUserEmail() {
-        User currentUser = getCurrentUser();
-        return currentUser != null ? currentUser.getEmail() : null;
-    }
 }

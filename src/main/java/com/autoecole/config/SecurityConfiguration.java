@@ -68,6 +68,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.cors().and().csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/auth/login", "/auth/validate", "/auth/logout-success").permitAll()
+                .antMatchers("/ws/**").authenticated()
                 .antMatchers("/user/**").hasRole("ADMIN")
                 .antMatchers("/paymentInstallment/validatePaymentInstallment/**").hasRole("ADMIN")
                 .anyRequest().authenticated()

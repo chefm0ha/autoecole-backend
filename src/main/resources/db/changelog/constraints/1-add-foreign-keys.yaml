@@ -116,3 +116,25 @@ databaseChangeLog:
             referencedColumnNames: immatriculation
             onDelete: CASCADE
             onUpdate: CASCADE
+
+  - changeSet:
+        id: add-notification-foreign-keys
+        author: dev
+        comment: Add foreign key constraints for notification table
+        changes:
+            - addForeignKeyConstraint:
+                  baseTableName: notification
+                  baseColumnNames: exam_id
+                  constraintName: fk_notification_exam
+                  referencedTableName: exam
+                  referencedColumnNames: id
+                  onDelete: CASCADE
+                  onUpdate: CASCADE
+            - addForeignKeyConstraint:
+                  baseTableName: notification
+                  baseColumnNames: user_id
+                  constraintName: fk_notification_user
+                  referencedTableName: user
+                  referencedColumnNames: id
+                  onDelete: CASCADE
+                  onUpdate: CASCADE

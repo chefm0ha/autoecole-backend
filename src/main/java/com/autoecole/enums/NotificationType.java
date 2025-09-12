@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter @AllArgsConstructor
-public enum UserRole {
-    ADMIN("Administrator with full access"),
-    STAFF("Staff member with basic access");
+public enum NotificationType {
+    EXAM_REMINDER("Exam reminder notification"),
+    SYSTEM_ALERT("System alert notification");
 
     private final String description;
 }
