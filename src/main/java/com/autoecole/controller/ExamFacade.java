@@ -67,6 +67,11 @@ public class ExamFacade {
 	@GetMapping("/getScheduledExamsThisWeek")
 	public List<Exam> getScheduledExamsThisWeek() { return examService.getScheduledExamsThisWeek(); }
 
+	@GetMapping("/getComingExams")
+	public List<ExamResponseDTO> getComingExams(@RequestParam(defaultValue = "10") int size) {
+		return examService.getComingExams(size);
+	}
+
 	@GetMapping("/getPassedExams/{examType}")
 	public int getPassedExamsByExamType(@PathVariable ExamType examType,
 										@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

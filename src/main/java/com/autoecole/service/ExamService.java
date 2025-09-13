@@ -6,6 +6,7 @@ import com.autoecole.dto.response.ExamResponseDTO;
 import com.autoecole.enums.ExamStatus;
 import com.autoecole.enums.ExamType;
 import com.autoecole.model.Exam;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -21,4 +22,5 @@ public interface ExamService {
 	List<Exam> getScheduledExamsThisWeek();
 	int getPassedExamsByExamType(ExamType examType,LocalDate startDate, LocalDate endDate);
 	int getTotalExamsByExamType(ExamType examType, LocalDate startDate, LocalDate endDate);
+	List<ExamResponseDTO> getComingExams(int size);
 }

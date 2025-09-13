@@ -3,6 +3,7 @@ package com.autoecole.service.impl;
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
+import com.autoecole.dto.response.VehicleDTO;
 import com.autoecole.enums.*;
 import com.autoecole.exception.BusinessException;
 import com.autoecole.exception.NotFoundException;
@@ -13,12 +14,15 @@ import com.autoecole.repository.VehicleDao;
 import com.autoecole.service.ApplicationFileService;
 import com.autoecole.service.ExamService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -81,6 +85,16 @@ public class ExamServiceImpl implements ExamService {
 		return exams.stream()
 				.map(ExamResponseDTO::fromEntity)
 				.toList();
+	}
+
+	@Override
+	public List<ExamResponseDTO> getComingExams(int size) {
+		PageRequest pageRequest = PageRequest.of(0, size);
+		List<Exam> exams = examDao.findByDateAfterOrderByDateAsc(LocalDate.now(), pageRequest);
+
+		return exams.stream()
+				.map(ExamResponseDTO::fromEntity)
+				.collect(Collectors.toList());
 	}
 
 	@Override
