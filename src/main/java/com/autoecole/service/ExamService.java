@@ -3,6 +3,8 @@ package com.autoecole.service;
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
+import com.autoecole.enums.ExamStatus;
+import com.autoecole.enums.ExamType;
 import com.autoecole.model.Exam;
 
 import java.time.LocalDate;
@@ -17,4 +19,6 @@ public interface ExamService {
 	List<CalendarExamDTO> getExamsByMonth(int year, int month);
 	List<CalendarExamDTO> getExamsByDate(LocalDate date);
 	List<Exam> getScheduledExamsThisWeek();
+	int getPassedExamsByExamType(ExamType examType,LocalDate startDate, LocalDate endDate);
+	int getTotalExamsByExamType(ExamType examType, LocalDate startDate, LocalDate endDate);
 }

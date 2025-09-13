@@ -140,6 +140,20 @@ public class ExamServiceImpl implements ExamService {
 		return examDao.findByDateBetween(startDate, endDate);
 	}
 
+	@Override
+	public int getPassedExamsByExamType(ExamType examType,LocalDate startDate, LocalDate endDate) {
+		return examDao.countByExamTypeAndStatusAndDateBetween(
+				examType, ExamStatus.PASSED, startDate, endDate
+		);
+	}
+
+	@Override
+	public int getTotalExamsByExamType(ExamType examType, LocalDate startDate, LocalDate endDate) {
+		return examDao.countAllByExamTypeAndDateBetween(
+				examType, startDate, endDate
+		);
+	}
+
 	// ==================== PRIVATE VALIDATION METHODS ====================
 
 	private ApplicationFile validateApplicationFile(Long applicationFileId) {

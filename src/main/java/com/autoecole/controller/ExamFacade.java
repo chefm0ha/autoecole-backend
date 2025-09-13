@@ -3,6 +3,7 @@ package com.autoecole.controller;
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
+import com.autoecole.enums.ExamType;
 import com.autoecole.model.Exam;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -65,4 +66,16 @@ public class ExamFacade {
 
 	@GetMapping("/getScheduledExamsThisWeek")
 	public List<Exam> getScheduledExamsThisWeek() { return examService.getScheduledExamsThisWeek(); }
+
+	@GetMapping("/getPassedExams/{examType}")
+	public int getPassedExamsByExamType(@PathVariable ExamType examType,
+										@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+										@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate)
+	{ return examService.getPassedExamsByExamType(examType, startDate, endDate); }
+
+	@GetMapping("/getTotalExams/{examType}")
+	public int getTotalExamsByExamType(@PathVariable ExamType examType,
+									   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+									   @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate)
+	{ return examService.getTotalExamsByExamType(examType, startDate, endDate); }
 }
