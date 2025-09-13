@@ -1,0 +1,15 @@
+meta {
+  name: Get N Next Exams
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/exam/getComingExams?size=12
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

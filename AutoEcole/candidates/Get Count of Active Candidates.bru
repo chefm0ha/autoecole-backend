@@ -1,0 +1,15 @@
+meta {
+  name: Get Count of Active Candidates
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/candidate/activeCandidatesNumber
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
