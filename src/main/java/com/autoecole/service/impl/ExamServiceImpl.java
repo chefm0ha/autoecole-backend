@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -142,6 +143,12 @@ public class ExamServiceImpl implements ExamService {
 
 	@Override
 	public int getPassedExamsByExamType(ExamType examType,LocalDate startDate, LocalDate endDate) {
+		validateNotNull(Map.of(
+				"examType", examType,
+				"startDate", startDate,
+				"endDate", endDate
+		));
+
 		return examDao.countByExamTypeAndStatusAndDateBetween(
 				examType, ExamStatus.PASSED, startDate, endDate
 		);
@@ -149,12 +156,25 @@ public class ExamServiceImpl implements ExamService {
 
 	@Override
 	public int getTotalExamsByExamType(ExamType examType, LocalDate startDate, LocalDate endDate) {
+		validateNotNull(Map.of(
+				"examType", examType,
+				"startDate", startDate,
+				"endDate", endDate
+		));
+
 		return examDao.countAllByExamTypeAndDateBetween(
 				examType, startDate, endDate
 		);
 	}
 
 	// ==================== PRIVATE VALIDATION METHODS ====================
+	private void validateNotNull(Map<String, Object> params) {
+		for (Map.Entry<String, Object> entry : params.entrySet()) {
+			if (entry.getValue() == null) {
+				throw new IllegalArgumentException(entry.getKey() + " must not be null");
+			}
+		}
+	}
 
 	private ApplicationFile validateApplicationFile(Long applicationFileId) {
 		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
