@@ -1,0 +1,15 @@
+meta {
+  name: Get Count of scheduled exams this week
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/exam/getScheduledExamsThisWeekCount
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

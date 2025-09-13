@@ -1,0 +1,15 @@
+meta {
+  name: Get Sucess Rate Of Current Month
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/exam/getSuccessRateCurrentMonth
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}

@@ -1,11 +1,11 @@
 meta {
-  name: Get N Next Exams
+  name: Get 10 Coming Exams
   type: http
-  seq: 5
+  seq: 8
 }
 
 get {
-  url: {{baseUrl}}/exam/getComingExams?size=12
+  url: {{baseUrl}}/exam/getComingExams
   body: none
   auth: inherit
 }

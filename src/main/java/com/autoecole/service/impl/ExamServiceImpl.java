@@ -3,7 +3,6 @@ package com.autoecole.service.impl;
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
-import com.autoecole.dto.response.VehicleDTO;
 import com.autoecole.enums.*;
 import com.autoecole.exception.BusinessException;
 import com.autoecole.exception.NotFoundException;
@@ -15,14 +14,13 @@ import com.autoecole.service.ApplicationFileService;
 import com.autoecole.service.ExamService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -88,13 +86,13 @@ public class ExamServiceImpl implements ExamService {
 	}
 
 	@Override
-	public List<ExamResponseDTO> getComingExams(int size) {
-		PageRequest pageRequest = PageRequest.of(0, size);
+	public List<ExamResponseDTO> getComingExams() {
+		PageRequest pageRequest = PageRequest.of(0, 10);
 		List<Exam> exams = examDao.findByDateAfterOrderByDateAsc(LocalDate.now(), pageRequest);
 
 		return exams.stream()
 				.map(ExamResponseDTO::fromEntity)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	@Override
@@ -145,50 +143,17 @@ public class ExamServiceImpl implements ExamService {
 	}
 
 	@Override
-	public List<Exam> getScheduledExamsThisWeek() {
+	public Long getScheduledExamsThisWeekCount() {
 		LocalDate today = LocalDate.now();
 		int dayNumber = today.getDayOfWeek().getValue();
 
 		LocalDate startDate = today.minusDays(dayNumber - 1);
 		LocalDate endDate = startDate.plusDays(6);
 
-		return examDao.findByDateBetween(startDate, endDate);
-	}
-
-	@Override
-	public int getPassedExamsByExamType(ExamType examType,LocalDate startDate, LocalDate endDate) {
-		validateNotNull(Map.of(
-				"examType", examType,
-				"startDate", startDate,
-				"endDate", endDate
-		));
-
-		return examDao.countByExamTypeAndStatusAndDateBetween(
-				examType, ExamStatus.PASSED, startDate, endDate
-		);
-	}
-
-	@Override
-	public int getTotalExamsByExamType(ExamType examType, LocalDate startDate, LocalDate endDate) {
-		validateNotNull(Map.of(
-				"examType", examType,
-				"startDate", startDate,
-				"endDate", endDate
-		));
-
-		return examDao.countAllByExamTypeAndDateBetween(
-				examType, startDate, endDate
-		);
+		return examDao.countScheduledExamsByDateBetween(startDate, endDate);
 	}
 
 	// ==================== PRIVATE VALIDATION METHODS ====================
-	private void validateNotNull(Map<String, Object> params) {
-		for (Map.Entry<String, Object> entry : params.entrySet()) {
-			if (entry.getValue() == null) {
-				throw new IllegalArgumentException(entry.getKey() + " must not be null");
-			}
-		}
-	}
 
 	private ApplicationFile validateApplicationFile(Long applicationFileId) {
 		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);
@@ -404,5 +369,40 @@ public class ExamServiceImpl implements ExamService {
 
 		applicationFile.setStatus(newStatus);
 		applicationFileService.updateApplicationFile(applicationFile.getId(), applicationFile);
+	}
+
+	// Add to ExamServiceImpl.java
+	@Override
+	public Map<String, Object> getSuccessRateCurrentMonth() {
+		LocalDate now = LocalDate.now();
+		LocalDate startOfMonth = now.withDayOfMonth(1);
+		LocalDate endOfMonth = now.withDayOfMonth(now.lengthOfMonth());
+
+		// Get counts for theory exams
+		int theoryTotal = examDao.countAllByExamTypeAndDateBetween(ExamType.THEORY, startOfMonth, endOfMonth);
+		int theoryPassed = examDao.countByExamTypeAndStatusAndDateBetween(ExamType.THEORY, ExamStatus.PASSED, startOfMonth, endOfMonth);
+
+		// Get counts for practical exams
+		int practicalTotal = examDao.countAllByExamTypeAndDateBetween(ExamType.PRACTICAL, startOfMonth, endOfMonth);
+		int practicalPassed = examDao.countByExamTypeAndStatusAndDateBetween(ExamType.PRACTICAL, ExamStatus.PASSED, startOfMonth, endOfMonth);
+
+		// Calculate success rates
+		double theorySuccessRate = theoryTotal > 0 ? (double) theoryPassed / theoryTotal * 100 : 0.0;
+		double practicalSuccessRate = practicalTotal > 0 ? (double) practicalPassed / practicalTotal * 100 : 0.0;
+		double overallSuccessRate = (theoryTotal + practicalTotal) > 0 ?
+				(double) (theoryPassed + practicalPassed) / (theoryTotal + practicalTotal) * 100 : 0.0;
+
+		Map<String, Object> result = new HashMap<>();
+		result.put("month", now.getMonth().name());
+		result.put("year", now.getYear());
+		result.put("theorySuccessRate", Math.round(theorySuccessRate * 100.0) / 100.0);
+		result.put("practicalSuccessRate", Math.round(practicalSuccessRate * 100.0) / 100.0);
+		result.put("overallSuccessRate", Math.round(overallSuccessRate * 100.0) / 100.0);
+		result.put("theoryTotal", theoryTotal);
+		result.put("theoryPassed", theoryPassed);
+		result.put("practicalTotal", practicalTotal);
+		result.put("practicalPassed", practicalPassed);
+
+		return result;
 	}
 }

@@ -43,31 +43,23 @@ public interface ExamDao extends CrudRepository<Exam, Long>, JpaSpecificationExe
 			"ORDER BY e.examType ASC, c.lastName ASC, c.firstName ASC")
 	List<Exam> findExamsByDate(@Param("date") LocalDate date);
 
-	@Query("SELECT e FROM Exam e " +
-			"JOIN FETCH e.applicationFile af " +
-			"JOIN FETCH af.candidate c " +
-			"JOIN FETCH af.category cat " +
-			"WHERE e.date BETWEEN :startDate AND :endDate " +
-			"ORDER BY e.date ASC, e.examType ASC, c.lastName ASC, c.firstName ASC")
-	List<Exam> findExamsByDateRange(
+	Long countScheduledExamsByDateBetween(LocalDate startDate, LocalDate endDate);
+
+	@Query("SELECT e FROM Exam e WHERE e.date > :date ORDER BY e.date ASC")
+	List<Exam> findByDateAfterOrderByDateAsc(@Param("date") LocalDate date, Pageable pageable);
+
+	@Query("SELECT COUNT(e) FROM Exam e WHERE e.examType = :examType AND e.date BETWEEN :startDate AND :endDate")
+	int countAllByExamTypeAndDateBetween(
+			@Param("examType") ExamType examType,
 			@Param("startDate") LocalDate startDate,
 			@Param("endDate") LocalDate endDate
 	);
 
-	// Additional useful query for getting all scheduled exams
-	@Query("SELECT e FROM Exam e " +
-			"JOIN FETCH e.applicationFile af " +
-			"JOIN FETCH af.candidate c " +
-			"JOIN FETCH af.category cat " +
-			"WHERE e.status = 'SCHEDULED' AND e.date >= :fromDate " +
-			"ORDER BY e.date ASC, e.examType ASC, c.lastName ASC, c.firstName ASC")
-	List<Exam> findScheduledExamsFromDate(@Param("fromDate") LocalDate fromDate);
-
-	List<Exam> findByDateBetween(LocalDate startDate, LocalDate endDate);
-
-	int countByExamTypeAndStatusAndDateBetween(ExamType examType, ExamStatus status, LocalDate startDate, LocalDate endDate);
-
-	int countAllByExamTypeAndDateBetween(ExamType examType, LocalDate dateAfter, LocalDate dateBefore);
-
-	List<Exam> findByDateAfterOrderByDateAsc(LocalDate date, Pageable pageable);
+	@Query("SELECT COUNT(e) FROM Exam e WHERE e.examType = :examType AND e.status = :status AND e.date BETWEEN :startDate AND :endDate")
+	int countByExamTypeAndStatusAndDateBetween(
+			@Param("examType") ExamType examType,
+			@Param("status") ExamStatus status,
+			@Param("startDate") LocalDate startDate,
+			@Param("endDate") LocalDate endDate
+	);
 }
