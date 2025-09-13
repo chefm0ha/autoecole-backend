@@ -1,9 +1,11 @@
 package com.autoecole.service.impl;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
+import com.autoecole.dto.response.VehicleDTO;
 import com.autoecole.model.Category;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -62,11 +64,15 @@ public class VehicleServiceImpl implements VehicleService {
 	}
 
 	@Override
-	public Collection<Vehicle> findVehicleByCode(Long AppFileId) {
+	public Collection<VehicleDTO> findVehicleByCode(Long AppFileId) {
 		Category category = applicationFileDao.findById(AppFileId)
 				.map(ApplicationFile::getCategory)
 				.orElseThrow(() -> new EntityNotFoundException("ApplicationFile not found with id: " + AppFileId));
 
-		return vehicleDao.findVehicleByCategory(category.getCode());
+		Collection<Vehicle> vehicles = vehicleDao.findVehicleByCategory(category.getCode());
+
+		return vehicles.stream()
+				.map(VehicleDTO::fromEntity)
+				.collect(Collectors.toList());
 	}
 }

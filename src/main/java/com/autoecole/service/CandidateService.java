@@ -16,4 +16,5 @@ public interface CandidateService {
 	Page<CandidateListDTO> findActiveCandidatesDTO(Boolean isActive, Pageable pageable);
 	Page<CandidateListDTO> searchCandidatesDTO(CandidateSearchDTO searchCriteria, Pageable pageable);
 	CandidateDetailsDTO getCandidateDetails(String cin);
+	Long countActiveCandidates();
 }

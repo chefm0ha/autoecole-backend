@@ -62,6 +62,9 @@ public class CandidateFacade {
 		return candidateService.findActiveCandidatesDTO(true, pageable);
 	}
 
+	@GetMapping("/activeCandidatesNumber")
+	public Long getActiveCandidatesNumber() { return candidateService.countActiveCandidates(); }
+
 	@GetMapping("/search")
 	public Page<CandidateListDTO> searchCandidatesWithParams(
 			@RequestParam(required = false) String firstName,

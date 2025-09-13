@@ -1,6 +1,9 @@
 package com.autoecole.repository;
 
+import com.autoecole.enums.ExamStatus;
+import com.autoecole.enums.ExamType;
 import com.autoecole.model.ApplicationFile;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -59,4 +62,12 @@ public interface ExamDao extends CrudRepository<Exam, Long>, JpaSpecificationExe
 			"WHERE e.status = 'SCHEDULED' AND e.date >= :fromDate " +
 			"ORDER BY e.date ASC, e.examType ASC, c.lastName ASC, c.firstName ASC")
 	List<Exam> findScheduledExamsFromDate(@Param("fromDate") LocalDate fromDate);
+
+	List<Exam> findByDateBetween(LocalDate startDate, LocalDate endDate);
+
+	int countByExamTypeAndStatusAndDateBetween(ExamType examType, ExamStatus status, LocalDate startDate, LocalDate endDate);
+
+	int countAllByExamTypeAndDateBetween(ExamType examType, LocalDate dateAfter, LocalDate dateBefore);
+
+	List<Exam> findByDateAfterOrderByDateAsc(LocalDate date, Pageable pageable);
 }

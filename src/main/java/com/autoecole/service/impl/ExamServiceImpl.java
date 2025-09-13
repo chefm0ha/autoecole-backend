@@ -3,6 +3,7 @@ package com.autoecole.service.impl;
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
+import com.autoecole.dto.response.VehicleDTO;
 import com.autoecole.enums.*;
 import com.autoecole.exception.BusinessException;
 import com.autoecole.exception.NotFoundException;
@@ -13,11 +14,15 @@ import com.autoecole.repository.VehicleDao;
 import com.autoecole.service.ApplicationFileService;
 import com.autoecole.service.ExamService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -83,6 +88,16 @@ public class ExamServiceImpl implements ExamService {
 	}
 
 	@Override
+	public List<ExamResponseDTO> getComingExams(int size) {
+		PageRequest pageRequest = PageRequest.of(0, size);
+		List<Exam> exams = examDao.findByDateAfterOrderByDateAsc(LocalDate.now(), pageRequest);
+
+		return exams.stream()
+				.map(ExamResponseDTO::fromEntity)
+				.collect(Collectors.toList());
+	}
+
+	@Override
 	public Exam updateExamStatus(Long examId, String newStatus) {
 		// 1. Validate exam exists
 		Exam exam = validateExamExists(examId);
@@ -129,7 +144,51 @@ public class ExamServiceImpl implements ExamService {
 				.toList();
 	}
 
+	@Override
+	public List<Exam> getScheduledExamsThisWeek() {
+		LocalDate today = LocalDate.now();
+		int dayNumber = today.getDayOfWeek().getValue();
+
+		LocalDate startDate = today.minusDays(dayNumber - 1);
+		LocalDate endDate = startDate.plusDays(6);
+
+		return examDao.findByDateBetween(startDate, endDate);
+	}
+
+	@Override
+	public int getPassedExamsByExamType(ExamType examType,LocalDate startDate, LocalDate endDate) {
+		validateNotNull(Map.of(
+				"examType", examType,
+				"startDate", startDate,
+				"endDate", endDate
+		));
+
+		return examDao.countByExamTypeAndStatusAndDateBetween(
+				examType, ExamStatus.PASSED, startDate, endDate
+		);
+	}
+
+	@Override
+	public int getTotalExamsByExamType(ExamType examType, LocalDate startDate, LocalDate endDate) {
+		validateNotNull(Map.of(
+				"examType", examType,
+				"startDate", startDate,
+				"endDate", endDate
+		));
+
+		return examDao.countAllByExamTypeAndDateBetween(
+				examType, startDate, endDate
+		);
+	}
+
 	// ==================== PRIVATE VALIDATION METHODS ====================
+	private void validateNotNull(Map<String, Object> params) {
+		for (Map.Entry<String, Object> entry : params.entrySet()) {
+			if (entry.getValue() == null) {
+				throw new IllegalArgumentException(entry.getKey() + " must not be null");
+			}
+		}
+	}
 
 	private ApplicationFile validateApplicationFile(Long applicationFileId) {
 		ApplicationFile applicationFile = applicationFileService.findById(applicationFileId);

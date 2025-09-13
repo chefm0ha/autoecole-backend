@@ -406,4 +406,9 @@ public class CandidateServiceImpl implements CandidateService {
 		String morrocanPattern = "^(\\+212[5-7]\\d{8}|0[5-7]\\d{8})$";
 		return gsm.replaceAll("\\s", "").matches(morrocanPattern);
 	}
+
+	@Override
+	public Long countActiveCandidates() {
+		return candidateDao.countByIsActive(Boolean.TRUE);
+	}
 }
