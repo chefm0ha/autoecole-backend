@@ -2,6 +2,7 @@ package com.autoecole.service.impl;
 
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
+import com.autoecole.dto.response.ComingExamDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
 import com.autoecole.enums.*;
 import com.autoecole.exception.BusinessException;
@@ -61,7 +62,17 @@ public class ExamServiceImpl implements ExamService {
 
 		// 8. Create and save exam
 		Exam sourceExam = buildExam(examRequest, examType, examStatus, attemptNumber);
-		Exam exam = examMapper.toEntity(sourceExam, applicationFile);
+
+		// For practical exams, find and assign the vehicle
+		Vehicle vehicle = null;
+		if (examType == ExamType.PRACTICAL && examRequest.getImmatriculation() != null) {
+			vehicle = vehicleDao.findByImmatriculation(examRequest.getImmatriculation());
+			if (vehicle == null) {
+				throw new NotFoundException("Vehicle not found with immatriculation: " + examRequest.getImmatriculation());
+			}
+		}
+
+		Exam exam = examMapper.toEntity(sourceExam, applicationFile, vehicle);
 		Exam savedExam = examDao.save(exam);
 
 		// 9. Handle vehicle quota for practical exams
@@ -86,12 +97,12 @@ public class ExamServiceImpl implements ExamService {
 	}
 
 	@Override
-	public List<ExamResponseDTO> getComingExams() {
+	public List<ComingExamDTO> getComingExams() {
 		PageRequest pageRequest = PageRequest.of(0, 10);
 		List<Exam> exams = examDao.findByDateAfterOrderByDateAsc(LocalDate.now(), pageRequest);
 
 		return exams.stream()
-				.map(ExamResponseDTO::fromEntity)
+				.map(ComingExamDTO::fromEntity)
 				.toList();
 	}
 

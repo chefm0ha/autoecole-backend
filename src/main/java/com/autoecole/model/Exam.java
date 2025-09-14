@@ -39,4 +39,8 @@ public class Exam {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "application_file_id")
 	private ApplicationFile applicationFile;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "vehicle_id")
+	private Vehicle vehicle;
 }

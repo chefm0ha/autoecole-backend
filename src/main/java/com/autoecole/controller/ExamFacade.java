@@ -2,6 +2,7 @@ package com.autoecole.controller;
 
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
+import com.autoecole.dto.response.ComingExamDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -69,7 +70,7 @@ public class ExamFacade {
 	}
 
 	@GetMapping("/getComingExams")
-	public List<ExamResponseDTO> getComingExams() {
+	public List<ComingExamDTO> getComingExams() {
 		return examService.getComingExams();
 	}
 

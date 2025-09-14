@@ -45,7 +45,13 @@ public interface ExamDao extends CrudRepository<Exam, Long>, JpaSpecificationExe
 
 	Long countScheduledExamsByDateBetween(LocalDate startDate, LocalDate endDate);
 
-	@Query("SELECT e FROM Exam e WHERE e.date > :date ORDER BY e.date ASC")
+	@Query("SELECT e FROM Exam e " +
+			"JOIN FETCH e.applicationFile af " +
+			"JOIN FETCH af.candidate c " +
+			"JOIN FETCH af.category cat " +
+			"LEFT JOIN FETCH e.vehicle v " +
+			"WHERE e.date > :date " +
+			"ORDER BY e.date ASC")
 	List<Exam> findByDateAfterOrderByDateAsc(@Param("date") LocalDate date, Pageable pageable);
 
 	@Query("SELECT COUNT(e) FROM Exam e WHERE e.examType = :examType AND e.date BETWEEN :startDate AND :endDate")

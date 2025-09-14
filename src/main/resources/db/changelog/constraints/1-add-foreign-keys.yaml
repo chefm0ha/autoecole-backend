@@ -86,6 +86,14 @@ databaseChangeLog:
             referencedColumnNames: id
             onDelete: CASCADE
             onUpdate: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: exam
+            baseColumnNames: vehicle_id
+            constraintName: fk_exam_vehicle
+            referencedTableName: vehicle
+            referencedColumnNames: immatriculation
+            onDelete: SET NULL
+            onUpdate: CASCADE
 
   - changeSet:
       id: add-vehicle-related-foreign-keys

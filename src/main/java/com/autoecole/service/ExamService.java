@@ -2,6 +2,7 @@ package com.autoecole.service;
 
 import com.autoecole.dto.response.CalendarExamDTO;
 import com.autoecole.dto.request.ExamRequestDTO;
+import com.autoecole.dto.response.ComingExamDTO;
 import com.autoecole.dto.response.ExamResponseDTO;
 import com.autoecole.model.Exam;
 
@@ -18,6 +19,6 @@ public interface ExamService {
 	List<CalendarExamDTO> getExamsByMonth(int year, int month);
 	List<CalendarExamDTO> getExamsByDate(LocalDate date);
 	Long getScheduledExamsThisWeekCount();
-	List<ExamResponseDTO> getComingExams();
+	List<ComingExamDTO> getComingExams();
 	Map<String, Object> getSuccessRateCurrentMonth();
 }
